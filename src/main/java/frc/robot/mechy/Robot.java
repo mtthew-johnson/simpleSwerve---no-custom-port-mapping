@@ -1,0 +1,78 @@
+package frc.robot.mechy;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.RobotBase;
+import frc.robot.Xinput;
+import frc.robot.subsystems.MechyDrive;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
+public class Robot extends RobotBase {
+	
+	public MechyDrive drive;
+	private Command autonomousCommand;
+
+	public Robot() {
+		super("Mechy");
+
+		int mainJoystick = 0;
+
+		JoystickButton joystickStart = new JoystickButton(new Joystick(mainJoystick), Xinput.Start);
+
+		port("leftFrontMotor", 1);
+		port("rightFrontMotor", 2);
+		port("leftBackMotor", 3);
+		port("rightBackMotor", 4);
+
+		axis("forward", mainJoystick, Xinput.LeftStickY);
+		axis("side", mainJoystick, Xinput.LeftStickX);
+		axis("turn", mainJoystick, Xinput.RightStickX);
+
+		joystickStart.whenPressed(new InstantCommand(() -> {
+
+			drive.drivePOV = !drive.drivePOV;
+			drive.gyro.reset();
+
+		}));
+		button("driveModeToggle", mainJoystick, Xinput.Start);
+		button("safeModeToggle", () -> button(0, Xinput.LeftStickIn) && button(0, Xinput.RightStickIn));
+
+		drive = addSubsystem(MechyDrive::new);
+
+	}
+
+	@Override
+	public void teleopInit() {
+		if (autonomousCommand != null)
+			autonomousCommand.cancel();
+	}
+
+	@Override
+	public void teleopPeriodic() {
+		CommandScheduler.getInstance().run();
+	}
+
+	@Override
+	public void testPeriodic() {
+		CommandScheduler.getInstance().run();
+		
+	}
+
+	@Override
+	public void disabledInit() {
+		
+	}
+
+	@Override
+	public void autonomousInit() {
+
+	}
+
+	@Override
+	public void autonomousPeriodic() {
+		CommandScheduler.getInstance().run();
+	}
+
+}
