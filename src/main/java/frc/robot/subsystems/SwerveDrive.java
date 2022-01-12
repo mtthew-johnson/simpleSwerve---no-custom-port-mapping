@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.hal.EncoderJNI;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
@@ -20,10 +21,15 @@ public class SwerveDrive extends SubsystemBase {
 
     private final double SPEED = 0.7;
     
-    private double Kp = 0.04;
-	private double Ki = 0;
-	private double Kd = 0.002;
-	private double correction = 0;
+    private double KpDrive = 0.04;
+	private double KiDrive = 0;
+	private double KdDrive = 0.002;
+    
+    private double KpAngle = 0.04;
+	private double KiAngle = 0;
+	private double KdAngle = 0.002;
+	
+    private double correction = 0;
 	private double prevAngle = 0;
 	private double angleCompensation = 0;
 
@@ -40,7 +46,10 @@ public class SwerveDrive extends SubsystemBase {
     private boolean drivePOV = false;
     private boolean safeMode = false;
 
-    public ADXRS450_Gyro gyro;
+    private ADXRS450_Gyro gyro;
+    
+    private PIDController pidDrive;
+    private PIDController pidAngle;
 
     
 
@@ -50,6 +59,10 @@ public class SwerveDrive extends SubsystemBase {
        
         initMotors();
         configureGyro();
+        configurePID();
+
+        reset();
+        initDefaultCommand();
         
     }
 
@@ -86,8 +99,8 @@ public class SwerveDrive extends SubsystemBase {
         
         frontRightAngleMotor.set(ControlMode.Position, 0);
         frontLeftSAngleMotor.set(ControlMode.Position, 0);
-        backRightAngleMotor.set(ControlMode.Position, 0);
-        backLeftAngleMotor.set(ControlMode.Position, 0);
+        backRightAngleMotor.set(ControlMode.Position,  0);
+        backLeftAngleMotor.set(ControlMode.Position,   0);
 
     
         frontRightAngleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
@@ -111,7 +124,7 @@ public class SwerveDrive extends SubsystemBase {
         FWD = temp;
 
         final double PI = Math.PI;
-        final double L = 0; //TODO find vehicle wheelbase
+        final double L = 0; //TODO find vehicle wheelbase //units don't matter as it's a ratio
         final double W = 0; //TODO find vehicle trackwidth
         final double R = Math.sqrt(Math.pow(L, 2) + Math.pow(W, 2));
 
@@ -169,11 +182,6 @@ public class SwerveDrive extends SubsystemBase {
         frontLeftSAngleMotor.set(ControlMode.Position, frontLeftWheelAngle);
         backRightAngleMotor.set(ControlMode.Position,  backLeftWheelAngle);
         backLeftAngleMotor.set(ControlMode.Position,   backRightWheelAngle);
-    
-
-
-
-
     }
 
 
@@ -182,6 +190,13 @@ public class SwerveDrive extends SubsystemBase {
 		
 		gyro = new ADXRS450_Gyro();
 		gyro.reset();
+
+	}
+
+    private void configurePID() {
+		
+		pidDrive = new PIDController(KpDrive, KiDrive, KdDrive);
+        pidAngle = new PIDController(KpAngle, KiAngle, KdAngle);
 
 	}
 
@@ -230,7 +245,7 @@ public class SwerveDrive extends SubsystemBase {
 				
 				}
 
-                
+
                 calculateDrive(axis("forward"), axis("strafe"), axis("rotate"), gyro.getAngle());
 				
 			}
@@ -243,9 +258,13 @@ public class SwerveDrive extends SubsystemBase {
 	public void initSendable(SendableBuilder builder) {
 
 		super.initSendable(builder);
-		builder.addDoubleProperty("P", () -> Kp, (value) -> Kp = value);
-		builder.addDoubleProperty("I", () -> Ki, (value) -> Ki = value);
-		builder.addDoubleProperty("D", () -> Kd, (value) -> Kd = value);
+		builder.addDoubleProperty("PDrive", () -> KpDrive, (value) -> KpDrive = value);
+		builder.addDoubleProperty("IDrive", () -> KiDrive, (value) -> KiDrive = value);
+		builder.addDoubleProperty("DDrive", () -> KdDrive, (value) -> KdDrive = value);
+
+        builder.addDoubleProperty("PAngle", () -> KpAngle, (value) -> KpAngle = value);
+		builder.addDoubleProperty("IAngle", () -> KiAngle, (value) -> KiAngle = value);
+		builder.addDoubleProperty("DAngle", () -> KdAngle, (value) -> KdAngle = value);
 
 		builder.addDoubleProperty("Forward", () -> axis("forward"), null);
 		builder.addDoubleProperty("Strafe", () -> axis("strafe"), null);
