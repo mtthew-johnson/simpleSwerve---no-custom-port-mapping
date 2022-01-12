@@ -14,6 +14,8 @@ import frc.robot.RobotBase;
 
 public class SwerveDrive extends SubsystemBase {
 
+    private final double SPEED = 0.7;
+    
     private double Kp = 0.04;
 	private double Ki = 0;
 	private double Kd = 0.002;
@@ -82,26 +84,27 @@ public class SwerveDrive extends SubsystemBase {
         frontLeftSpeedMotor.set(ControlMode.Current, 0);
         backRightSpeedMotor.set(ControlMode.Current, 0);
         backLeftSpeedMotor.set(ControlMode.Current, 0);
+        
         frontRightAngleMotor.set(ControlMode.Position, 0);
         frontLeftSAngleMotor.set(ControlMode.Position, 0);
         backRightAngleMotor.set(ControlMode.Position, 0);
         backLeftAngleMotor.set(ControlMode.Position, 0);
-        
+
+    
         frontRightAngleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
         frontLeftSAngleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
         backRightAngleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
         backLeftAngleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
+        
         frontRightSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
         frontLeftSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
         backRightSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
         backLeftSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-       
-     
-
+    
     
     }
     
-    private void calculateSpeed(double FWD, double STR, double RCW, double gryroAngle) {
+    private void calculateDrive(double FWD, double STR, double RCW, double gryroAngle) {
        
         double temp = FWD*Math.cos(gryroAngle) + STR*Math.sin(gryroAngle);
         
@@ -124,13 +127,12 @@ public class SwerveDrive extends SubsystemBase {
         double backRightWheelSpeed  = Math.sqrt(Math.pow(A, 2) + Math.pow(C, 2));
 
         double frontRightWheelAngle = Math.atan2(B, C) * (180 / PI);
-        double frontLeftWheelAngle  = Math.atan2(B, C) * (180 / PI);
-        double backLeftWheelAngle   = Math.atan2(B, C) * (180 / PI);
-        double backRightWheelAngle  = Math.atan2(B, C) * (180 / PI);
+        double frontLeftWheelAngle  = Math.atan2(B, D) * (180 / PI);
+        double backLeftWheelAngle   = Math.atan2(A, D) * (180 / PI);
+        double backRightWheelAngle  = Math.atan2(A, C) * (180 / PI);
 
         double max = frontRightWheelSpeed;
 
-        
         //normalize wheel speeds
         if(frontLeftWheelSpeed > max) {
             
@@ -144,21 +146,47 @@ public class SwerveDrive extends SubsystemBase {
             
             max = backRightWheelSpeed;
 
+        } else {
+
         }
 
-        frontRightWheelSpeed /= max;
-        frontLeftWheelSpeed  /= max;
-        backLeftWheelSpeed   /= max;
-        backRightWheelSpeed  /= max;
+        frontRightWheelSpeed = max * SPEED;
+        frontLeftWheelSpeed  = max * SPEED;
+        backLeftWheelSpeed   = max * SPEED;
+        backRightWheelSpeed  = max * SPEED;
+
+        //convert angle to talon ticks to set final angle/ 4096 ticks
+        frontRightWheelAngle = ((frontRightWheelAngle + 180) * (4095 / 360));
+        frontLeftWheelAngle  = ((frontLeftWheelAngle  + 180) * (4095 / 360));
+        backLeftWheelAngle   = ((backLeftWheelAngle   + 180) * (4095 / 360));
+        backRightWheelAngle  = ((backRightWheelAngle  + 180) * (4095 / 360));
+
+
+
+
 
     }
 
 
+    
     private void configureGyro() {
 		
 		gyro = new ADXRS450_Gyro();
 		gyro.reset();
 
+	}
+
+	@Override
+	public void periodic() {
+		
+	}
+
+	public void stop() {
+
+	}
+
+	public void reset() {
+		
 	}
     
 }
