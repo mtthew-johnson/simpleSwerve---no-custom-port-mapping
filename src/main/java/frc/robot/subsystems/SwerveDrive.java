@@ -8,8 +8,12 @@ import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.hal.EncoderJNI;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotBase;
 
 public class SwerveDrive extends SubsystemBase {
@@ -80,11 +84,6 @@ public class SwerveDrive extends SubsystemBase {
         backRightAngleMotor.setInverted(false);
         backLeftAngleMotor.setInverted(false);
         
-        frontRightSpeedMotor.set(ControlMode.Current, 0);
-        frontLeftSpeedMotor.set(ControlMode.Current, 0);
-        backRightSpeedMotor.set(ControlMode.Current, 0);
-        backLeftSpeedMotor.set(ControlMode.Current, 0);
-        
         frontRightAngleMotor.set(ControlMode.Position, 0);
         frontLeftSAngleMotor.set(ControlMode.Position, 0);
         backRightAngleMotor.set(ControlMode.Position, 0);
@@ -154,13 +153,23 @@ public class SwerveDrive extends SubsystemBase {
         frontLeftWheelSpeed  = max * SPEED;
         backLeftWheelSpeed   = max * SPEED;
         backRightWheelSpeed  = max * SPEED;
+        //set wheel speed
+        frontRightSpeedMotor.set(frontRightWheelSpeed);
+        frontLeftSpeedMotor.set(frontLeftWheelSpeed);
+        backRightSpeedMotor.set(backLeftWheelSpeed);
+        backLeftSpeedMotor.set(backRightWheelSpeed);
 
         //convert angle to talon ticks to set final angle/ 4096 ticks
         frontRightWheelAngle = ((frontRightWheelAngle + 180) * (4095 / 360));
         frontLeftWheelAngle  = ((frontLeftWheelAngle  + 180) * (4095 / 360));
         backLeftWheelAngle   = ((backLeftWheelAngle   + 180) * (4095 / 360));
         backRightWheelAngle  = ((backRightWheelAngle  + 180) * (4095 / 360));
-
+        //set wheel angle
+        frontRightAngleMotor.set(ControlMode.Position, frontRightWheelAngle);
+        frontLeftSAngleMotor.set(ControlMode.Position, frontLeftWheelAngle);
+        backRightAngleMotor.set(ControlMode.Position,  backLeftWheelAngle);
+        backLeftAngleMotor.set(ControlMode.Position,   backRightWheelAngle);
+    
 
 
 
@@ -186,6 +195,73 @@ public class SwerveDrive extends SubsystemBase {
 	}
 
 	public void reset() {
+		
+	}
+
+    protected void initDefaultCommand() {
+        setDefaultCommand(new CommandBase() {
+
+			double comboStartTime = 0;
+			boolean alreadyToggled = false;
+
+			{
+				addRequirements(SwerveDrive.this);
+				SendableRegistry.addChild(SwerveDrive.this, this);
+			}
+
+			@Override
+			public void execute() {
+                if (button("safeModeToggle")) {
+
+					if (comboStartTime == 0)
+						comboStartTime = Timer.getFPGATimestamp();
+					else if (Timer.getFPGATimestamp() - comboStartTime >= 3.0 && !alreadyToggled) {
+					
+						safeMode = !safeMode;
+						alreadyToggled = true;
+						System.out.println("Safemode is " + (safeMode ? "Enabled" : "Disabled") + ".");
+					
+					}
+
+				} else {
+
+					comboStartTime = 0;
+					alreadyToggled = false;
+				
+				}
+
+                
+                calculateDrive(axis("forward"), axis("strafe"), axis("rotate"), gyro.getAngle());
+				
+			}
+
+		}); // End set default command
+
+	} // End init default command
+
+	@Override
+	public void initSendable(SendableBuilder builder) {
+
+		super.initSendable(builder);
+		builder.addDoubleProperty("P", () -> Kp, (value) -> Kp = value);
+		builder.addDoubleProperty("I", () -> Ki, (value) -> Ki = value);
+		builder.addDoubleProperty("D", () -> Kd, (value) -> Kd = value);
+
+		builder.addDoubleProperty("Forward", () -> axis("forward"), null);
+		builder.addDoubleProperty("Strafe", () -> axis("strafe"), null);
+		builder.addDoubleProperty("Rotate", () -> axis("Rotate"), null);
+		builder.addDoubleProperty("prevAngle", () -> prevAngle, null);
+		builder.addBooleanProperty("isPOV", () -> drivePOV, null);
+		builder.addDoubleProperty("angleCompensation", () -> angleCompensation, null);
+		builder.addBooleanProperty("isSafeMode", () -> safeMode, null);
+		builder.addDoubleProperty("frontRightSpeedMotor", () -> frontRightSpeedMotor.get(), null);		
+		builder.addDoubleProperty("frontLeftSpeedMotor",  () -> frontLeftSpeedMotor.get(),  null);
+		builder.addDoubleProperty("backRightSpeedMotor",  () -> backRightSpeedMotor.get(),  null);
+		builder.addDoubleProperty("backLeftSpeedMotor",   () -> backLeftSpeedMotor.get(),   null);
+        builder.addDoubleProperty("frontRightAngleMotor", () -> frontRightAngleMotor.get(), null);		
+		builder.addDoubleProperty("frontLeftSAngleMotor", () -> frontLeftSAngleMotor.get(), null);
+		builder.addDoubleProperty("backRightAngleMotor",  () -> backRightAngleMotor.get(),  null);
+		builder.addDoubleProperty("backLeftAngleMotor",   () -> backLeftAngleMotor.get(),   null);
 		
 	}
     
