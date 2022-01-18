@@ -1,78 +1,71 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.rapidreact;
 
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-
-/**
- * The VM is configured to automatically run this class. If you change the name of this class or the
- * package after creating this project, you must also update the build.gradle file in the project.
- */
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.RobotBase;
+import frc.robot.Xinput;
+import frc.robot.subsystems.SwerveDrive;
 public class Robot extends RobotBase {
-  public void robotInit() {}
+	
+	public SwerveDrive drive;
+	private Command autonomousCommand;
 
-  public void disabled() {}
+	public Robot() {
+		super("Rapidreact");
 
-  public void autonomous() {}
+		int mainJoystick = 0;
 
-  public void teleop() {}
+        port("frontRightSpeedMotor", 0);
+        port("frontLeftSpeedMotor", 1);
+        port("backRightSpeedMotor", 2);
+        port("backLeftSpeedMotor", 3);
+        
+        port("frontRightAngleMotor", 4);
+        port("frontLeftSAngleMotor", 5);
+        port("backRightAngleMotor", 6);
+        port("backLeftAngleMotor", 7);
 
-  public void test() {}
+		axis("forward", mainJoystick, Xinput.LeftStickY);
+		axis("strafe", mainJoystick, Xinput.LeftStickX);
+		axis("rotate", mainJoystick, Xinput.RightStickX);
 
-  private volatile boolean m_exit;
+	
+		button("safeModeToggle", () -> button(0, Xinput.LeftStickIn) && button(0, Xinput.RightStickIn));
 
-  @Override
-  public void startCompetition() {
-    robotInit();
+		drive = addSubsystem(SwerveDrive::new);
 
-    // Tell the DS that the robot is ready to be enabled
-    HAL.observeUserProgramStarting();
+	}
 
-    while (!Thread.currentThread().isInterrupted() && !m_exit) {
-      if (isDisabled()) {
-        DriverStation.inDisabled(true);
-        disabled();
-        DriverStation.inDisabled(false);
-        while (isDisabled()) {
-          DriverStation.waitForData();
-        }
-      } else if (isAutonomous()) {
-        DriverStation.inAutonomous(true);
-        autonomous();
-        DriverStation.inAutonomous(false);
-        while (isAutonomousEnabled()) {
-          DriverStation.waitForData();
-        }
-      } else if (isTest()) {
-        LiveWindow.setEnabled(true);
-        Shuffleboard.enableActuatorWidgets();
-        DriverStation.inTest(true);
-        test();
-        DriverStation.inTest(false);
-        while (isTest() && isEnabled()) {
-          DriverStation.waitForData();
-        }
-        LiveWindow.setEnabled(false);
-        Shuffleboard.disableActuatorWidgets();
-      } else {
-        DriverStation.inTeleop(true);
-        teleop();
-        DriverStation.inTeleop(false);
-        while (isTeleopEnabled()) {
-          DriverStation.waitForData();
-        }
-      }
-    }
-  }
+	@Override
+	public void teleopInit() {
+		if (autonomousCommand != null)
+			autonomousCommand.cancel();
+	}
 
-  @Override
-  public void endCompetition() {
-    m_exit = true;
-  }
+	@Override
+	public void teleopPeriodic() {
+		CommandScheduler.getInstance().run();
+	}
+
+	@Override
+	public void testPeriodic() {
+		CommandScheduler.getInstance().run();
+		
+	}
+
+	@Override
+	public void disabledInit() {
+		
+	}
+
+	@Override
+	public void autonomousInit() {
+
+	}
+
+	@Override
+	public void autonomousPeriodic() {
+		CommandScheduler.getInstance().run();
+	}
+
 }
