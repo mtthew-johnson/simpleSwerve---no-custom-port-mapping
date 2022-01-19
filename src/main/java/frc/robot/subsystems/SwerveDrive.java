@@ -2,13 +2,17 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotBase;
 
@@ -66,16 +70,21 @@ public class SwerveDrive extends SubsystemBase {
     private boolean safeMode = false;
 
     private ADXRS450_Gyro gyro;
+
+    private Encoder frontLeftEncoder;
+    private Encoder frontRightEncoder;
+    private Encoder backLeftEncoder;
+    private Encoder backRightEncoder;
     
-    private PIDController pidDrivefl;
-    private PIDController pidDrivefr;
-    private PIDController pidDrivebl;
-    private PIDController pidDrivebr;
+    // private PIDController pidDrivefl;
+    // private PIDController pidDrivefr;
+    // private PIDController pidDrivebl;
+    // private PIDController pidDrivebr;
     
-    private PIDController pidAnglefl;
-    private PIDController pidAnglefr;
-    private PIDController pidAnglebl;
-    private PIDController pidAnglebr;
+    // private PIDController pidAnglefl;
+    // private PIDController pidAnglefr;
+    // private PIDController pidAnglebl;
+    // private PIDController pidAnglebr;
 
     public SwerveDrive(RobotBase robot) {
         
@@ -83,7 +92,8 @@ public class SwerveDrive extends SubsystemBase {
        
         initMotors();
         configureGyro();
-        configurePID();
+
+        //configurePID();
 
         reset();
         initDefaultCommand();
@@ -102,15 +112,15 @@ public class SwerveDrive extends SubsystemBase {
         backRightAngleMotor  = new WPI_TalonSRX(port("backRightAngleMotor"));
         backLeftAngleMotor   = new WPI_TalonSRX(port("backLeftAngleMotor"));
 
-        addChild("frontRightSpeedMotor Motor", frontRightSpeedMotor);
-        addChild("frontLeftSpeedMotor Motor",  frontLeftSpeedMotor);
-        addChild("backRightSpeedMotor Motor",  backRightSpeedMotor);
-        addChild("backLeftSpeedMotor Motor",   backLeftSpeedMotor);
+        addChild("frontRightSpeedMotor", frontRightSpeedMotor);
+        addChild("frontLeftSpeedMotor",  frontLeftSpeedMotor);
+        addChild("backRightSpeedMotor",  backRightSpeedMotor);
+        addChild("backLeftSpeedMotor",   backLeftSpeedMotor);
 
-        addChild("frontRightAngleMotor Motor", frontRightAngleMotor);
-        addChild("frontLeftSAngleMotor Motor", frontLeftSAngleMotor);
-        addChild("backRightAngleMotor Motor",  backRightAngleMotor);
-        addChild("backLeftAngleMotor Motor",   backLeftAngleMotor);
+        addChild("frontRightAngleMotor", frontRightAngleMotor);
+        addChild("frontLeftSAngleMotor", frontLeftSAngleMotor);
+        addChild("backRightAngleMotor",  backRightAngleMotor);
+        addChild("backLeftAngleMotor",   backLeftAngleMotor);
 
         frontRightSpeedMotor.setInverted(false);
         frontLeftSpeedMotor.setInverted(false);
@@ -132,15 +142,21 @@ public class SwerveDrive extends SubsystemBase {
         backRightSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
         backLeftSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
-        frontRightAngleMotor.set(ControlMode.Position, 0);
-        frontLeftSAngleMotor.set(ControlMode.Position, 0);
-        backRightAngleMotor.set(ControlMode.Position,  0);
-        backLeftAngleMotor.set(ControlMode.Position,   0);
 
-        frontRightSpeedMotor.set(ControlMode.PercentOutput, 0);
-        frontLeftSpeedMotor.set(ControlMode.PercentOutput,  0);
-        backLeftSpeedMotor.set(ControlMode.PercentOutput,   0);
-        backRightSpeedMotor.set(ControlMode.PercentOutput,  0);
+        // frontRightAngleMotor.set(TalonSRXControlMode.Position, 0);
+        // frontLeftSAngleMotor.set(TalonSRXControlMode.Position, 0);
+        // backRightAngleMotor.set(TalonSRXControlMode.Position,  0);
+        // backLeftAngleMotor.set(TalonSRXControlMode.Position,   0);
+
+        frontRightAngleMotor.setSelectedSensorPosition(0);
+        frontLeftSAngleMotor.setSelectedSensorPosition(0);
+        backRightAngleMotor.setSelectedSensorPosition(0);
+        backLeftAngleMotor.setSelectedSensorPosition(0);
+        
+        // frontRightSpeedMotor.set(ControlMode.PercentOutput, 0);
+        // frontLeftSpeedMotor.set(ControlMode.PercentOutput,  0);
+        // backLeftSpeedMotor.set(ControlMode.PercentOutput,   0);
+        // backRightSpeedMotor.set(ControlMode.PercentOutput,  0);
     
     }
     
@@ -152,8 +168,8 @@ public class SwerveDrive extends SubsystemBase {
         FWD = temp;
 
         final double PI = Math.PI;
-        final double L = 0; //TODO find vehicle wheelbase //units don't matter as it's a ratio
-        final double W = 0; //TODO find vehicle trackwidth
+        final double L = 23; //TODO find vehicle wheelbase //units don't matter as it's a ratio
+        final double W = 23; //TODO find vehicle trackwidth
         final double R = Math.sqrt(Math.pow(L, 2) + Math.pow(W, 2));
 
         double A = STR - RCW*(L/R);
@@ -190,21 +206,61 @@ public class SwerveDrive extends SubsystemBase {
 
         }
 
-        double speedCorrection1 = pidDrivefr.calculate(frontRightSpeedMotor.getMotorOutputPercent(), max * SPEED);
-        double speedCorrection2 = pidDrivefl.calculate(frontLeftSpeedMotor.getMotorOutputPercent(),  max * SPEED);
-        double speedCorrection3 = pidDrivebl.calculate(backLeftSpeedMotor.getMotorOutputPercent(),   max * SPEED);
-        double speedCorrection4 = pidDrivebr.calculate(backLeftSpeedMotor.getMotorOutputPercent(),   max * SPEED);
+        // double speedCorrection1 = pidDrivefr.calculate(frontRightSpeedMotor.getMotorOutputPercent(), max * SPEED);
+        // double speedCorrection2 = pidDrivefl.calculate(frontLeftSpeedMotor.getMotorOutputPercent(),  max * SPEED);
+        // double speedCorrection3 = pidDrivebl.calculate(backLeftSpeedMotor.getMotorOutputPercent(),   max * SPEED);
+        // double speedCorrection4 = pidDrivebr.calculate(backLeftSpeedMotor.getMotorOutputPercent(),   max * SPEED);
 
-        frontRightWheelSpeed = (max * SPEED) + speedCorrection1;
-        frontLeftWheelSpeed  = (max * SPEED) + speedCorrection2;
-        backLeftWheelSpeed   = (max * SPEED) + speedCorrection3;
-        backRightWheelSpeed  = (max * SPEED) + speedCorrection4;
+        frontRightWheelSpeed = (max * SPEED); //+ speedCorrection1;
+        frontLeftWheelSpeed  = (max * SPEED); //+ speedCorrection2;
+        backLeftWheelSpeed   = (max * SPEED); //+ speedCorrection3;
+        backRightWheelSpeed  = (max * SPEED); //+ speedCorrection4;
+
+        if(frontLeftWheelSpeed <= 0.05) {
+            
+            max = 0;
         
-        //set wheel speed
-        frontRightSpeedMotor.set(frontRightWheelSpeed);
-        frontLeftSpeedMotor.set(frontLeftWheelSpeed);
-        backRightSpeedMotor.set(backLeftWheelSpeed);
-        backLeftSpeedMotor.set(backRightWheelSpeed);
+        } else if(backLeftWheelSpeed <= 0.05) {
+            
+            max = 0;
+
+        } else if (backRightWheelSpeed <= 0.05) {
+            
+            max = 0;
+
+        } else if (frontRightWheelSpeed <= 0.05) {
+            
+            max = 0;
+        
+        } else {
+
+        }
+
+        frontRightWheelSpeed = (max * SPEED); //+ speedCorrection1;
+        frontLeftWheelSpeed  = (max * SPEED); //+ speedCorrection2;
+        backLeftWheelSpeed   = (max * SPEED); //+ speedCorrection3;
+        backRightWheelSpeed  = (max * SPEED); //+ speedCorrection4;
+        
+        if(axis("forward") > 0) {
+            //set wheel speed
+            frontRightSpeedMotor.set(frontRightWheelSpeed);
+            frontLeftSpeedMotor.set(frontLeftWheelSpeed);
+            backRightSpeedMotor.set(backLeftWheelSpeed);
+            backLeftSpeedMotor.set(backRightWheelSpeed);
+        } else if (axis("forward") < 0) {
+            //set wheel speed
+            frontRightSpeedMotor.set(-frontRightWheelSpeed);
+            frontLeftSpeedMotor.set(-frontLeftWheelSpeed);
+            backRightSpeedMotor.set(-backLeftWheelSpeed);
+            backLeftSpeedMotor.set(-backRightWheelSpeed);
+        } else {
+            frontRightSpeedMotor.set(0);
+            frontLeftSpeedMotor.set(0);
+            backRightSpeedMotor.set(0);
+            backLeftSpeedMotor.set(0);
+        }
+        
+        
 
         //convert angle to talon ticks to set final angle/ 1024 ticks
         frontRightWheelAngle = ((frontRightWheelAngle + 180) * (1023 / 360));
@@ -213,15 +269,33 @@ public class SwerveDrive extends SubsystemBase {
         backRightWheelAngle  = ((backRightWheelAngle  + 180) * (1023 / 360));
         
         //set wheel angle and pid calculations
-        double correction1 = pidAnglefr.calculate(frontRightAngleMotor.getSelectedSensorPosition(), frontRightWheelAngle);
-        double correction2 = pidAnglefl.calculate(frontLeftSAngleMotor.getSelectedSensorPosition(), frontLeftWheelAngle);
-        double correction3 = pidAnglebl.calculate(backLeftAngleMotor.getSelectedSensorPosition(),   backLeftWheelAngle);
-        double correction4 = pidAnglebr.calculate(backRightAngleMotor.getSelectedSensorPosition(),  backRightWheelAngle);
+        // double correction1 = pidAnglefr.calculate(frontRightAngleMotor.getSelectedSensorPosition(), frontRightWheelAngle);
+        // double correction2 = pidAnglefl.calculate(frontLeftSAngleMotor.getSelectedSensorPosition(), frontLeftWheelAngle);
+        // double correction3 = pidAnglebl.calculate(backLeftAngleMotor.getSelectedSensorPosition(),   backLeftWheelAngle);
+        // double correction4 = pidAnglebr.calculate(backRightAngleMotor.getSelectedSensorPosition(),  backRightWheelAngle);
 
-        frontRightAngleMotor.set(ControlMode.Position, frontRightWheelAngle + correction1);
-        frontLeftSAngleMotor.set(ControlMode.Position, frontLeftWheelAngle  + correction2);
-        backRightAngleMotor.set(ControlMode.Position,  backLeftWheelAngle   + correction3);
-        backLeftAngleMotor.set(ControlMode.Position,   backRightWheelAngle  + correction4);
+        frontRightAngleMotor.set (TalonSRXControlMode.Position, 300); //+ correction1);
+        frontLeftSAngleMotor.set(ControlMode.Position,frontLeftWheelAngle);  //+ correction2);
+        backRightAngleMotor.set(ControlMode.Position, backLeftWheelAngle );  //+ correction3);
+        backLeftAngleMotor.set(ControlMode.Position,  backRightWheelAngle ); //+ correction4);
+
+        
+        System.out.println("frontRightWheelAngle: " + frontRightWheelAngle);
+        System.out.println("frontLeftWheelAngle: " + frontLeftWheelAngle);
+        System.out.println("backLeftWheelAngle: " + backLeftWheelAngle);
+        System.out.println("backRightWheelAngle: " + backRightWheelAngle);
+
+        System.out.println(frontLeftSAngleMotor.getControlMode());
+
+
+        // System.out.println("frontRightWheelSpeed: " + frontRightWheelSpeed);
+        // System.out.println("frontLeftWheelSpeed:  " + frontLeftWheelSpeed);
+        // System.out.println("backLeftWheelSpeed:   " + backLeftWheelSpeed);
+        // System.out.println("backRightWheelSpeed:  " + backRightWheelSpeed);
+
+        //System.out.println(axis("forward"));
+        System.out.println(gyro.getAngle());
+
 
         
     }
@@ -235,17 +309,24 @@ public class SwerveDrive extends SubsystemBase {
 
     private void configurePID() {
 		
-		pidDrivefl = new PIDController(KpDrivefl, KiDrivefl, KdDrivefl);
-		pidDrivefr = new PIDController(KpDrivefr, KiDrivefr, KdDrivefr);
-		pidDrivebl = new PIDController(KpDrivebl, KiDrivebl, KdDrivebl);
-		pidDrivebr = new PIDController(KpDrivebr, KiDrivebr, KdDrivebr);
+		// pidDrivefl = new PIDController(KpDrivefl, KiDrivefl, KdDrivefl);
+		// pidDrivefr = new PIDController(KpDrivefr, KiDrivefr, KdDrivefr);
+		// pidDrivebl = new PIDController(KpDrivebl, KiDrivebl, KdDrivebl);
+		// pidDrivebr = new PIDController(KpDrivebr, KiDrivebr, KdDrivebr);
 
-        pidAnglefl = new PIDController(KpAnglefl, KiAnglefl, KdAnglefl);
-        pidAnglefr = new PIDController(KpAnglefr, KiAnglefr, KdAnglefr);
-        pidAnglebl = new PIDController(KpAnglebl, KiAnglebl, KdAnglebl);
-        pidAnglebr = new PIDController(KpAnglebr, KiAnglebr, KdAnglebr);
+        // pidAnglefl = new PIDController(KpAnglefl, KiAnglefl, KdAnglefl);
+        // pidAnglefr = new PIDController(KpAnglefr, KiAnglefr, KdAnglefr);
+        // pidAnglebl = new PIDController(KpAnglebl, KiAnglebl, KdAnglebl);
+        // pidAnglebr = new PIDController(KpAnglebr, KiAnglebr, KdAnglebr);
 
 	}
+
+    private void configureEncoders() {
+        frontRightEncoder = new Encoder(0, 0);
+        frontLeftEncoder  = new Encoder(0, 0);
+        backRightEncoder  = new Encoder(0, 0);
+        backLeftEncoder   = new Encoder(0, 0);
+    }
 
 	@Override
 	public void periodic() {
@@ -300,6 +381,11 @@ public class SwerveDrive extends SubsystemBase {
 		}); // End set default command
 
 	} // End init default command
+
+    @Override
+	public String getConfigName() {
+		return "swerve";
+	}
 
 	@Override
 	public void initSendable(SendableBuilder builder) {
