@@ -37,19 +37,19 @@ public class SwerveDrive extends SubsystemBase {
 	private double KiDrivebr = 0;
 	private double KdDrivebr = 0;
     
-    private double KpAnglefl = 0;
+    private double KpAnglefl = 0.04;
 	private double KiAnglefl = 0;
 	private double KdAnglefl = 0;
 
-    private double KpAnglefr = 0;
+    private double KpAnglefr = 0.04;
 	private double KiAnglefr = 0;
 	private double KdAnglefr = 0;
 
-    private double KpAnglebl = 0;
+    private double KpAnglebl = 0.04;
 	private double KiAnglebl = 0;
 	private double KdAnglebl = 0;
 
-    private double KpAnglebr = 0;
+    private double KpAnglebr = 0.04;
 	private double KiAnglebr = 0;
 	private double KdAnglebr = 0;
 	
@@ -154,7 +154,16 @@ public class SwerveDrive extends SubsystemBase {
         frontLeftSAngleMotor.setSelectedSensorPosition(0);
         backRightAngleMotor.setSelectedSensorPosition(0);
         backLeftAngleMotor.setSelectedSensorPosition(0);
-        
+
+        backLeftAngleMotor.configOpenloopRamp(0);
+        backLeftAngleMotor.configClosedloopRamp(0);
+        backRightAngleMotor.configOpenloopRamp(0);
+        backRightAngleMotor.configClosedloopRamp(0);
+        frontLeftSAngleMotor.configOpenloopRamp(0);
+        frontLeftSAngleMotor.configClosedloopRamp(0);
+        frontRightAngleMotor.configOpenloopRamp(0);
+        frontRightAngleMotor.configClosedloopRamp(0);
+
         // frontRightSpeedMotor.set(ControlMode.PercentOutput, 0);
         // frontLeftSpeedMotor.set(ControlMode.PercentOutput,  0);
         // backLeftSpeedMotor.set(ControlMode.PercentOutput,   0);
@@ -208,11 +217,6 @@ public class SwerveDrive extends SubsystemBase {
 
         }
 
-        // double speedCorrection1 = pidDrivefr.calculate(frontRightSpeedMotor.getMotorOutputPercent(), max * SPEED);
-        // double speedCorrection2 = pidDrivefl.calculate(frontLeftSpeedMotor.getMotorOutputPercent(),  max * SPEED);
-        // double speedCorrection3 = pidDrivebl.calculate(backLeftSpeedMotor.getMotorOutputPercent(),   max * SPEED);
-        // double speedCorrection4 = pidDrivebr.calculate(backLeftSpeedMotor.getMotorOutputPercent(),   max * SPEED);
-
         frontRightWheelSpeed = (max * SPEED); //+ speedCorrection1;
         frontLeftWheelSpeed  = (max * SPEED); //+ speedCorrection2;
         backLeftWheelSpeed   = (max * SPEED); //+ speedCorrection3;
@@ -265,64 +269,30 @@ public class SwerveDrive extends SubsystemBase {
         
 
         //convert angle to talon ticks to set final angle/ 1024 ticks
-        frontRightWheelAngle = ((frontRightWheelAngle + 180) * (1023 / 360));
-        frontLeftWheelAngle  = ((frontLeftWheelAngle  + 180) * (1023 / 360));
-        backLeftWheelAngle   = ((backLeftWheelAngle   + 180) * (1023 / 360));
-        backRightWheelAngle  = ((backRightWheelAngle  + 180) * (1023 / 360));
-        
-        //set wheel angle and pid calculations
-        // double correction1 = pidAnglefr.calculate(frontRightAngleMotor.getSelectedSensorPosition(), frontRightWheelAngle);
-        // double correction2 = pidAnglefl.calculate(frontLeftSAngleMotor.getSelectedSensorPosition(), frontLeftWheelAngle);
-        //double correction3 = pidAnglebl.calculate(backLeftEncoder.getDistance(),   180);
-        // double correction4 = pidAnglebr.calculate(backRightAngleMotor.getSelectedSensorPosition(),  backRightWheelAngle);
+        // System.out.println("frontRightWheelAngle: " + frontRightWheelAngle); 
+        // System.out.println("frontLeftWheelAngle:  " + frontLeftWheelAngle);  
+        // System.out.println("backLeftWheelAngle:   " + backLeftWheelAngle);   
+        // System.out.println("backRightWheelAngle:  " + backRightWheelAngle);  
 
-        // frontRightAngleMotor.set (TalonSRXControlMode.Position, 300); //+ correction1);
-        // frontLeftSAngleMotor.set(ControlMode.Position,);  //+ correction2);
-        // backRightAngleMotor.set(ControlMode.Position, backLeftWheelAngle );  //+ correction3);
-        // backLeftAngleMotor.set(ControlMode.Position,  backRightWheelAngle ); //+ correction4);
-        
-        // if(backLeftEncoder.getDistance() < 180) {
-        //     backLeftAngleMotor.set(0.5);
-        // } else if (backLeftEncoder.getDistance() > 180) {
-        //     backLeftAngleMotor.set(-0.5);
-        // } else {
-        //     backLeftAngleMotor.set(0);
-        // }
+        System.out.println(axis("forward"));
+        System.out.println(axis("strafe"));
+        System.out.println(axis("rotate"));
 
-        // if(backRightEncoder.getDistance() < 180) {
-        //     backRightAngleMotor.set(0.5);
-        // } else if (backRightEncoder.getDistance() > 180) {
-        //     backRightAngleMotor.set(-0.5);
-        // } else {
-        //     backRightAngleMotor.set(0);
-        // }
+        if(axis("forward") < 0.05) {
+            backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), 0));
+        backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), 0));
+        frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), 0));
+        frontLeftSAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), 0));
+        }
 
-        // if(frontLeftEncoder.getDistance() < 180) {
-        //     frontLeftSAngleMotor.set(0.5);
-        // } else if (frontLeftEncoder.getDistance() > 180) {
-        //     frontLeftSAngleMotor.set(-0.5);
-        // } else {
-        //     frontLeftSAngleMotor.set(0);
-        // }
+        backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), backLeftWheelAngle));
+        backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), backRightWheelAngle));
+        frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), frontRightWheelAngle));
+        frontLeftSAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), frontLeftWheelAngle));
 
-        // if(frontRightEncoder.getDistance() < 180) {
-        //     frontRightAngleMotor.set(0.5);
-        // } else if (frontRightEncoder.getDistance() > 180) {
-        //     frontRightAngleMotor.set(-0.5);
-        // } else {
-        //     frontRightAngleMotor.set(0);
-        // }
+                                                                                               
 
-        backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), 180)); //TODO the .calculate() method for some reason outputs 0
-        System.out.println(pidAnglebl.calculate(backLeftEncoder.getDistance(), 180));      //so the motors won't move
-                                                                                            //jonathan, you will be my savior if you can get this to work
-                                                                                            // check the documentation for PID controller class for more info and example implementation
-                                                                                            //https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/pidcontroller.html
-                                                                                            //also documention for encoder class if any encoder stuff doesn't make any sense:
-                                                                                            //https://first.wpi.edu/FRC/roborio/release/docs/java/edu/wpi/first/wpilibj/Encoder.html
-
-
-        System.out.println("encoder:  " + backLeftEncoder.getDistance());
+        //System.out.println("encoder:  " + backLeftEncoder.getDistance());
         // System.out.println("frontRightWheelAngle: " + frontRightWheelAngle);
         // System.out.println("frontLeftWheelAngle: " + frontLeftWheelAngle);
         // System.out.println("backLeftWheelAngle: " + backLeftWheelAngle);
@@ -359,7 +329,7 @@ public class SwerveDrive extends SubsystemBase {
 
         pidAnglefl = new PIDController(KpAnglefl, KiAnglefl, KdAnglefl);
         pidAnglefr = new PIDController(KpAnglefr, KiAnglefr, KdAnglefr);
-          pidAnglebl = new PIDController(KpAnglebl, KiAnglebl, KdAnglebl);
+        pidAnglebl = new PIDController(KpAnglebl, KiAnglebl, KdAnglebl);
         pidAnglebr = new PIDController(KpAnglebr, KiAnglebr, KdAnglebr);
 
 	}
