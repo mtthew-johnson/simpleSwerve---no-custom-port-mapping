@@ -18,15 +18,15 @@ public class Robot extends RobotBase {
 
 		int mainJoystick = 0;
 
-        port("serve/frontRightSpeedMotor", 5);
-        port("serve/frontLeftSpeedMotor", 1);
-        port("serve/backRightSpeedMotor", 6);
-        port("serve/backLeftSpeedMotor", 2);
+        port("frontRightSpeedMotor", 5);
+        port("frontLeftSpeedMotor", 1);
+        port("backRightSpeedMotor", 6);
+        port("backLeftSpeedMotor", 2);
         
-        port("serve/frontRightAngleMotor", 4);
-        port("serve/frontLeftSAngleMotor", 0);
-        port("serve/backRightAngleMotor", 7);
-        port("serve/backLeftAngleMotor", 3);
+        port("frontRightAngleMotor", 4);
+        port("frontLeftSAngleMotor", 0);
+        port("backRightAngleMotor", 7);
+        port("backLeftAngleMotor", 3);
 
 		axis("forward", mainJoystick, Xinput.LeftStickY);
 		axis("strafe", mainJoystick, Xinput.LeftStickX);

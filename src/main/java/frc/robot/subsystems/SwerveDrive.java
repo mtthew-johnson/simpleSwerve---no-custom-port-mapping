@@ -124,8 +124,8 @@ public class SwerveDrive extends SubsystemBase {
         addChild("backRightAngleMotor",  backRightAngleMotor);
         addChild("backLeftAngleMotor",   backLeftAngleMotor);
 
-        frontRightSpeedMotor.setInverted(false);
-        frontLeftSpeedMotor.setInverted(false);
+        frontRightSpeedMotor.setInverted(true);
+        frontLeftSpeedMotor.setInverted(true);
         backRightSpeedMotor.setInverted(false);
         backLeftSpeedMotor.setInverted(false);
 
@@ -150,10 +150,10 @@ public class SwerveDrive extends SubsystemBase {
         // backRightAngleMotor.set(TalonSRXControlMode.Position,  0);
         // backLeftAngleMotor.set(TalonSRXControlMode.Position,   0);
 
-        frontRightAngleMotor.setSelectedSensorPosition(0);
-        frontLeftSAngleMotor.setSelectedSensorPosition(0);
-        backRightAngleMotor.setSelectedSensorPosition(0);
-        backLeftAngleMotor.setSelectedSensorPosition(0);
+        // frontRightAngleMotor.setSelectedSensorPosition(0);
+        // frontLeftSAngleMotor.setSelectedSensorPosition(0);
+        // backRightAngleMotor.setSelectedSensorPosition(0);
+        // backLeftAngleMotor.setSelectedSensorPosition(0);
 
         backLeftAngleMotor.configOpenloopRamp(0);
         backLeftAngleMotor.configClosedloopRamp(0);
@@ -274,16 +274,29 @@ public class SwerveDrive extends SubsystemBase {
         // System.out.println("backLeftWheelAngle:   " + backLeftWheelAngle);   
         // System.out.println("backRightWheelAngle:  " + backRightWheelAngle);  
 
-        System.out.println(axis("forward"));
-        System.out.println(axis("strafe"));
-        System.out.println(axis("rotate"));
+     
 
-        if(axis("forward") < 0.05) {
-            backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), 0));
-        backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), 0));
-        frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), 0));
-        frontLeftSAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), 0));
-        }
+  
+
+        // if(Math.abs(axis("forward")) < 0.05 ) {
+            
+        //     // backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), 0));
+        //     // backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), 0));
+        //     // frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), 0));
+        //     // frontLeftSAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), 0));
+        // } else if (Math.abs(axis("strafe")) < 0.05) { 
+        //     // backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), 0));
+        //     // backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), 0));
+        //     // frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), 0));
+        //     // frontLeftSAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), 0));
+        // } else if (Math.abs(axis("rotate")) < 0.05) {
+        //     backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), 0));
+        //     backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), 0));
+        //     frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), 0));
+        //     frontLeftSAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), 0));
+        // } else {
+
+        // }
 
         backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), backLeftWheelAngle));
         backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), backRightWheelAngle));
@@ -392,8 +405,29 @@ public class SwerveDrive extends SubsystemBase {
 				
 				}
 
+                double forwardtemp = axis("forward");
+                double strafetemp = axis("strafe");
+                double rotatetemp = axis("rotate");
 
-                calculateDrive(axis("forward"), axis("strafe"), axis("rotate"), gyro.getAngle());
+                if(Math.abs(axis("forward")) < 0.1) {
+                    forwardtemp = 0;
+                } 
+                if (Math.abs(axis("strafe")) < 0.2) {
+                    strafetemp = 0;
+                } 
+                if (Math.abs(axis("rotate")) < 0.2) {
+                    rotatetemp = 0;
+                } 
+                if(Math.abs(axis("forward")) > 0.2 || Math.abs(axis("strafe")) > 0.2 || Math.abs(axis("rotate")) > 0.2) {
+                forwardtemp = axis("forward");
+                 strafetemp = axis("strafe");
+                 rotatetemp = axis("rotate");
+
+                }
+                System.out.println("forwardtemp: " + forwardtemp);
+                System.out.println("strafetemp:  " + strafetemp);
+                System.out.println("rotatetemp:  " + rotatetemp);
+                calculateDrive(forwardtemp, strafetemp, rotatetemp, gyro.getAngle());
 				
 			}
 
@@ -401,10 +435,10 @@ public class SwerveDrive extends SubsystemBase {
 
 	} // End init default command
 
-    @Override
-	public String getConfigName() {
-		return "swerve";
-	}
+    // @Override
+	// public String getConfigName() {
+	// 	return "swerve";
+	// }
 
 	@Override
 	public void initSendable(SendableBuilder builder) {
