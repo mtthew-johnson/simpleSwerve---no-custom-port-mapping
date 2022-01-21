@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.recharge.commands;
 
 import java.util.Map;
 import java.util.function.DoubleSupplier;

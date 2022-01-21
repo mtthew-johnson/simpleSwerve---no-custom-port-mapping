@@ -9,7 +9,7 @@ import frc.robot.subsystems.SwerveDrive;
 public class Robot extends RobotBase {
 	
 	public SwerveDrive drive;
-	XinputController mainJoystick = new XinputController(0);
+	XinputController driveController = new XinputController(0);
 
 	private Command autonomousCommand;
 
