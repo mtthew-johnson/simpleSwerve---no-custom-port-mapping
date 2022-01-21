@@ -14,7 +14,9 @@ import frc.robot.RobotBase;
 
 public class SwerveDrive extends SubsystemBase {
 
-    private final double SPEED = 0.7;
+    private static final int lastTime = 0;
+
+    private final double SPEED = 0.4;
 
     private double KpAnglefl = 0.04;
 	private double KiAnglefl = 0;
@@ -55,6 +57,14 @@ public class SwerveDrive extends SubsystemBase {
     private PIDController pidAnglefr;
     private PIDController pidAnglebl;
     private PIDController pidAnglebr;
+
+    private final double L = 23; //vehicle tracklength
+    private final double W = 23; //vehicle trackwidth
+    private final double R = Math.sqrt(Math.pow(L, 2) + Math.pow(W, 2));
+    private final double PI = Math.PI; 
+    
+    private double positionAlongField = 0;
+    private double positionAcrossField = 0;
 
     public SwerveDrive(RobotBase robot) {
         
@@ -134,11 +144,6 @@ public class SwerveDrive extends SubsystemBase {
         STR = -FWD*Math.sin(gryroAngle) + STR*Math.cos(gryroAngle);
         FWD = temp;
 
-        final double PI = Math.PI;
-        final double L = 23;
-        final double W = 23; 
-        final double R = Math.sqrt(Math.pow(L, 2) + Math.pow(W, 2));
-
         double A = STR - RCW*(L/R);
         double B = STR + RCW*(L/R);
         double C = FWD - RCW*(W/R);
@@ -149,10 +154,10 @@ public class SwerveDrive extends SubsystemBase {
         double backLeftWheelSpeed   = Math.sqrt(Math.pow(A, 2) + Math.pow(D, 2));
         double backRightWheelSpeed  = Math.sqrt(Math.pow(A, 2) + Math.pow(C, 2));
 
-        double frontRightWheelAngle = Math.atan2(B, C) * (180 / PI);
-        double frontLeftWheelAngle  = Math.atan2(B, D) * (180 / PI);
-        double backLeftWheelAngle   = Math.atan2(A, D) * (180 / PI);
-        double backRightWheelAngle  = Math.atan2(A, C) * (180 / PI);
+        double frontRightWheelAngle = (Math.atan2(B, C) * (180 / PI));
+        double frontLeftWheelAngle  = -(Math.atan2(B, D) * (180 / PI));
+        double backLeftWheelAngle   = (Math.atan2(A, D) * (180 / PI));
+        double backRightWheelAngle  = -(Math.atan2(A, C) * (180 / PI));
 
         double max = frontRightWheelSpeed;
 
@@ -178,43 +183,25 @@ public class SwerveDrive extends SubsystemBase {
         backLeftWheelSpeed   = (max * SPEED); 
         backRightWheelSpeed  = (max * SPEED);
 
-        //set wheel speeds
-        if(axis("forward") > 0) {
-
-            frontRightSpeedMotor.set(frontRightWheelSpeed);
-            frontLeftSpeedMotor.set(frontLeftWheelSpeed);
-            backRightSpeedMotor.set(backLeftWheelSpeed);
-            backLeftSpeedMotor.set(backRightWheelSpeed);
-
-        } else if (axis("forward") < 0) {
-
-            frontRightSpeedMotor.set(-frontRightWheelSpeed);
-            frontLeftSpeedMotor.set(-frontLeftWheelSpeed);
-            backRightSpeedMotor.set(-backLeftWheelSpeed);
-            backLeftSpeedMotor.set(-backRightWheelSpeed);
-
-        } else {
-
-            frontRightSpeedMotor.set(0);
-            frontLeftSpeedMotor.set(0);
-            backRightSpeedMotor.set(0);
-            backLeftSpeedMotor.set(0);
-        }
+        frontRightSpeedMotor.set(frontRightWheelSpeed);
+        frontLeftSpeedMotor.set(frontLeftWheelSpeed);
+        backRightSpeedMotor.set(backLeftWheelSpeed);
+        backLeftSpeedMotor.set(backRightWheelSpeed);
         
         // backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), backLeftWheelAngle));
         // backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), backRightWheelAngle));
         // frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), frontRightWheelAngle));
-        // frontLeftSAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), frontLeftWheelAngle));
+        // frontLeftAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), frontLeftWheelAngle));
 
         setOptmizedAngle(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   pidAnglebl, backLeftWheelAngle);
         setOptmizedAngle(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  pidAnglebr, backRightWheelAngle);
         setOptmizedAngle(frontRightEncoder, frontRightAngleMotor, frontRightSpeedMotor, pidAnglefr, frontRightWheelAngle);
         setOptmizedAngle(frontLeftEncoder,  frontLeftAngleMotor,  frontLeftSpeedMotor,  pidAnglefl, frontLeftWheelAngle);
 
-        resetAfterFullRotation(backLeftEncoder);
-        resetAfterFullRotation(backRightEncoder);
-        resetAfterFullRotation(frontRightEncoder);
-        resetAfterFullRotation(frontLeftEncoder);
+        // resetAfterFullRotation(backLeftEncoder);
+        // resetAfterFullRotation(backRightEncoder);
+        // resetAfterFullRotation(frontRightEncoder);
+        // resetAfterFullRotation(frontLeftEncoder);
         
     }
 
@@ -251,12 +238,13 @@ public class SwerveDrive extends SubsystemBase {
 
     private void resetAfterFullRotation(Encoder encoder) {                                                   //left     /right
         //again, assuming 0-360 degrees is one rotation to the left/right //TODO: need figure out which way is positive/negative
-        //                -360-0 degress is one rotation to the left/right idk
+        //               -360-0 degress is one rotation to the left/right idk
         if(encoder.getDistance() > 360 || encoder.getDistance() < -360) {
             encoder.reset();
         }
     }
 
+    //TODO: need to test this
     private void setOptmizedAngle(Encoder encoder, WPI_TalonSRX angleMotor, WPI_TalonSRX speedMotor, PIDController pidController, double targetAngle) { 
         //potential angle optimization - assuming 0-360 degrees of motion
         //I still don't really know the exact outputs for the angle calculations/exactly how they work
@@ -360,6 +348,7 @@ public class SwerveDrive extends SubsystemBase {
             if(Math.abs(encoder.getDistance() - (Math.abs(targetAngle + 180))) < Math.abs(encoder.getDistance() - targetAngle)) { //d is closer to c then b
 
                 angleMotor.set(pidController.calculate(encoder.getDistance(), targetAngle + 180));
+                
                 //now that the angle is set, now we need to determine whether to invert the motors or not
                 if(isInRange) {
                     
@@ -395,12 +384,65 @@ public class SwerveDrive extends SubsystemBase {
         }
     }
 
+    private boolean isOptmized(Encoder encoder) {
+        //TODO: there might possilby be issues with calculating odometry if wheel angles are optmized
+        //TODO: so we need to figure out a way to know if the angle motors are using the optimized angle and fix the math for odometry
+        return true;
+    }
+
+    private void calculateRobotPosition() {
+        
+        double Bfl = Math.sin(frontLeftEncoder.getDistance())  * frontLeftSpeedMotor.getSelectedSensorVelocity();
+        double Bfr = Math.sin(frontRightEncoder.getDistance()) * frontRightSpeedMotor.getSelectedSensorVelocity();
+        double Abl = Math.sin(backLeftEncoder.getDistance()) * backLeftSpeedMotor.getSelectedSensorVelocity();
+        double Abr = Math.sin(backRightEncoder.getDistance()) * backRightSpeedMotor.getSelectedSensorVelocity();
+
+        double Dfl = Math.cos(frontLeftEncoder.getDistance()) * frontLeftSpeedMotor.getSelectedSensorVelocity();
+        double Cfr = Math.cos(frontRightEncoder.getDistance()) * frontRightSpeedMotor.getSelectedSensorVelocity();
+        double Dbl = Math.cos(backLeftEncoder.getDistance()) * backLeftSpeedMotor.getSelectedSensorVelocity();
+        double Cbr = Math.cos(backRightEncoder.getDistance()) * backRightSpeedMotor.getSelectedSensorVelocity();
+
+        double A = (Abr + Abl) / 2;
+        double B = (Bfl + Bfr) / 2;
+        double C = (Cfr + Cbr) / 2;
+        double D = (Dfl + Dbl) / 2;
+
+        double rotation1 = (B - A) / L;
+        double rotation2 = (C - D) / W;
+        double rotation = (rotation1  + rotation2) / 2;
+
+        double forward1 = rotation * (L / 2) + A;
+        double forward2 = -rotation * (L / 2) + B;
+        double forward = (forward1 + forward2) / 2;
+
+        double strafe1 = rotation * (W / 2) + C;
+        double strafe2 = -rotation * ( W / 2) + D;
+        double strafe = (strafe1 + strafe2) / 2;
+
+
+        double forwardNew = (forward * Math.cos(gyro.getAngle())) + (strafe *  Math.sin(gyro.getAngle())); 
+        double strafeNew  = (strafe *  Math.cos(gyro.getAngle())) - (forward * Math.sin(gyro.getAngle()));
+
+        double timeStep = 0.020; //milliseconds //Timer.getFPGATimestamp() - lastTime //don't know how to do this so just constant from whitepaper
+        
+        positionAlongField = positionAlongField + (forwardNew * timeStep);
+        positionAcrossField = positionAcrossField + (strafeNew * timeStep);
+
+
+
+    }
+
+    private void resetRobotPosition() {
+        positionAlongField = 0;
+        positionAcrossField = 0;
+    }
+
 	@Override
 	public void periodic() {
 		
 	}
 
-	public void stop() {
+	public void stop() {    
 
 	}
 
