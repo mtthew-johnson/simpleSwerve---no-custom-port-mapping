@@ -125,6 +125,10 @@ public class SwerveDrive extends SubsystemBase {
         frontRightAngleMotor.configOpenloopRamp(0);
         frontRightAngleMotor.configClosedloopRamp(0);
     }
+
+    private void optmizeAngle(Encoder angleEncoder, double targetAngle, double currentAngle, String encoderName) { 
+        
+    }
     
     private void calculateDrive(double FWD, double STR, double RCW, double gryroAngle) {
        
@@ -307,7 +311,8 @@ public class SwerveDrive extends SubsystemBase {
                 double forwardtemp = axis("forward");
                 double strafetemp = axis("strafe");
                 double rotatetemp = axis("rotate");
-
+                
+                //set controller deadzones
                 if(Math.abs(axis("forward")) < 0.1) {
                    
                     forwardtemp = 0;
@@ -371,10 +376,15 @@ public class SwerveDrive extends SubsystemBase {
 		builder.addDoubleProperty("DAnglebr", () -> KdAnglebr, (value) -> KdAnglebr = value);
 
 		builder.addDoubleProperty("Forward", () -> axis("forward"), null);
-		builder.addDoubleProperty("Strafe", () -> axis("strafe"), null);
-		builder.addDoubleProperty("Rotate", () -> axis("Rotate"), null);
+		builder.addDoubleProperty("Strafe",  () -> axis("strafe"),  null);
+		builder.addDoubleProperty("Rotate",  () -> axis("Rotate"),  null);
 		
-		builder.addBooleanProperty("isSafeMode", () -> safeMode, null);
+        builder.addDoubleProperty("frontRightEncoder", () -> frontRightEncoder.getDistance(), null);		
+		builder.addDoubleProperty("frontLeftEncoder",  () -> frontLeftEncoder.getDistance(),  null);
+		builder.addDoubleProperty("backRightEncoder",  () -> backRightEncoder.getDistance(),  null);
+		builder.addDoubleProperty("backLeftEncoder",   () -> backLeftEncoder.getDistance(),   null);
+
+        builder.addBooleanProperty("isSafeMode", () -> safeMode, null);
 		
         builder.addDoubleProperty("frontRightSpeedMotor", () -> frontRightSpeedMotor.get(), null);		
 		builder.addDoubleProperty("frontLeftSpeedMotor",  () -> frontLeftSpeedMotor.get(),  null);
