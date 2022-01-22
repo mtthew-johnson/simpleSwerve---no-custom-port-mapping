@@ -290,9 +290,9 @@ public class SwerveDrive extends SubsystemBase {
         // if (current motor angle is closer to calculated angle or is it closer to the calculated angle - 180 or + 180)
             // invert motor
             // set motor angle
-      //tolerance is within 1 degree - should be good enough - adjust as necessary
-        final int TOLERANCE_UPPER = 181;
-        final int TOLERANCE_LOWER = 179;
+      //tolerance is within 3 degrees - should be good enough - adjust as necessary
+        final int TOLERANCE_UPPER = 183;
+        final int TOLERANCE_LOWER = 177;
         //still don't know what the positive/negative direction for the encoders are, so the inverting may need to be adjusted
         //but it actually might not as it will only invert if the angle is set to an 'optmized one'
         boolean isInRange = (Math.abs(encoder.getDistance()) > (TOLERANCE_LOWER - 179) && Math.abs(encoder.getDistance()) < (targetAngle - TOLERANCE_UPPER)) ||
@@ -428,8 +428,12 @@ public class SwerveDrive extends SubsystemBase {
         positionAlongField = positionAlongField + (forwardNew * timeStep);
         positionAcrossField = positionAcrossField + (strafeNew * timeStep);
 
+    }
 
+    private double[] getRobotPosition() {
 
+        double[] coordinates = {positionAcrossField, positionAlongField};
+        return coordinates;
     }
 
     private void resetRobotPosition() {
@@ -553,10 +557,12 @@ public class SwerveDrive extends SubsystemBase {
 		builder.addDoubleProperty("Strafe",  () -> axis("strafe"),  null);
 		builder.addDoubleProperty("Rotate",  () -> axis("Rotate"),  null);
 		
-        builder.addDoubleProperty("frontRightEncoder", () -> frontRightEncoder.getDistance(), null);		
-		builder.addDoubleProperty("frontLeftEncoder",  () -> frontLeftEncoder.getDistance(),  null);
-		builder.addDoubleProperty("backRightEncoder",  () -> backRightEncoder.getDistance(),  null);
-		builder.addDoubleProperty("backLeftEncoder",   () -> backLeftEncoder.getDistance(),   null);
+        builder.addDoubleProperty("Front Right Angle", () -> frontRightEncoder.getDistance(), null);		
+		builder.addDoubleProperty("Front Left Angle",  () -> frontLeftEncoder.getDistance(),  null);
+		builder.addDoubleProperty("Back Right Angle",  () -> backRightEncoder.getDistance(),  null);
+		builder.addDoubleProperty("Back Left Angle",   () -> backLeftEncoder.getDistance(),   null);
+
+        builder.addDoubleArrayProperty("Robot Position", () -> getRobotPosition(), null);
 
         builder.addBooleanProperty("isSafeMode", () -> safeMode, null);
 		
