@@ -49,7 +49,7 @@ public class SwerveDrive extends SubsystemBase {
     private final boolean isFrontRightInverted = true;
     private final boolean isFrontLeftInverted  = true;
     private final boolean isBackRightInverted  = false;
-    private final boolean isBackLeftInverted   = true;
+    private final boolean isBackLeftInverted   = false;
 
     private boolean safeMode = false;
     private final boolean fieldOrientedMode = true;
@@ -163,10 +163,10 @@ public class SwerveDrive extends SubsystemBase {
         frontRightSpeedMotor.setNeutralMode(NeutralMode.Brake);
 
         //brake mode for angle motors
-        backLeftAngleMotor.setNeutralMode(NeutralMode.Brake);
-        backRightAngleMotor.setNeutralMode(NeutralMode.Brake);
-        frontLeftAngleMotor.setNeutralMode(NeutralMode.Brake);
-        frontRightAngleMotor.setNeutralMode(NeutralMode.Brake);
+        // backLeftAngleMotor.setNeutralMode(NeutralMode.Brake);
+        // backRightAngleMotor.setNeutralMode(NeutralMode.Brake);
+        // frontLeftAngleMotor.setNeutralMode(NeutralMode.Brake);
+        // frontRightAngleMotor.setNeutralMode(NeutralMode.Brake);
     }
  
     private void calculateDrive(double FWD, double STR, double RCW, double gryroAngle) {
@@ -187,6 +187,11 @@ public class SwerveDrive extends SubsystemBase {
 
         }
 
+        // double temp = FWD*Math.cos(gryroAngle) + STR*Math.sin(gryroAngle);
+        
+        // STR = -FWD*Math.sin(gryroAngle) + STR*Math.cos(gryroAngle);
+        // FWD = temp;
+
         double A = STR - RCW*(L/R);
         double B = STR + RCW*(L/R);
         double C = FWD - RCW*(W/R);
@@ -197,10 +202,10 @@ public class SwerveDrive extends SubsystemBase {
         double backLeftWheelSpeed   = Math.sqrt(Math.pow(A, 2) + Math.pow(D, 2));
         double backRightWheelSpeed  = Math.sqrt(Math.pow(A, 2) + Math.pow(C, 2));
 
-        double frontRightWheelAngle = (Math.atan2(B, C) * (180 / PI));
-        double frontLeftWheelAngle  = -(Math.atan2(B, D) * (180 / PI));
-        double backLeftWheelAngle   = (Math.atan2(A, D) * (180 / PI));
-        double backRightWheelAngle  = -(Math.atan2(A, C) * (180 / PI));
+        double frontRightWheelAngle = (Math.atan2(B, D) * (180 / PI));
+        double frontLeftWheelAngle  = (Math.atan2(B, C) * (180 / PI));//
+        double backLeftWheelAngle   = (Math.atan2(A, C) * (180 / PI));
+        double backRightWheelAngle  = (Math.atan2(A, D) * (180 / PI));//
 
         double max = frontRightWheelSpeed;
 
@@ -226,21 +231,47 @@ public class SwerveDrive extends SubsystemBase {
         backLeftWheelSpeed   = (max * SPEED); 
         backRightWheelSpeed  = (max * SPEED);
 
+
+        if (Math.abs(frontRightWheelAngle - frontRightEncoder.getDistance()) > 90 && Math.abs(frontRightWheelAngle - frontRightEncoder.getDistance()) < 270) {
+            frontRightWheelAngle = (((int)frontRightWheelAngle + 180) % 360);
+            frontRightWheelSpeed = -frontRightWheelSpeed;
+        }
+
+        if (Math.abs(frontLeftWheelAngle - frontLeftEncoder.getDistance()) > 90 && Math.abs(frontLeftWheelAngle - frontLeftEncoder.getDistance()) < 270) {
+            frontLeftWheelAngle = (((int)frontLeftWheelAngle + 180) % 360);
+            frontLeftWheelSpeed = -frontLeftWheelSpeed;
+        }
+
+        if (Math.abs(backLeftWheelAngle - backLeftEncoder.getDistance()) > 90 && Math.abs(backLeftWheelAngle - backLeftEncoder.getDistance()) < 270) {
+            backLeftWheelAngle = ((int)backLeftWheelAngle + 180) % 360;
+            backLeftWheelSpeed = -backLeftWheelSpeed;
+        }
+
+        if (Math.abs(backRightWheelAngle - backRightEncoder.getDistance()) > 90 && Math.abs(backRightWheelAngle - backRightEncoder.getDistance()) < 270) {
+            backRightWheelAngle = ((int)backRightWheelAngle + 180) % 360;
+            backRightWheelSpeed = -backRightWheelSpeed;
+        }
+
+        System.out.println(backRightWheelAngle);
+
         frontRightSpeedMotor.set(frontRightWheelSpeed);
         frontLeftSpeedMotor.set(frontLeftWheelSpeed);
         backRightSpeedMotor.set(backLeftWheelSpeed);
         backLeftSpeedMotor.set(backRightWheelSpeed);
+        
 
         
-        // backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), backLeftWheelAngle));
-        // backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), backRightWheelAngle));
-        // frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), frontRightWheelAngle));
-        // frontLeftAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), frontLeftWheelAngle));
+        backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), backLeftWheelAngle));
+        backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), backRightWheelAngle));
+        frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), frontRightWheelAngle));
+        frontLeftAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), frontLeftWheelAngle));
 
-        setOptmizedAngle(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   pidAnglebl, backLeftWheelAngle,   isBackLeftInverted);//
-        setOptmizedAngle(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  pidAnglebr, backRightWheelAngle,  isBackRightInverted);
-        setOptmizedAngle(frontRightEncoder, frontRightAngleMotor, frontRightSpeedMotor, pidAnglefr, frontRightWheelAngle, isFrontRightInverted);//
-        setOptmizedAngle(frontLeftEncoder,  frontLeftAngleMotor,  frontLeftSpeedMotor,  pidAnglefl, frontLeftWheelAngle,  isFrontLeftInverted);
+        
+
+        // setOptmizedAngle(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   pidAnglebl, -backLeftWheelAngle, backLeftWheelSpeed);//
+        // setOptmizedAngle(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  pidAnglebr, backRightWheelAngle, backRightWheelSpeed);
+        // setOptmizedAngle(frontRightEncoder, frontRightAngleMotor, frontRightSpeedMotor, pidAnglefr, -frontRightWheelAngle, frontRightWheelSpeed);//
+        // setOptmizedAngle(frontLeftEncoder,  frontLeftAngleMotor,  frontLeftSpeedMotor,  pidAnglefl, frontLeftWheelAngle, frontLeftWheelSpeed);
 
         //frontright
         //backleft
@@ -299,7 +330,15 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     //TODO: need to test this
-    private void setOptmizedAngle(Encoder encoder, WPI_TalonSRX angleMotor, WPI_TalonSRX speedMotor, PIDController pidController, double targetAngle, boolean initialInvert) { 
+    private void setOptmizedAngle(Encoder encoder, WPI_TalonSRX angleMotor, WPI_TalonSRX speedMotor, PIDController pidController, double targetAngle, double wheelSpeed) { 
+        if (Math.abs(targetAngle - encoder.getDistance()) > 90 && Math.abs(targetAngle - encoder.getDistance()) < 270) {
+            targetAngle = ((int)targetAngle + 180) % 360;
+            angleMotor.set(pidController.calculate(encoder.getDistance(), targetAngle));
+            wheelSpeed = -wheelSpeed;
+            speedMotor.set(wheelSpeed);
+        }
+        
+        
         //potential angle optimization - assuming 0-360 degrees of motion
         //I still don't really know the exact outputs for the angle calculations/exactly how they work
         //The idea is that based on the current angle of the wheel, we could just figure out the closest angle and just invert the motor
@@ -357,66 +396,66 @@ public class SwerveDrive extends SubsystemBase {
         //'c' being the current wheel angle
         //'d' being the upper bound (targetAngle + 180)
         //try to determine whether a, b, or d is closest to c
-        if(Math.abs(encoder.getDistance() - (Math.abs(targetAngle - 180))) < Math.abs(encoder.getDistance() - (Math.abs(targetAngle + 180)))) { //a is closer to c then d
+        // if(Math.abs(encoder.getDistance() - (Math.abs(targetAngle - 180))) < Math.abs(encoder.getDistance() - (Math.abs(targetAngle + 180)))) { //a is closer to c then d
             
-            if(Math.abs(encoder.getDistance() - (Math.abs(targetAngle - 180))) < Math.abs(encoder.getDistance() - targetAngle)) { //a is closer to c then b
+        //     if(Math.abs(encoder.getDistance() - (Math.abs(targetAngle - 180))) < Math.abs(encoder.getDistance() - targetAngle)) { //a is closer to c then b
                 
-                angleMotor.set(pidController.calculate(encoder.getDistance(), targetAngle - 180));
+        //         angleMotor.set(pidController.calculate(encoder.getDistance(), targetAngle - 180));
                 
-                //now that the angle is set, now we need to determine whether to invert the motors or not
-                if(isInRange) {
+        //         //now that the angle is set, now we need to determine whether to invert the motors or not
+        //         if(isInRange) {
                     
-                    if(initialInvert == true) {
+        //             if(initialInvert == true) {
                
-                        speedMotor.setInverted(false);
+        //                 speedMotor.setInverted(false);
                         
-                    } else if(initialInvert == false) {
+        //             } else if(initialInvert == false) {
         
-                        speedMotor.setInverted(true);
+        //                 speedMotor.setInverted(true);
         
-                    }
-                }
+        //             }
+        //         }
 
-            } else { // b is closer to c then a
+        //     } else { // b is closer to c then a
                 
-                angleMotor.set(pidController.calculate(encoder.getDistance(), targetAngle));
+        //         angleMotor.set(pidController.calculate(encoder.getDistance(), targetAngle));
 
-                speedMotor.setInverted(initialInvert);
+        //         speedMotor.setInverted(initialInvert);
 
-                 //now that the angle is set, now we need to determine whether to invert the motors or not
+        //          //now that the angle is set, now we need to determine whether to invert the motors or not
         
-            }
+        //     }
 
-        } else { //d is closer to c then a
+        // } else { //d is closer to c then a
            
-            if(Math.abs(encoder.getDistance() - (Math.abs(targetAngle + 180))) < Math.abs(encoder.getDistance() - targetAngle)) { //d is closer to c then b
+        //     if(Math.abs(encoder.getDistance() - (Math.abs(targetAngle + 180))) < Math.abs(encoder.getDistance() - targetAngle)) { //d is closer to c then b
 
-                angleMotor.set(pidController.calculate(encoder.getDistance(), targetAngle + 180));
+        //         angleMotor.set(pidController.calculate(encoder.getDistance(), targetAngle + 180));
                 
-                //now that the angle is set, now we need to determine whether to invert the motors or not
-                if(isInRange) {
+        //         //now that the angle is set, now we need to determine whether to invert the motors or not
+        //         if(isInRange) {
                     
-                    if(initialInvert == true) {
+        //             if(initialInvert == true) {
                
-                        speedMotor.setInverted(false);
+        //                 speedMotor.setInverted(false);
                         
-                    } else if(initialInvert == false) {
+        //             } else if(initialInvert == false) {
         
-                        speedMotor.setInverted(true);
+        //                 speedMotor.setInverted(true);
         
-                    }
-                }
+        //             }
+        //         }
 
-            } else { //b is closer to c then a
+        //     } else { //b is closer to c then a
                 
-                angleMotor.set(pidController.calculate(encoder.getDistance(), targetAngle));
+        //         angleMotor.set(pidController.calculate(encoder.getDistance(), targetAngle));
                 
-                speedMotor.setInverted(initialInvert);
+        //         speedMotor.setInverted(initialInvert);
 
-                 //now that the angle is set, now we need to determine whether to invert the motors or not
+        //          //now that the angle is set, now we need to determine whether to invert the motors or not
               
-            }
-        }
+        //     }
+        // }
     }
 
     private boolean isOptmized(Encoder encoder) {
@@ -611,6 +650,7 @@ public class SwerveDrive extends SubsystemBase {
 		builder.addDoubleProperty("Back Right Angle",  () -> backRightEncoder.getDistance(),  null);
 		builder.addDoubleProperty("Back Left Angle",   () -> backLeftEncoder.getDistance(),   null);
 
+        
         builder.addDoubleArrayProperty("Robot Position", () -> getRobotPosition(), null);
 
         builder.addBooleanProperty("isSafeMode", () -> safeMode, null);
