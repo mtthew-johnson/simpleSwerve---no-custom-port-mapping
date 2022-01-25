@@ -46,11 +46,19 @@ public class SwerveDrive extends SubsystemBase {
     private WPI_TalonSRX backRightAngleMotor;
     private WPI_TalonSRX backLeftAngleMotor;
 
+    private final boolean isFrontRightInverted = true;
+    private final boolean isFrontLeftInverted  = true;
+    private final boolean isBackRightInverted  = false;
+    private final boolean isBackLeftInverted   = true;
+
     private boolean safeMode = false;
+    private final boolean fieldOrientedMode = true;
 
     private double forwardtemp = axis("forward");
-    private double strafetemp = axis("strafe");
-    private double rotatetemp = axis("rotate");
+    private double strafetemp  = axis("strafe");
+    private double rotatetemp  = axis("rotate");
+
+    private final double DEADZONE = 0.02;
 
     private ADXRS450_Gyro gyro;
 
@@ -114,10 +122,10 @@ public class SwerveDrive extends SubsystemBase {
         addChild("backRightAngleMotor",  backRightAngleMotor);
         addChild("backLeftAngleMotor",   backLeftAngleMotor);
 
-        frontRightSpeedMotor.setInverted(true);
-        frontLeftSpeedMotor.setInverted(true);
-        backRightSpeedMotor.setInverted(false);
-        backLeftSpeedMotor.setInverted(true);
+        frontRightSpeedMotor.setInverted(isFrontRightInverted);
+        frontLeftSpeedMotor.setInverted(isFrontLeftInverted);
+        backRightSpeedMotor.setInverted(isBackRightInverted);
+        backLeftSpeedMotor.setInverted(isBackLeftInverted);
 
         frontRightAngleMotor.setInverted(false);
         frontLeftAngleMotor.setInverted(false);
@@ -163,10 +171,21 @@ public class SwerveDrive extends SubsystemBase {
  
     private void calculateDrive(double FWD, double STR, double RCW, double gryroAngle) {
        
-        double temp = FWD*Math.cos(gryroAngle) + STR*Math.sin(gryroAngle);
+        if(fieldOrientedMode == true) {
+            
+            double temp = FWD*Math.cos(0) + STR*Math.sin(0);
         
-        STR = -FWD*Math.sin(gryroAngle) + STR*Math.cos(gryroAngle);
-        FWD = temp;
+            STR = -FWD*Math.sin(0) + STR*Math.cos(0);
+            FWD = temp;
+
+        } else {
+            
+            double temp = FWD*Math.cos(gryroAngle) + STR*Math.sin(gryroAngle);
+        
+            STR = -FWD*Math.sin(gryroAngle) + STR*Math.cos(gryroAngle);
+            FWD = temp;
+
+        }
 
         double A = STR - RCW*(L/R);
         double B = STR + RCW*(L/R);
@@ -218,10 +237,10 @@ public class SwerveDrive extends SubsystemBase {
         // frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), frontRightWheelAngle));
         // frontLeftAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), frontLeftWheelAngle));
 
-        setOptmizedAngle(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   pidAnglebl, backLeftWheelAngle, true);//
-        setOptmizedAngle(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  pidAnglebr, backRightWheelAngle, false);
-        setOptmizedAngle(frontRightEncoder, frontRightAngleMotor, frontRightSpeedMotor, pidAnglefr, frontRightWheelAngle, true);//
-        setOptmizedAngle(frontLeftEncoder,  frontLeftAngleMotor,  frontLeftSpeedMotor,  pidAnglefl, frontLeftWheelAngle, true);
+        setOptmizedAngle(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   pidAnglebl, backLeftWheelAngle,   isBackLeftInverted);//
+        setOptmizedAngle(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  pidAnglebr, backRightWheelAngle,  isBackRightInverted);
+        setOptmizedAngle(frontRightEncoder, frontRightAngleMotor, frontRightSpeedMotor, pidAnglefr, frontRightWheelAngle, isFrontRightInverted);//
+        setOptmizedAngle(frontLeftEncoder,  frontLeftAngleMotor,  frontLeftSpeedMotor,  pidAnglefl, frontLeftWheelAngle,  isFrontLeftInverted);
 
         //frontright
         //backleft
@@ -331,21 +350,13 @@ public class SwerveDrive extends SubsystemBase {
         //still don't know what the positive/negative direction for the encoders are, so the inverting may need to be adjusted
         //but it actually might not as it will only invert if the angle is set to an 'optmized one'
         boolean isInRange = (Math.abs(encoder.getDistance()) > (TOLERANCE_LOWER - targetAngle) && Math.abs(encoder.getDistance()) < (targetAngle - TOLERANCE_UPPER)) ||
-                            (Math.abs(encoder.getDistance()) > (TOLERANCE_LOWER + targetAngle) && Math.abs(encoder.getDistance()) < (targetAngle + TOLERANCE_UPPER));
-
-
-        // final boolean initalfr = false;
-        // final boolean initialfl = false;
-        // final boolean initialbr = false;
-        // final boolean initialbl = true;
-                        
+                            (Math.abs(encoder.getDistance()) > (TOLERANCE_LOWER + targetAngle) && Math.abs(encoder.getDistance()) < (targetAngle + TOLERANCE_UPPER));             
         //given values a, b, c, d and c is the current value
         //'a' being the lower bound (targetAngle - 180)
         //'b' being the current target angle
         //'c' being the current wheel angle
         //'d' being the upper bound (targetAngle + 180)
         //try to determine whether a, b, or d is closest to c
-        boolean flag = true;
         if(Math.abs(encoder.getDistance() - (Math.abs(targetAngle - 180))) < Math.abs(encoder.getDistance() - (Math.abs(targetAngle + 180)))) { //a is closer to c then d
             
             if(Math.abs(encoder.getDistance() - (Math.abs(targetAngle - 180))) < Math.abs(encoder.getDistance() - targetAngle)) { //a is closer to c then b
@@ -399,6 +410,7 @@ public class SwerveDrive extends SubsystemBase {
             } else { //b is closer to c then a
                 
                 angleMotor.set(pidController.calculate(encoder.getDistance(), targetAngle));
+                
                 speedMotor.setInverted(initialInvert);
 
                  //now that the angle is set, now we need to determine whether to invert the motors or not
@@ -525,7 +537,7 @@ public class SwerveDrive extends SubsystemBase {
 					alreadyToggled = false;
 				
 				}
-                //set controller deadzones
+                // //set controller deadzones
                 if(Math.abs(axis("forward")) < 0.1) {
                    
                     forwardtemp = 0;
@@ -555,25 +567,13 @@ public class SwerveDrive extends SubsystemBase {
 
                 }
 
-                //stop robot from drifting
-
-                // if(Math.abs(rotatetemp) < 0.01) {
-                    
-                //     rotateToAngle(0.5, gyro.getAngle(), 0);
-
-                // }
-
-                // System.out.println("forwardtemp: " + forwardtemp);
-                // System.out.println("strafetemp:  " + strafetemp);
-                // System.out.println("rotatetemp:  " + rotatetemp);
-
                 calculateDrive(forwardtemp, strafetemp, rotatetemp, gyro.getAngle());
-
-                System.out.println("frontLeftAngle:  " + frontLeftEncoder.getDistance());
-                System.out.println("frontRightAngle: " + frontRightEncoder.getDistance());
-                System.out.println("backLeftAngle:   " + backLeftEncoder.getDistance());
-                System.out.println("backRigthAngle:  " + backRightEncoder.getDistance());
-                //calculateRobotPosition();
+                calculateRobotPosition();
+                
+                // System.out.println("frontLeftAngle:  " + frontLeftEncoder.getDistance());
+                // System.out.println("frontRightAngle: " + frontRightEncoder.getDistance());
+                // System.out.println("backLeftAngle:   " + backLeftEncoder.getDistance());
+                // System.out.println("backRigthAngle:  " + backRightEncoder.getDistance());
 
 			}
 
