@@ -18,7 +18,7 @@ public class SwerveDrive extends SubsystemBase {
 
     private static final int lastTime = 0;
 
-    private final double SPEED = 0.4;
+    private final double SPEED = 0.3;
 
     private double KpAnglefl = 0.04;
 	private double KiAnglefl = 0;
@@ -122,15 +122,15 @@ public class SwerveDrive extends SubsystemBase {
         addChild("backRightAngleMotor",  backRightAngleMotor);
         addChild("backLeftAngleMotor",   backLeftAngleMotor);
 
-        frontRightSpeedMotor.setInverted(isFrontRightInverted);
-        frontLeftSpeedMotor.setInverted(isFrontLeftInverted);
-        backRightSpeedMotor.setInverted(isBackRightInverted);
-        backLeftSpeedMotor.setInverted(isBackLeftInverted);
+        frontRightSpeedMotor.setInverted(true);
+        frontLeftSpeedMotor.setInverted(false);
+        backRightSpeedMotor.setInverted(false);
+        backLeftSpeedMotor.setInverted(false);
 
         frontRightAngleMotor.setInverted(false);
         frontLeftAngleMotor.setInverted(false);
         backRightAngleMotor.setInverted(false);
-        backLeftAngleMotor.setInverted(true);
+        backLeftAngleMotor.setInverted(false);
     
         frontRightAngleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
         frontLeftAngleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
@@ -163,10 +163,10 @@ public class SwerveDrive extends SubsystemBase {
         frontRightSpeedMotor.setNeutralMode(NeutralMode.Brake);
 
         //brake mode for angle motors
-        // backLeftAngleMotor.setNeutralMode(NeutralMode.Brake);
-        // backRightAngleMotor.setNeutralMode(NeutralMode.Brake);
-        // frontLeftAngleMotor.setNeutralMode(NeutralMode.Brake);
-        // frontRightAngleMotor.setNeutralMode(NeutralMode.Brake);
+        backLeftAngleMotor.setNeutralMode(NeutralMode.Brake);
+        backRightAngleMotor.setNeutralMode(NeutralMode.Brake);
+        frontLeftAngleMotor.setNeutralMode(NeutralMode.Brake);
+        frontRightAngleMotor.setNeutralMode(NeutralMode.Brake);
     }
  
     private void calculateDrive(double FWD, double STR, double RCW, double gryroAngle) {
@@ -202,10 +202,10 @@ public class SwerveDrive extends SubsystemBase {
         double backLeftWheelSpeed   = Math.sqrt(Math.pow(A, 2) + Math.pow(D, 2));
         double backRightWheelSpeed  = Math.sqrt(Math.pow(A, 2) + Math.pow(C, 2));
 
-        double frontRightWheelAngle = (Math.atan2(B, D) * (180 / PI));
-        double frontLeftWheelAngle  = (Math.atan2(B, C) * (180 / PI));//
-        double backLeftWheelAngle   = (Math.atan2(A, C) * (180 / PI));
-        double backRightWheelAngle  = (Math.atan2(A, D) * (180 / PI));//
+        double frontRightWheelAngle = (Math.atan2(B, C) * (180 / PI));
+        double frontLeftWheelAngle  = (Math.atan2(B, D) * (180 / PI));//
+        double backLeftWheelAngle   = (Math.atan2(A, D) * (180 / PI));
+        double backRightWheelAngle  = (Math.atan2(A, C) * (180 / PI));//
 
         double max = frontRightWheelSpeed;
 
@@ -231,47 +231,43 @@ public class SwerveDrive extends SubsystemBase {
         backLeftWheelSpeed   = (max * SPEED); 
         backRightWheelSpeed  = (max * SPEED);
 
-
-        if (Math.abs(frontRightWheelAngle - frontRightEncoder.getDistance()) > 90 && Math.abs(frontRightWheelAngle - frontRightEncoder.getDistance()) < 270) {
-            frontRightWheelAngle = (((int)frontRightWheelAngle + 180) % 360);
+         if (Math.abs(frontRightWheelAngle - getDistanceWrapped(frontRightEncoder)) > 90 && Math.abs(frontRightWheelAngle - getDistanceWrapped(frontRightEncoder)) < 270) {
+            frontRightWheelAngle = ((int)frontRightWheelAngle + 180) % 360;
             frontRightWheelSpeed = -frontRightWheelSpeed;
         }
 
-        if (Math.abs(frontLeftWheelAngle - frontLeftEncoder.getDistance()) > 90 && Math.abs(frontLeftWheelAngle - frontLeftEncoder.getDistance()) < 270) {
-            frontLeftWheelAngle = (((int)frontLeftWheelAngle + 180) % 360);
+        if (Math.abs(frontLeftWheelAngle - getDistanceWrapped(frontLeftEncoder)) > 90 && Math.abs(frontLeftWheelAngle - getDistanceWrapped(frontLeftEncoder)) < 270) {
+            frontLeftWheelAngle = ((int)frontLeftWheelAngle + 180) % 360;
             frontLeftWheelSpeed = -frontLeftWheelSpeed;
         }
 
-        if (Math.abs(backLeftWheelAngle - backLeftEncoder.getDistance()) > 90 && Math.abs(backLeftWheelAngle - backLeftEncoder.getDistance()) < 270) {
+        if (Math.abs(backLeftWheelAngle - getDistanceWrapped(backLeftEncoder)) > 90 && Math.abs(backLeftWheelAngle - getDistanceWrapped(frontLeftEncoder)) < 270) {
             backLeftWheelAngle = ((int)backLeftWheelAngle + 180) % 360;
             backLeftWheelSpeed = -backLeftWheelSpeed;
         }
 
-        if (Math.abs(backRightWheelAngle - backRightEncoder.getDistance()) > 90 && Math.abs(backRightWheelAngle - backRightEncoder.getDistance()) < 270) {
+        if (Math.abs(backRightWheelAngle - getDistanceWrapped(backRightEncoder)) > 90 && Math.abs(backRightWheelAngle - getDistanceWrapped(backRightEncoder)) < 270) {
             backRightWheelAngle = ((int)backRightWheelAngle + 180) % 360;
             backRightWheelSpeed = -backRightWheelSpeed;
         }
 
-        System.out.println(backRightWheelAngle);
-
+        
+        
         frontRightSpeedMotor.set(frontRightWheelSpeed);
         frontLeftSpeedMotor.set(frontLeftWheelSpeed);
         backRightSpeedMotor.set(backLeftWheelSpeed);
         backLeftSpeedMotor.set(backRightWheelSpeed);
-        
 
         
-        backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), backLeftWheelAngle));
-        backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), backRightWheelAngle));
-        frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), frontRightWheelAngle));
-        frontLeftAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), frontLeftWheelAngle));
+        backLeftAngleMotor.set(pidAnglebl.calculate(getDistanceWrapped(backLeftEncoder), backLeftWheelAngle));
+        backRightAngleMotor.set(pidAnglebr.calculate(getDistanceWrapped(backRightEncoder), backRightWheelAngle));
+        frontRightAngleMotor.set(pidAnglefr.calculate(getDistanceWrapped(frontRightEncoder), frontRightWheelAngle));
+        frontLeftAngleMotor.set(pidAnglefl.calculate(getDistanceWrapped(frontLeftEncoder), frontLeftWheelAngle));
 
-        
-
-        // setOptmizedAngle(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   pidAnglebl, -backLeftWheelAngle, backLeftWheelSpeed);//
-        // setOptmizedAngle(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  pidAnglebr, backRightWheelAngle, backRightWheelSpeed);
-        // setOptmizedAngle(frontRightEncoder, frontRightAngleMotor, frontRightSpeedMotor, pidAnglefr, -frontRightWheelAngle, frontRightWheelSpeed);//
-        // setOptmizedAngle(frontLeftEncoder,  frontLeftAngleMotor,  frontLeftSpeedMotor,  pidAnglefl, frontLeftWheelAngle, frontLeftWheelSpeed);
+        // setOptmizedAngle(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   pidAnglebl, -backLeftWheelAngle,   isBackLeftInverted);//
+        // setOptmizedAngle(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  pidAnglebr, backRightWheelAngle,  isBackRightInverted);
+        // setOptmizedAngle(frontRightEncoder, frontRightAngleMotor, frontRightSpeedMotor, pidAnglefr, -frontRightWheelAngle, isFrontRightInverted);//
+        // setOptmizedAngle(frontLeftEncoder,  frontLeftAngleMotor,  frontLeftSpeedMotor,  pidAnglefl, frontLeftWheelAngle,  isFrontLeftInverted);
 
         //frontright
         //backleft
@@ -281,6 +277,10 @@ public class SwerveDrive extends SubsystemBase {
         // resetAfterFullRotation(frontRightEncoder);
         // resetAfterFullRotation(frontLeftEncoder);
         
+    }
+
+    private double getDistanceWrapped(Encoder encoder) {
+            return encoder.getDistance() % 360;
     }
 
     private void configureGyro() {
@@ -302,8 +302,8 @@ public class SwerveDrive extends SubsystemBase {
     private void configureEncoders() {
 
         frontRightEncoder = new Encoder(4, 5);
-        frontLeftEncoder  = new Encoder(6, 7);
-        backRightEncoder  = new Encoder(2, 3);
+        frontLeftEncoder  = new Encoder(7, 6);
+        backRightEncoder  = new Encoder(3, 2);
         backLeftEncoder   = new Encoder(0, 1);
         
         final double TICKS_TO_DEGREES = 1.12;
@@ -606,7 +606,7 @@ public class SwerveDrive extends SubsystemBase {
 
                 }
 
-                calculateDrive(forwardtemp, strafetemp, rotatetemp, gyro.getAngle());
+                calculateDrive(forwardtemp, -strafetemp, rotatetemp, gyro.getAngle());
                 calculateRobotPosition();
                 
                 // System.out.println("frontLeftAngle:  " + frontLeftEncoder.getDistance());
@@ -650,7 +650,6 @@ public class SwerveDrive extends SubsystemBase {
 		builder.addDoubleProperty("Back Right Angle",  () -> backRightEncoder.getDistance(),  null);
 		builder.addDoubleProperty("Back Left Angle",   () -> backLeftEncoder.getDistance(),   null);
 
-        
         builder.addDoubleArrayProperty("Robot Position", () -> getRobotPosition(), null);
 
         builder.addBooleanProperty("isSafeMode", () -> safeMode, null);
