@@ -35,6 +35,8 @@ public class Robot extends RobotBase {
 	
 		button("safeModeToggle", () -> button(0, Xinput.LeftStickIn) && button(0, Xinput.RightStickIn));
 
+		button("press", mainJoystick, Xinput.A);
+
 		drive = addSubsystem(SwerveDrive::new);
 
 	}

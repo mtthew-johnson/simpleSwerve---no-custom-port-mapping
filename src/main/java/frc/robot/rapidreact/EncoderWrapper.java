@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.Encoder;
 
 public class EncoderWrapper extends Encoder {
 
+    public double getprevious;
     public EncoderWrapper(DigitalSource sourceA, DigitalSource sourceB) {
         super(sourceA, sourceB);
     }

@@ -211,16 +211,16 @@ public class SwerveDrive extends SubsystemBase {
        
         if(fieldOrientedMode) {
             
-            double temp = FWD*Math.cos(0) + STR*Math.sin(0);
+            double temp = FWD*Math.cos(gryroAngle) + STR*Math.sin(gryroAngle);
         
-            STR = -FWD*Math.sin(0) + STR*Math.cos(0);
+            STR = -FWD*Math.sin(gryroAngle) + STR*Math.cos(gryroAngle);
             FWD = temp;
 
         } else {
             
-            double temp = FWD*Math.cos(gryroAngle) + STR*Math.sin(gryroAngle);
+            double temp = FWD*Math.cos(0) + STR*Math.sin(0);
         
-            STR = -FWD*Math.sin(gryroAngle) + STR*Math.cos(gryroAngle);
+            STR = -FWD*Math.sin(0) + STR*Math.cos(0);
             FWD = temp;
 
         }
@@ -311,11 +311,15 @@ public class SwerveDrive extends SubsystemBase {
         // System.out.println(gyro.getAngle());
 
       //setOptmizedAngle(encoder, angleMotor, speedMotor, pidController, targetAngle, wheelSpeed);
-      setOptmizedAngleAndSpeed(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   pidAnglebl, backLeftWheelAngle,   backLeftWheelSpeed);
-      setOptmizedAngleAndSpeed(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  pidAnglebr, backRightWheelAngle,  backRightWheelSpeed);
-      setOptmizedAngleAndSpeed(frontRightEncoder, frontRightAngleMotor, frontRightSpeedMotor, pidAnglefr, frontRightWheelAngle, frontRightWheelSpeed);
-      setOptmizedAngleAndSpeed(frontLeftEncoder,  frontLeftAngleMotor,  frontLeftSpeedMotor,  pidAnglefl, frontLeftWheelAngle,  frontLeftWheelSpeed);
+    //   setOptmizedAngleAndSpeed(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   pidAnglebl, backLeftWheelAngle,   backLeftWheelSpeed);
+    //   setOptmizedAngleAndSpeed(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  pidAnglebr, backRightWheelAngle,  backRightWheelSpeed);
+    //   setOptmizedAngleAndSpeed(frontRightEncoder, frontRightAngleMotor, frontRightSpeedMotor, pidAnglefr, frontRightWheelAngle, frontRightWheelSpeed);
+    //   setOptmizedAngleAndSpeed(frontLeftEncoder,  frontLeftAngleMotor,  frontLeftSpeedMotor,  pidAnglefl, frontLeftWheelAngle,  frontLeftWheelSpeed);
+    if(button("press")) {
+        turnDegrees(backLeftEncoder.getDistanceRaw(), 180, backLeftAngleMotor, pidAnglebl);
 
+    }    
+        
         // setOptmizedAngle(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   pidAnglebl, -backLeftWheelAngle,   isBackLeftInverted);//
         // setOptmizedAngle(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  pidAnglebr, backRightWheelAngle,  isBackRightInverted);
         // setOptmizedAngle(frontRightEncoder, frontRightAngleMotor, frontRightSpeedMotor, pidAnglefr, -frontRightWheelAngle, isFrontRightInverted);//
@@ -343,6 +347,10 @@ public class SwerveDrive extends SubsystemBase {
     }    
 
     public void turnDegrees(double currentAngle, double degreesToTurn, WPI_TalonSRX angleMotor, PIDController pidController) {
+        
+        
+
+        
         double turn = degreesToTurn + currentAngle;
 
         angleMotor.set(pidController.calculate(currentAngle, turn));
@@ -371,9 +379,14 @@ public class SwerveDrive extends SubsystemBase {
         double inverseAngleLeft = targetAngle - 180;
         double inverseAngleRight = targetAngle + 180;
 
-        double rawOption = currentRawHeading + targetAngle;
+        double rawOption = (360 % currentHeading) + targetAngle;
 
         double[] headingOptions = {calculatedHeading, inverseAngleLeft, inverseAngleRight, rawOption};
+
+         //  if (Math.abs(calculatedHeading - currentHeading) > 90 && Math.abs(frontRightWheelAngle - currentHeading) < 270) {
+        //     calculatedHeading = ((int)calculatedHeading + 180) % 360;
+        //     wheelSpeed = -wheelSpeed;
+        // }
 
         if(findClosest(headingOptions, currentRawHeading) == calculatedHeading) {
 
@@ -412,6 +425,8 @@ public class SwerveDrive extends SubsystemBase {
             speedMotor.set(wheelSpeed);
 
         }
+
+        speedMotor.set(wheelSpeed);
 
        
     }
