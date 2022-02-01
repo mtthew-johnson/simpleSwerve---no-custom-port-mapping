@@ -1,22 +1,26 @@
 package frc.robot.rapidreact;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
 import frc.robot.RobotBase;
 import frc.robot.Xinput;
-import frc.robot.XinputController;
 import frc.robot.subsystems.SwerveDrive;
+
 public class Robot extends RobotBase {
 	
 	public SwerveDrive drive;
-	XinputController driveController = new XinputController(0);
-
 	private Command autonomousCommand;
 
 	public Robot() {
 		super("Rapidreact");
 
 		int mainJoystick = 0;
+
+		JoystickButton joystickStart = new JoystickButton(new Joystick(mainJoystick), Xinput.Start);
 
         port("frontRightSpeedMotor", 5);
         port("frontLeftSpeedMotor", 1);
@@ -32,10 +36,15 @@ public class Robot extends RobotBase {
 		axis("strafe", mainJoystick, Xinput.LeftStickX);
 		axis("rotate", mainJoystick, Xinput.RightStickX);
 
-	
-		button("safeModeToggle", () -> button(0, Xinput.LeftStickIn) && button(0, Xinput.RightStickIn));
+		joystickStart.whenPressed(new InstantCommand(() -> {
 
-		button("press", mainJoystick, Xinput.A);
+			drive.fieldOrientedMode = !drive.fieldOrientedMode;
+			drive.gyro.reset();
+
+		}));
+
+		button("driveModeToggle", mainJoystick, Xinput.Start);
+		button("safeModeToggle", () -> button(0, Xinput.LeftStickIn) && button(0, Xinput.RightStickIn));
 
 		drive = addSubsystem(SwerveDrive::new);
 
