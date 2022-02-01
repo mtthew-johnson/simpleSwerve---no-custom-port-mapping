@@ -49,10 +49,6 @@ public class SwerveDrive extends SubsystemBase {
     private boolean safeMode = false;
     public boolean fieldOrientedMode = true;
 
-    private double forwardtemp = axis("forward");
-    private double strafetemp  = axis("strafe");
-    private double rotatetemp  = axis("rotate");
-
     public ADXRS450_Gyro gyro;
 
     private EncoderWrapper frontLeftEncoder;
@@ -466,9 +462,9 @@ public class SwerveDrive extends SubsystemBase {
 		builder.addDoubleProperty("IAnglebr", () -> KiAnglebr, (value) -> KiAnglebr = value);
 		builder.addDoubleProperty("DAnglebr", () -> KdAnglebr, (value) -> KdAnglebr = value);
 
-		builder.addDoubleProperty("Forward", () -> forwardtemp, (value) -> forwardtemp = value);
-		builder.addDoubleProperty("Strafe",  () -> strafetemp,  (value) -> strafetemp = value);
-		builder.addDoubleProperty("Rotate",  () -> rotatetemp,  (value) -> rotatetemp = value);
+		builder.addDoubleProperty("Forward", () ->   MathUtil.applyDeadband(axis("forward"), DEADBAND), null);
+		builder.addDoubleProperty("Strafe",  () ->  -MathUtil.applyDeadband(axis("strafe"),  DEADBAND), null);
+		builder.addDoubleProperty("Rotate",  () ->   MathUtil.applyDeadband(axis("rotate"),  DEADBAND), null);
         
         builder.addDoubleProperty("Front Right Angle", () -> frontRightEncoder.getDistance(), null);		
 		builder.addDoubleProperty("Front Left Angle",  () -> frontLeftEncoder.getDistance(),  null);
@@ -478,6 +474,7 @@ public class SwerveDrive extends SubsystemBase {
         builder.addDoubleArrayProperty("Robot Position", () -> getRobotPosition(), null);
 
         builder.addBooleanProperty("isSafeMode", () -> safeMode, null);
+        builder.addBooleanProperty("Drive Mode", () -> fieldOrientedMode, null);
 		
         builder.addDoubleProperty("frontRightSpeedMotor", () -> frontRightSpeedMotor.get(), null);		
 		builder.addDoubleProperty("frontLeftSpeedMotor",  () -> frontLeftSpeedMotor.get(),  null);
