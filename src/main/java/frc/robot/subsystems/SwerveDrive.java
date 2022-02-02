@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotBase;
@@ -51,10 +52,10 @@ public class SwerveDrive extends SubsystemBase {
 
     public ADXRS450_Gyro gyro;
 
-    private EncoderWrapper frontLeftEncoder;
-    private EncoderWrapper frontRightEncoder;
-    private EncoderWrapper backLeftEncoder;
-    private EncoderWrapper backRightEncoder;
+    private Encoder frontLeftEncoder;
+    private Encoder frontRightEncoder;
+    private Encoder backLeftEncoder;
+    private Encoder backRightEncoder;
 
     private PIDController pidAnglefl;
     private PIDController pidAnglefr;
@@ -172,10 +173,10 @@ public class SwerveDrive extends SubsystemBase {
 
     private void configureEncoders() {
 
-        frontRightEncoder = new EncoderWrapper(4, 5);
-        frontLeftEncoder  = new EncoderWrapper(7, 6);
-        backRightEncoder  = new EncoderWrapper(3, 2);
-        backLeftEncoder   = new EncoderWrapper(0, 1);
+        frontRightEncoder = new Encoder(4, 5);
+        frontLeftEncoder  = new Encoder(7, 6);
+        backRightEncoder  = new Encoder(3, 2);
+        backLeftEncoder   = new Encoder(0, 1);
         
         final double TICKS_TO_DEGREES = 1.12;
 
@@ -248,59 +249,76 @@ public class SwerveDrive extends SubsystemBase {
         // backRightSpeedMotor.set(backLeftWheelSpeed);
         // backLeftSpeedMotor.set(backRightWheelSpeed);
 
-        // backLeftAngleMotor.set(pidAnglebl.calculate(getDistanceWrapped(backLeftEncoder), backLeftWheelAngle));
-        // backRightAngleMotor.set(pidAnglebr.calculate(getDistanceWrapped(backRightEncoder), backRightWheelAngle));
-        // frontRightAngleMotor.set(pidAnglefr.calculate(getDistanceWrapped(frontRightEncoder), frontRightWheelAngle));
-        // frontLeftAngleMotor.set(pidAnglefl.calculate(getDistanceWrapped(frontLeftEncoder), frontLeftWheelAngle));
+        // backLeftAngleMotor.set(pidAnglebl.calculate(backLeftEncoder.getDistance(), backLeftWheelAngle));
+        // backRightAngleMotor.set(pidAnglebr.calculate(backRightEncoder.getDistance(), backRightWheelAngle));
+        // frontRightAngleMotor.set(pidAnglefr.calculate(frontRightEncoder.getDistance(), frontRightWheelAngle));
+        // frontLeftAngleMotor.set(pidAnglefl.calculate(frontLeftEncoder.getDistance(), frontLeftWheelAngle));
         
       //setSpeedAndAngle(encoder,           angleMotor,           speedMotor,           calculatedAngle,      speed,                pidController);
         setSpeedAndAngle(frontRightEncoder, frontRightAngleMotor, frontRightSpeedMotor, frontRightWheelAngle,  frontRightWheelSpeed, pidAnglefr);
-        setSpeedAndAngle(frontLeftEncoder,  frontLeftAngleMotor,  frontLeftSpeedMotor,  frontLeftWheelAngle,   frontLeftWheelSpeed,  pidAnglefl);
-        setSpeedAndAngle(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   backLeftWheelAngle,    backLeftWheelSpeed,   pidAnglebl);
-        setSpeedAndAngle(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  backRightWheelAngle,   backRightWheelSpeed,  pidAnglebr);
+        // setSpeedAndAngle(frontLeftEncoder,  frontLeftAngleMotor,  frontLeftSpeedMotor,  frontLeftWheelAngle,   frontLeftWheelSpeed,  pidAnglefl);
+        // setSpeedAndAngle(backLeftEncoder,   backLeftAngleMotor,   backLeftSpeedMotor,   backLeftWheelAngle,    backLeftWheelSpeed,   pidAnglebl);
+        // setSpeedAndAngle(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  backRightWheelAngle,   backRightWheelSpeed,  pidAnglebr);
+   
     }
     
     //TODO: need to test this
-    private void setSpeedAndAngle(EncoderWrapper encoder, WPI_TalonSRX angleMotor, WPI_TalonSRX speedMotor, double calculatedAngle, double speed, PIDController pidController) { 
+    private void setSpeedAndAngle(Encoder encoder, WPI_TalonSRX angleMotor, WPI_TalonSRX speedMotor, double calculatedAngle, double speed, PIDController pidController) { 
         
         double joystickAngle = calculatedAngle;
-
-        //Step 1: get current encoder raw
-        double encoderRaw = encoder.getDistanceRaw();
-
-        //Step 1: convert raw value to 360 scale
-        double encoder360Scale = encoderRaw % 360;
+        double finalDestination = 0;
 
 
-        //Step 3: find the closest angle in 360 scale
-        if (Math.abs(joystickAngle - encoder360Scale) > 90 && Math.abs(joystickAngle - encoder360Scale) < 270) {
-            joystickAngle = ((int)joystickAngle + 180) % 360;
-            speed = -speed; //invert the motors
+        if(MathUtil.applyDeadband(axis("forward"), DEADBAND) != 0 && MathUtil.applyDeadband(axis("strafe"), DEADBAND) != 0) {
+             //Step 1: get current encoder raw
+            double encoderRaw = encoder.getDistance();
+
+            //Step 2: convert raw value to 360 scale
+            double encoder360Scale = encoderRaw % 360;
+
+
+            //Step 3: find the closest angle in 360 scale
+            if (Math.abs(joystickAngle - encoder360Scale) > 90 && Math.abs(joystickAngle - encoder360Scale) < 270) {
+                joystickAngle = ((int)joystickAngle + 180) % 360;
+                speed = -speed; //invert the motors
+            }
+
+            //Steb 3b:if the wrapped value is over 270 we have to add 360 to the joystrick angle to
+            // see if it is closest
+            if(joystickAngle > 270) {
+                
+                joystickAngle = joystickAngle + 360;
+            
+            } else if(joystickAngle < 90) { //same thing just the opposite direction
+                
+                joystickAngle = joystickAngle - 360;
+            
+            }
+
+            //Step 4: difference = (joystickAngle - current 360 angle)
+            double difference = joystickAngle - encoder360Scale;
+
+            //Step 5: Final raw destination angle = current encoder raw value + difference
+            finalDestination = encoderRaw + difference;
+
+            //Step 6: Feed the output of step 5 and the destination angle for the angle motor
+            angleMotor.set(pidController.calculate(encoder.getDistance(), finalDestination));
+            System.out.println("final destination: " + finalDestination);
+        
+        } else {
+            
+            // System.out.println("final destination: " + finalDestination);
+            // finalDestination = 0;
+           // angleMotor.set(pidController.calculate(encoder.getDistance(), 0));
+
         }
 
-        //Steb 3b:if the wrapped value is over 270 we have to add 360 to the joystrick angle to
-        // see if it is closest
-        if(joystickAngle > 270) {
-            
-            joystickAngle = joystickAngle + 360;
         
-        } else if(joystickAngle < 90) { //same thing just the opposite direction
-            
-            joystickAngle = joystickAngle - 360;
-        
-        }
 
-        //Step 4: difference = (joystickAngle - current 360 angle)
-        double difference = joystickAngle - encoder360Scale;
-
-        //Step 5: Final raw destination angle = current encoder raw value + difference
-        double finalDestination = encoderRaw + difference;
-
-        //Step 6: Feed the output of step 5 and the destination angle for the angle motor
-        angleMotor.set(pidController.calculate(encoderRaw, finalDestination));
 
         //Step 7: Set Wheel Speed
-        speedMotor.set(speed);
+        // speedMotor.set(speed);
+       
 
     }
 
