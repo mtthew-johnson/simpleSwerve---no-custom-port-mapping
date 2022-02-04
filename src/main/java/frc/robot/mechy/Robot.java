@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.RobotBase;
 import frc.robot.Xinput;
-import frc.robot.subsystems.MechyDrive;
+import frc.robot.legacySubsystems.MechyDrive;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 

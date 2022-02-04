@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.legacySubsystems;
 
 import static edu.wpi.first.networktables.EntryListenerFlags.kImmediate;
 import static edu.wpi.first.networktables.EntryListenerFlags.kLocal;

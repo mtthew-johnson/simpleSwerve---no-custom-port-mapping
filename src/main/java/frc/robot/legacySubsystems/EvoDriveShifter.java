@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.legacySubsystems;
 //currently doesn't work due to solenoids and compressors 
 //requireing and 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import frc.robot.RobotBase;
+import frc.robot.subsystems.SubsystemBase;
 
 public class EvoDriveShifter extends SubsystemBase {
 	PneumaticsModuleType CTREPCM;

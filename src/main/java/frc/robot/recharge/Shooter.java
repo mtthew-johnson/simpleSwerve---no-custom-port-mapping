@@ -13,7 +13,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotBase;
-import frc.robot.subsystems.DriveBase;
+import frc.robot.legacySubsystems.DriveBase;
 import frc.robot.subsystems.SubsystemBase;
 
 public class Shooter extends SubsystemBase {

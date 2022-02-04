@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.legacySubsystems;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -11,6 +11,7 @@ import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotBase;
 import frc.robot.Xinput;
+import frc.robot.subsystems.SubsystemBase;
 
 public class WestCoastDrive extends SubsystemBase {
 

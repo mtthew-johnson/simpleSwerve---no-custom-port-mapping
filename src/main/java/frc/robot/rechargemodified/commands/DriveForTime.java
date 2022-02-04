@@ -2,7 +2,7 @@ package frc.robot.rechargemodified.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.TalonSRXDrive;
+import frc.robot.legacySubsystems.TalonSRXDrive;
 
 public class DriveForTime extends CommandBase {
 	

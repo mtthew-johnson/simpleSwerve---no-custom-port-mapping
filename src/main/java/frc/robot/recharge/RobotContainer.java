@@ -12,9 +12,9 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import frc.robot.legacySubsystems.TalonSRXDrive;
 import frc.robot.recharge.Constants.AutoConstants;
 import frc.robot.recharge.Constants.DriveConstants;
-import frc.robot.subsystems.TalonSRXDrive;
 
 public class RobotContainer {
 	TalonSRXDrive drive; 

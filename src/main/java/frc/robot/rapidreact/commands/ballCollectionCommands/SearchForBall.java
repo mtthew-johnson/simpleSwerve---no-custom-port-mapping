@@ -1,6 +1,7 @@
-package frc.robot.rapidreact.commands.shootingCommands;
+package frc.robot.rapidreact.commands.ballCollectionCommands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+
 import frc.robot.rapidreact.DetectionData;
 import frc.robot.subsystems.SwerveDrive;
 
@@ -26,24 +27,28 @@ public class SearchForBall extends CommandBase {
 	}
 
 	public void execute() {
-
-        isFinished = true;
         
         if(!detectionData.isBlueBallDetected() || !detectionData.isRedBallDetected()) {
 
             drive.rotate(ROTATE_SPEED);
 
-        } else {
-
-            drive.halt();
+        } else if (detectionData.isBlueBallDetected() || detectionData.isRedBallDetected()) {
 
             if(detectionData.isBlueBallDetected() && !detectionData.isRedBallDetected()) {
 
-            }
+				System.out.println("blue ball detected");
+
+				isFinished = true;
+
+            } else if (!detectionData.isBlueBallDetected() && detectionData.isRedBallDetected()) {
+
+				System.out.println("red ball detected");
+
+				isFinished = true;
+			}
 
         }
 
-        isFinished = true;
     
 	
 	}

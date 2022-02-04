@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.RobotBase;
 import frc.robot.Xinput;
 import frc.robot.XinputController;
-import frc.robot.subsystems.TwoMotorDrive;
+import frc.robot.legacySubsystems.TwoMotorDrive;
 
 public class Robot extends RobotBase {
 

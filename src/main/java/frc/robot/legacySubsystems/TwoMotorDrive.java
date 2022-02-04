@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.legacySubsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -24,6 +24,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.math.VecBuilder;
 import frc.robot.RobotBase;
+import frc.robot.subsystems.SubsystemBase;
 
 public class TwoMotorDrive extends SubsystemBase {
 	

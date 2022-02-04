@@ -23,10 +23,10 @@ import edu.wpi.first.hal.CTREPCMJNI;
 import frc.robot.RobotBase;
 import frc.robot.Xinput;
 import frc.robot.XinputController;
+import frc.robot.legacySubsystems.TalonSRXDrive;
+import frc.robot.legacySubsystems.DriveBase.Input;
 import frc.robot.recharge.commands.TalonSRXDriveDefaultCommand;
 import frc.robot.rechargemodified.commands.DriveForTime;
-import frc.robot.subsystems.DriveBase.Input;
-import frc.robot.subsystems.TalonSRXDrive;
 
 public class Robot extends RobotBase {
 

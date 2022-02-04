@@ -417,6 +417,11 @@ public class SwerveDrive extends SubsystemBase {
 
     }
 
+    public void drive(double FWD, double STR, double RCW) {
+
+        calculateDrive(FWD, STR, RCW, gyro.getAngle(), fieldOrientedMode);
+    }
+
     public void halt() {
         
         calculateDrive(0, 0, 0, gyro.getAngle(), fieldOrientedMode);

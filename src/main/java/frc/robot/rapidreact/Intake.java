@@ -2,11 +2,15 @@ package frc.robot.rapidreact;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+
 import frc.robot.RobotBase;
 import frc.robot.subsystems.SubsystemBase;
 
 public class Intake extends SubsystemBase {
+
+	private final Timer timer = new Timer();
 
 	private final double INTAKE_SPEED = 1;
 
@@ -28,6 +32,23 @@ public class Intake extends SubsystemBase {
 
         intake.setInverted(false);
     }
+
+	public void intakeTime(double time) {
+
+		timer.reset();
+        timer.start();
+
+        while (!timer.hasElapsed(time)) {}
+        timer.stop();
+
+		halt();
+
+	}
+
+	public void halt() {
+
+		intake.set(0);
+	}
 
 	public void initDefaultCommand() {
 

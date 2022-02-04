@@ -1,6 +1,7 @@
-package frc.robot.subsystems;
+package frc.robot.legacySubsystems;
 
 import frc.robot.RobotBase;
+import frc.robot.subsystems.SubsystemBase;
 
 public abstract class DriveBase extends SubsystemBase {
 	private double _wheelDiameter = 6.0;

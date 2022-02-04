@@ -28,6 +28,32 @@ public class DetectionData {
 
     public NetworkTableEntry isBlueBallDetected;
     public NetworkTableEntry isRedBallDetected;
+
+    private double distanceFromTarget;
+    
+    public double distanceFromTarget(String ballType) {
+		// // distance constant divided by length between centers of contours
+		// distanceFromTarget = DISTANCE_CONSTANT / getCenterX();
+		
+		double width = 9.5; //inches // width of the ball
+
+        if(ballType.equals("blue")) {
+
+            blueBallBoxWidth = blueBalls.getEntry("Box Width");
+            double boxWidthentry = blueBallBoxWidth.getDouble(-1);
+            distanceFromTarget = (width * 333.82) / boxWidthentry; // 333.82 is the focal length of the microsoft lifecam in px
+            
+        } else if(ballType.equals("red")) {
+
+            redBallBoxWidth = redBalls.getEntry("Box Width");
+            double boxWidthentry = redBallBoxWidth.getDouble(-1);
+            distanceFromTarget = (width * 333.82) / boxWidthentry; // 333.82 is the focal length of the microsoft lifecam in px
+            
+        }
+
+        return distanceFromTarget;
+
+	}
     
     public double getResX() {
 		
@@ -122,6 +148,4 @@ public class DetectionData {
         return isRedBallDetected.getBoolean(true);
 
     }
-
-
 }

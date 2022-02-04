@@ -59,6 +59,30 @@ public class Shooter extends SubsystemBase {
         }
     }
 
+    public void shootForTime(double time) {
+
+        //spin up flywheel
+        shooterWheel.set(SHOOTER_SPEED);
+        
+        // Wait for 1 second to allow wheel to spin up   
+        timer.reset();
+        timer.start();
+        while (!timer.hasElapsed(1)) {}
+        timer.stop();
+
+        //send ball through
+        shooterOutake.set(OUTAKE_SPEED);
+
+        timer.reset();
+        timer.start();
+        while (!timer.hasElapsed(time)) {}
+        timer.stop();
+
+        shooterWheel.set(0);
+        shooterOutake.set(0);
+
+    }
+
     public void initDefaultCommand() {
 
 		setDefaultCommand(new CommandBase() {

@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.legacySubsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -9,6 +9,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotBase;
+import frc.robot.subsystems.SubsystemBase;
 
 public class MechyDrive extends SubsystemBase {
 

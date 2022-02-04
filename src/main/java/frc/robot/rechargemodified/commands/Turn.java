@@ -5,13 +5,13 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.legacySubsystems.TwoMotorDrive;
 
 import static frc.robot.rechargemodified.DriveConstants.D_TURN;
 import static frc.robot.rechargemodified.DriveConstants.I_TURN;
 import static frc.robot.rechargemodified.DriveConstants.P_TURN;
 
 import edu.wpi.first.math.MathUtil;
-import frc.robot.subsystems.TwoMotorDrive;
 
 public class Turn extends CommandBase {
 	

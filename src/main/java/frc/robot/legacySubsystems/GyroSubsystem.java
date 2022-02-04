@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.legacySubsystems;
 
 import edu.wpi.first.util.sendable.SendableRegistry;
 
@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.RobotBase;
+import frc.robot.subsystems.SubsystemBase;
 
 public class GyroSubsystem extends SubsystemBase {
 	

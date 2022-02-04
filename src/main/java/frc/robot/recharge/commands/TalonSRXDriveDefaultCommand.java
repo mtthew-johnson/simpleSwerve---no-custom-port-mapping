@@ -6,8 +6,8 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.DriveBase.Input;
-import frc.robot.subsystems.TalonSRXDrive;
+import frc.robot.legacySubsystems.TalonSRXDrive;
+import frc.robot.legacySubsystems.DriveBase.Input;
 
 public class TalonSRXDriveDefaultCommand extends CommandBase {
 	final TalonSRXDrive drive;

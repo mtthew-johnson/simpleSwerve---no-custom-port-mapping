@@ -3,8 +3,8 @@ package frc.robot.recharge;
 import edu.wpi.first.networktables.NTSendableBuilder;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.legacySubsystems.TalonSRXDrive;
 import edu.wpi.first.math.MathUtil;
-import frc.robot.subsystems.TalonSRXDrive;
 
 public class ShooterAlignCommand extends CommandBase {
 	
