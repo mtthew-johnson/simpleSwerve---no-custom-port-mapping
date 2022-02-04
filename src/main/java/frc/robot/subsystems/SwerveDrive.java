@@ -266,58 +266,50 @@ public class SwerveDrive extends SubsystemBase {
     private void setSpeedAndAngle(Encoder encoder, WPI_TalonSRX angleMotor, WPI_TalonSRX speedMotor, double calculatedAngle, double speed, PIDController pidController) { 
         
         double joystickAngle = calculatedAngle;
-        double finalDestination = 0;
-
-
-        if(MathUtil.applyDeadband(axis("forward"), DEADBAND) != 0 && MathUtil.applyDeadband(axis("strafe"), DEADBAND) != 0) {
-             //Step 1: get current encoder raw
-            double encoderRaw = encoder.getDistance();
-
-            //Step 2: convert raw value to 360 scale
-            double encoder360Scale = encoderRaw % 360;
-
-
-            //Step 3: find the closest angle in 360 scale
-            if (Math.abs(joystickAngle - encoder360Scale) > 90 && Math.abs(joystickAngle - encoder360Scale) < 270) {
-                joystickAngle = ((int)joystickAngle + 180) % 360;
-                speed = -speed; //invert the motors
-            }
-
-            //Steb 3b:if the wrapped value is over 270 we have to add 360 to the joystrick angle to
-            // see if it is closest
-            if(joystickAngle > 270) {
-                
-                joystickAngle = joystickAngle + 360;
-            
-            } else if(joystickAngle < 90) { //same thing just the opposite direction
-                
-                joystickAngle = joystickAngle - 360;
-            
-            }
-
-            //Step 4: difference = (joystickAngle - current 360 angle)
-            double difference = joystickAngle - encoder360Scale;
-
-            //Step 5: Final raw destination angle = current encoder raw value + difference
-            finalDestination = encoderRaw + difference;
-
-            //Step 6: Feed the output of step 5 and the destination angle for the angle motor
-            angleMotor.set(pidController.calculate(encoder.getDistance(), finalDestination));
-            System.out.println("final destination: " + finalDestination);
         
-        } else {
-            
-            // System.out.println("final destination: " + finalDestination);
-            // finalDestination = 0;
-           // angleMotor.set(pidController.calculate(encoder.getDistance(), 0));
+        //Step 1: get current encoder raw
+        double encoderRaw = encoder.getDistance();
 
+        //Step 2: convert raw value to 360 scale
+        double encoder360Scale = encoderRaw % 360;
+
+
+        //Step 3: find the closest angle in 360 scale
+        if (Math.abs(joystickAngle - encoder360Scale) > 90 && Math.abs(joystickAngle - encoder360Scale) < 270) {
+            joystickAngle = ((int)joystickAngle + 180) % 360;
+            speed = -speed; //invert the motors
         }
 
+        //Steb 3b:if the wrapped value is over 270 we have to add 360 to the joystrick angle to
+        // see if it is closest
+        if(joystickAngle > 270) {
+            
+            joystickAngle = joystickAngle + 360;
+        
+        } else if(joystickAngle < 90) { //same thing just the opposite direction
+            
+            joystickAngle = joystickAngle - 360;
+        
+        }
+
+        //Step 4: difference = (joystickAngle - current 360 angle)
+        double difference = joystickAngle - encoder360Scale;
+
+        //Step 5: Final raw destination angle = current encoder raw value + difference
+        double finalDestination = encoderRaw + difference;
+
+        if(MathUtil.applyDeadband(axis("strafe"),  DEADBAND) == 0) {
+            finalDestination = finalDestination + 360;
+        }
+
+        //Step 6: Feed the output of step 5 and the destination angle for the angle motor
+        angleMotor.set(pidController.calculate(encoder.getDistance(), finalDestination));
+        System.out.println("final destination: " + finalDestination);
         
 
 
         //Step 7: Set Wheel Speed
-        // speedMotor.set(speed);
+        speedMotor.set(speed);
        
 
     }
