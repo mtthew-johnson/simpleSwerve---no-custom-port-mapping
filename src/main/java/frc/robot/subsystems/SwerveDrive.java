@@ -14,8 +14,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotBase;
 
-import frc.robot.rapidreact.EncoderWrapper;
-
 public class SwerveDrive extends SubsystemBase {
 
     private final double DEADBAND = 0.2;
@@ -371,16 +369,60 @@ public class SwerveDrive extends SubsystemBase {
             
             if(gyroAngle < angleToRotate) {
                 
-                calculateDrive(0, 0, -rotationSpeed, gyroAngle, false);
+                calculateDrive(0, 0, -rotationSpeed, gyroAngle, fieldOrientedMode);
 
             } else if (gyroAngle > angleToRotate) {
                 
-                calculateDrive(0, 0, rotationSpeed, gyroAngle, false);
+                calculateDrive(0, 0, rotationSpeed, gyroAngle, fieldOrientedMode);
 
             }
 
         }
     }
+    
+    private double getRobotheading() {
+        double robotHeading = gyro.getAngle();
+
+        return robotHeading;
+    }
+
+    //Drive methods for auto
+    public void driveForward(double speed) {
+        
+        calculateDrive(speed, 0, 0, gyro.getAngle(), fieldOrientedMode);
+    
+    }
+
+
+    public void driveBackward(double speed) {
+
+        calculateDrive(-speed, 0, 0, gyro.getAngle(), fieldOrientedMode);
+    }
+
+    public void strafeLeft(double speed) {
+
+        calculateDrive(0, speed, 0, gyro.getAngle(), fieldOrientedMode);
+
+    }
+
+    public void strafeRight(double speed) {
+
+        calculateDrive(0, -speed, 0, gyro.getAngle(), fieldOrientedMode);
+
+    }
+
+    public void rotate(double speed) {
+
+        calculateDrive(0, 0, speed, gyro.getAngle(), fieldOrientedMode);
+
+    }
+
+    public void halt() {
+        
+        calculateDrive(0, 0, 0, gyro.getAngle(), fieldOrientedMode);
+
+    }
+
 
 	@Override
 	public void periodic() {

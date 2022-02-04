@@ -13,7 +13,11 @@ import frc.robot.subsystems.SwerveDrive;
 public class Robot extends RobotBase {
 	
 	public SwerveDrive drive;
+	public Shooter shooter;
+	public Intake intake;
+
 	private Command autonomousCommand;
+	private Auto auto;
 
 	public Robot() {
 		super("Rapidreact");
@@ -22,7 +26,11 @@ public class Robot extends RobotBase {
 
 		JoystickButton joystickStart = new JoystickButton(new Joystick(mainJoystick), Xinput.Start);
 
-        port("frontRightSpeedMotor", 5);
+        port("shooterWheel", 5);  //TODO: need to determine the ports
+		port("shooterOutake", 5); //TODO: need to determine the ports
+		port("intake", 5);        //TODO: need to determine the ports
+		
+		port("frontRightSpeedMotor", 5);
         port("frontLeftSpeedMotor", 1);
         port("backRightSpeedMotor", 6);
         port("backLeftSpeedMotor", 2);
@@ -46,7 +54,16 @@ public class Robot extends RobotBase {
 		button("driveModeToggle", mainJoystick, Xinput.Start);
 		button("safeModeToggle", () -> button(0, Xinput.LeftStickIn) && button(0, Xinput.RightStickIn));
 
+		button("shoot",      mainJoystick, Xinput.A);
+		button("intakeBall", mainJoystick, Xinput.B);
+
 		drive = addSubsystem(SwerveDrive::new);
+
+		shooter = addSubsystem(Shooter::new);
+		intake = addSubsystem(Intake::new);
+		
+		//initialize auto commands
+		auto = new Auto(drive);
 
 	}
 
@@ -54,6 +71,9 @@ public class Robot extends RobotBase {
 	public void teleopInit() {
 		if (autonomousCommand != null)
 			autonomousCommand.cancel();
+
+		if (auto != null)
+			auto.cancel();
 	}
 
 	@Override
@@ -75,6 +95,8 @@ public class Robot extends RobotBase {
 	@Override
 	public void autonomousInit() {
 
+		auto.schedule();
+		
 	}
 
 	@Override
