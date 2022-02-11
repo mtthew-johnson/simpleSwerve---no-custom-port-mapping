@@ -1,8 +1,7 @@
 package frc.robot.rapidreact;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.motorcontrol.Jaguar;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import frc.robot.RobotBase;
@@ -12,9 +11,10 @@ public class Intake extends SubsystemBase {
 
 	private final Timer timer = new Timer();
 
-	private final double INTAKE_SPEED = 1;
+	private final double INTAKE_SPEED = 0.3;
 
-	private WPI_TalonSRX intake;
+	private Jaguar intake;
+	private Jaguar rollerWheels;
 
 	public Intake(RobotBase robot) {
 
@@ -28,9 +28,11 @@ public class Intake extends SubsystemBase {
 
     private void initMotors() {
         
-        intake = new WPI_TalonSRX(configInt("intake"));
+        intake = new Jaguar(2);//new WPI_TalonSRX(configInt("intake"));
+		rollerWheels = new Jaguar(3);
 
         intake.setInverted(false);
+		rollerWheels.setInverted(false);
     }
 
 	public void intakeTime(double time) {
@@ -73,10 +75,4 @@ public class Intake extends SubsystemBase {
 		});
 
 	}
-
-	@Override
-	public String getConfigName() {
-		return "intake";
-	}
-
 }

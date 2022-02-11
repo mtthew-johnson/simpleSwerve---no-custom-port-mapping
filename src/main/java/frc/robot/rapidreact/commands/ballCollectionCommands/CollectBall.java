@@ -1,7 +1,7 @@
 package frc.robot.rapidreact.commands.ballCollectionCommands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-
+import frc.robot.RobotBase;
 import frc.robot.rapidreact.DetectionData;
 import frc.robot.rapidreact.Intake;
 import frc.robot.subsystems.SwerveDrive;
@@ -19,7 +19,7 @@ public class CollectBall extends CommandBase {
 
     private final double speed;
 
-	public CollectBall(SwerveDrive drive, Intake intake, double speed) {
+	public CollectBall(RobotBase robot, SwerveDrive drive, Intake intake, double speed) {
 		
 		this.drive = drive;
         this.intake = intake;

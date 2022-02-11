@@ -2,7 +2,7 @@ package frc.robot.rapidreact.commands.ballCollectionCommands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-
+import frc.robot.RobotBase;
 import frc.robot.rapidreact.DetectionData;
 import frc.robot.subsystems.SwerveDrive;
 
@@ -20,7 +20,7 @@ public class CenterBall extends CommandBase {
     private double imageCenter = imageWidth / 2;
 
 
-	public CenterBall(SwerveDrive drive) {
+	public CenterBall(RobotBase robot, SwerveDrive drive) {
 		
 		this.drive = drive;
 	}

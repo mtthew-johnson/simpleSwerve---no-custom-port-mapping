@@ -1,8 +1,7 @@
 package frc.robot.rapidreact;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.motorcontrol.Jaguar;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotBase;
 import frc.robot.subsystems.SubsystemBase;
@@ -10,10 +9,10 @@ import frc.robot.subsystems.SubsystemBase;
 public class Shooter extends SubsystemBase {
     
     private final double SHOOTER_SPEED = 1;
-    private final double OUTAKE_SPEED = 0.5;
+    private final double OUTAKE_SPEED = 0.3;
 
-    private WPI_TalonSRX shooterWheel;
-    private WPI_TalonSRX shooterOutake;
+    private Jaguar shooterWheel;
+    private Jaguar shooterOutake;
 
     private final Timer timer = new Timer();
     
@@ -29,11 +28,11 @@ public class Shooter extends SubsystemBase {
 
     private void initMotors() {
         
-        shooterWheel = new WPI_TalonSRX(configInt("shooterWheel"));
-        shooterOutake = new WPI_TalonSRX(configInt("shooterOutake"));
+        shooterWheel = new Jaguar(1);
+        shooterOutake = new Jaguar(0);
 
         shooterWheel.setInverted(false);
-        shooterOutake.setInverted(false);
+        shooterOutake.setInverted(true);
     }
 
     private void shoot() {

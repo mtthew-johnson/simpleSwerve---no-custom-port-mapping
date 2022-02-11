@@ -35,16 +35,15 @@ public class WestCoastDrive extends SubsystemBase {
 
 	private static final int THRESHOLD_ANGLE = 2;
 
-	public WestCoastDrive(RobotBase robot) {
+	public WestCoastDrive(RobotBase robot, Gyro gyro) {
 		super(robot);
 
 		initMotors();
 		drive = new DifferentialDrive(new MotorControllerGroup(fl, bl), new MotorControllerGroup(fr, br));
-		
 
 		joystick = new Joystick(port("mainJoystick"));
 
-		gyro = robot.getSubsystem(GyroSubsystem.class).getGyro();
+		this.gyro = gyro;
 
 		reset();
 

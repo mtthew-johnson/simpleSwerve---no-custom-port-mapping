@@ -9,6 +9,7 @@ import static edu.wpi.first.wpilibj.XboxController.Button.kX;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.Compressor;
 //import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 //import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -41,8 +42,7 @@ public class Robot extends RobotBase {
 	TalonSRXDrive drive;
 	RobotContainer robotContainer;
 	Gyro gyro = new ADXRS450_Gyro();
-	CTREPCMJNI compressor;
-    PneumaticsModuleType CTREPCM;
+	Compressor compressor;
 	Command autonomousCommand;
 	XinputController driverController = new XinputController(drivingControllerPort);
 	XinputController mechanismController = new XinputController(mechanismControllerPort); 
@@ -84,11 +84,11 @@ public class Robot extends RobotBase {
 
 		axis("rotateShooter", mechanismControllerPort, Xinput.LeftStickY);
 
-		compressor = new CTREPCMJNI();
+		compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 		pdp = new PowerDistribution();
 
-		drive = addSubsystem(TalonSRXDrive::new).withGyro(gyro);
-		//drive = addSubsystem(TalonSRXDrive::new);
+		drive = new TalonSRXDrive(this).withGyro(gyro);
+		//drive = new TalonSRXDrive(this);
 		driverController.getButton(kBack).whenPressed(drive::toggleIsReversed);
 		driverController.getButton(kStart).whenPressed(drive::toggleTankControls);
 		driverController.getButton(kLeftStick)
@@ -106,13 +106,13 @@ public class Robot extends RobotBase {
 
 		autonomousDriveForTime = new DriveForTime(2, 1, drive);
 
-		//robotContainer = new RobotContainer(drive);
+		// robotContainer = new RobotContainer(drive);
 
-		shooter = addSubsystem(Shooter::new);
-		//hanger = addSubsystem(GeneratorHanger::new);
-		intake = addSubsystem(Intake::new);
+		shooter = new Shooter(this, drive);
+		//hanger = new GeneratorHanger(this);
+		intake = new Intake(this);
 
-		driverController.getButton(kX).whenHeld(new ShooterAlignCommand(shooter, drive)); //TODO check if this works
+		driverController.getButton(kX).whenHeld(new ShooterAlignCommand(shooter, drive));
 		//driverController.getButton(kY).whenPressed(robotContainer.getAutonomousCommand());
 	
 	}
@@ -121,7 +121,7 @@ public class Robot extends RobotBase {
 	public void teleopInit() {
 		if (autonomousCommand != null)
 			autonomousCommand.cancel();
-		compressor.setClosedLoopControl(1, true);
+		compressor.enableDigital();
 		drive.resetSensors();
 		gyro.reset();
 	}
@@ -139,12 +139,12 @@ public class Robot extends RobotBase {
 
 	@Override
 	public void disabledInit() {
-		compressor.setClosedLoopControl(1, false);
+		compressor.disable();
 	}
 
 	@Override
 	public void autonomousInit() {
-		compressor.setClosedLoopControl(1, true);
+		compressor.enableDigital();
 		autonomousDriveForTime.schedule();
 	}
 
