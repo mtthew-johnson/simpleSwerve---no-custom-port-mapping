@@ -1,12 +1,10 @@
-package frc.robot.rapidreact;
+package frc.robot.rapidreact.shooter;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.Jaguar;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotBase;
-import frc.robot.subsystems.SubsystemBase;
 
-public class Shooter extends SubsystemBase {
+public class Shooter extends ShooterBase {
     
     private final double SHOOTER_SPEED = 1;
     private final double OUTAKE_SPEED = 0.3;
@@ -20,25 +18,24 @@ public class Shooter extends SubsystemBase {
 
         super(robot);
 
-        initMotors();
-
-        initDefaultCommand();
+        configureMotors();
 
     }
 
-    private void initMotors() {
+    private void configureMotors() {
         
-        shooterWheel = new Jaguar(1);
-        shooterOutake = new Jaguar(0);
+        shooterWheel = new Jaguar(configInt("shooterWheel"));
+        shooterOutake = new Jaguar(configInt("shooterOutake"));
+
+        addChild("shooterWheel", shooterWheel);
+        addChild("shooterOutake", shooterOutake);
 
         shooterWheel.setInverted(false);
         shooterOutake.setInverted(true);
     }
 
-    private void shoot() {
-        
-        if(button("shoot")) {
-                    
+    public void shoot() {
+            
             //spin up flywheel
             shooterWheel.set(SHOOTER_SPEED);
             
@@ -50,12 +47,11 @@ public class Shooter extends SubsystemBase {
 
             //send ball through
             shooterOutake.set(OUTAKE_SPEED);
+    }
 
-        } else {
-
-            shooterWheel.set(0);
-            shooterOutake.set(0);
-        }
+    public void halt() {
+        shooterWheel.set(0);
+        shooterOutake.set(0);
     }
 
     public void shootForTime(double time) {
@@ -81,24 +77,5 @@ public class Shooter extends SubsystemBase {
         shooterOutake.set(0);
 
     }
-
-    public void initDefaultCommand() {
-
-		setDefaultCommand(new CommandBase() {
-
-			{
-				addRequirements(Shooter.this);
-			}
-
-			@Override
-			public void execute() {
-				
-                shoot();
-
-			}
-
-		});
-
-	}
 
 }

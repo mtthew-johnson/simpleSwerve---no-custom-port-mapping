@@ -6,17 +6,13 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.util.sendable.SendableRegistry;
-import edu.wpi.first.wpilibj.ADIS16448_IMU;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotBase;
 
-public class SwerveDrive extends SubsystemBase {
+public class SwerveDrive extends SwerveBase {
 
     private final double DEADBAND = 0.2;
     private final double SPEED = 0.3;
@@ -48,7 +44,7 @@ public class SwerveDrive extends SubsystemBase {
     private WPI_TalonSRX backLeftAngleMotor;
 
     private boolean safeMode = false;
-    public boolean fieldOrientedMode = true;
+    public boolean isfieldOriented = true;
 
     public ADIS16470_IMU gyro;
 
@@ -70,22 +66,21 @@ public class SwerveDrive extends SubsystemBase {
     private double positionAlongField = 0;
     private double positionAcrossField = 0;
 
+    private NetworkTableEntry safeModeEntry;
+    private NetworkTableEntry isFieldOriented;
+
     public SwerveDrive(RobotBase robot) {
         
         super(robot);
        
-        initMotors();
-        configureGyro();
+        configMotors();
         configureEncoders();
 
         configurePID();
-
-        reset();
-        initDefaultCommand();
-        
+        reset();        
     }
 
-    private void initMotors() {
+    private void configMotors() {
         
         frontRightSpeedMotor = new WPI_TalonSRX(port("frontRightSpeedMotor"));
         frontLeftSpeedMotor  = new WPI_TalonSRX(port("frontLeftSpeedMotor"));
@@ -154,13 +149,6 @@ public class SwerveDrive extends SubsystemBase {
         frontLeftAngleMotor.setNeutralMode(NeutralMode.Brake);
         frontRightAngleMotor.setNeutralMode(NeutralMode.Brake);
     }
-
-    private void configureGyro() {
-		
-		gyro = new ADIS16470_IMU();
-		gyro.reset();
-
-	}
 
     private void configurePID() {
 
@@ -246,42 +234,22 @@ public class SwerveDrive extends SubsystemBase {
 
         if (Math.abs(frontRightWheelAngle - frontRightEncoder.getDistance()) > 90 && Math.abs(frontRightWheelAngle - frontRightEncoder.getDistance()) < 270) {
             frontRightWheelAngle = (((int)frontRightWheelAngle + 180) % 360);
-            //frontRightWheelSpeed = -frontRightWheelSpeed;
-            if(frontRightAngleMotor.getInverted()) {
-                frontRightAngleMotor.setInverted(false);
-            } else {
-                frontRightAngleMotor.setInverted(true);
-            }
+            frontRightWheelSpeed = -frontRightWheelSpeed;
         }
 
         if (Math.abs(frontLeftWheelAngle - frontLeftEncoder.getDistance()) > 90 && Math.abs(frontLeftWheelAngle - frontLeftEncoder.getDistance()) < 270) {
             frontLeftWheelAngle = (((int)frontLeftWheelAngle + 180) % 360);
-            //frontLeftWheelSpeed = -frontLeftWheelSpeed;
-            if(frontLeftAngleMotor.getInverted()) {
-                frontLeftAngleMotor.setInverted(false);
-            } else {
-                frontLeftAngleMotor.setInverted(true);
-            }
+            frontLeftWheelSpeed = -frontLeftWheelSpeed;
         }
 
         if (Math.abs(backLeftWheelAngle - backLeftEncoder.getDistance()) > 90 && Math.abs(backLeftWheelAngle - backLeftEncoder.getDistance()) < 270) {
             backLeftWheelAngle = ((int)backLeftWheelAngle + 180) % 360;
-            //backLeftWheelSpeed = -backLeftWheelSpeed;
-            if(backLeftAngleMotor.getInverted()) {
-                backLeftAngleMotor.setInverted(false);
-            } else {
-                backLeftAngleMotor.setInverted(true);
-            }
+            backLeftWheelSpeed = -backLeftWheelSpeed;
         }
 
         if (Math.abs(backRightWheelAngle - backRightEncoder.getDistance()) > 90 && Math.abs(backRightWheelAngle - backRightEncoder.getDistance()) < 270) {
             backRightWheelAngle = ((int)backRightWheelAngle + 180) % 360;
-            //backRightWheelSpeed = -backRightWheelSpeed;
-            if(backRightAngleMotor.getInverted()) {
-                backRightAngleMotor.setInverted(false);
-            } else {
-                backRightAngleMotor.setInverted(true);
-            }
+            backRightWheelSpeed = -backRightWheelSpeed;
         }
 
         frontRightSpeedMotor.set(frontRightWheelSpeed);
@@ -354,7 +322,7 @@ public class SwerveDrive extends SubsystemBase {
 
     }
 
-    private void calculateRobotPosition() {
+    public void calculateRobotPosition() {
         
         double Bfl = Math.sin(frontLeftEncoder.getDistance())  * frontLeftSpeedMotor.getSelectedSensorVelocity();
         double Bfr = Math.sin(frontRightEncoder.getDistance()) * frontRightSpeedMotor.getSelectedSensorVelocity();
@@ -412,11 +380,11 @@ public class SwerveDrive extends SubsystemBase {
             
             if(gyroAngle < angleToRotate) {
                 
-                calculateDrive(0, 0, -rotationSpeed, gyroAngle, fieldOrientedMode);
+                calculateDrive(0, 0, -rotationSpeed, gyroAngle, getIsFieldOriented());
 
             } else if (gyroAngle > angleToRotate) {
                 
-                calculateDrive(0, 0, rotationSpeed, gyroAngle, fieldOrientedMode);
+                calculateDrive(0, 0, rotationSpeed, gyroAngle, getIsFieldOriented());
 
             }
 
@@ -432,45 +400,60 @@ public class SwerveDrive extends SubsystemBase {
     //Drive methods for auto
     public void driveForward(double speed) {
         
-        calculateDrive(speed, 0, 0, gyro.getAngle(), fieldOrientedMode);
+        calculateDrive(speed, 0, 0, gyro.getAngle(), getIsFieldOriented());
     
     }
 
 
     public void driveBackward(double speed) {
 
-        calculateDrive(-speed, 0, 0, gyro.getAngle(), fieldOrientedMode);
+        calculateDrive(-speed, 0, 0, gyro.getAngle(), getIsFieldOriented());
     }
 
     public void strafeLeft(double speed) {
 
-        calculateDrive(0, speed, 0, gyro.getAngle(), fieldOrientedMode);
+        calculateDrive(0, speed, 0, gyro.getAngle(), getIsFieldOriented());
 
     }
 
     public void strafeRight(double speed) {
 
-        calculateDrive(0, -speed, 0, gyro.getAngle(), fieldOrientedMode);
+        calculateDrive(0, -speed, 0, gyro.getAngle(), getIsFieldOriented());
 
     }
 
     public void rotate(double speed) {
 
-        calculateDrive(0, 0, speed, gyro.getAngle(), fieldOrientedMode);
+        calculateDrive(0, 0, speed, gyro.getAngle(), getIsFieldOriented());
 
     }
 
-    public void drive(double FWD, double STR, double RCW) {
+    public void swerveDrive(double FWD, double STR, double RCW, boolean isFieldOriented) {
 
-        calculateDrive(FWD, STR, RCW, gyro.getAngle(), fieldOrientedMode);
+        calculateDrive(FWD, STR, RCW, gyro.getAngle(), getIsFieldOriented());
     }
 
     public void halt() {
         
-        calculateDrive(0, 0, 0, gyro.getAngle(), fieldOrientedMode);
+        calculateDrive(0, 0, 0, gyro.getAngle(), getIsFieldOriented());
 
     }
 
+    public boolean getIsFieldOriented() {
+        return isFieldOriented.getBoolean(false);
+    }
+
+    public void setIsFieldOriented(boolean enabled) {
+        isFieldOriented.setBoolean(enabled);
+    }
+    
+    public boolean getSafeMode() {
+        return safeModeEntry.getBoolean(false);
+    }
+
+    public void setSafeMode(boolean enabled) {
+        safeModeEntry.setBoolean(enabled);
+    }
 
 	@Override
 	public void periodic() {
@@ -484,63 +467,6 @@ public class SwerveDrive extends SubsystemBase {
 	public void reset() {
 		
 	}
-
-    protected void initDefaultCommand() {
-        setDefaultCommand(new CommandBase() {
-
-			double comboStartTime = 0;
-			boolean alreadyToggled = false;
-
-			{
-				addRequirements(SwerveDrive.this);
-				SendableRegistry.addChild(SwerveDrive.this, this);
-			}
-
-			@Override
-			public void execute() {
-                
-                //puts robot into safemode where the robot will go slower
-                if (button("safeModeToggle")) {
-
-					if (comboStartTime == 0)
-						comboStartTime = Timer.getFPGATimestamp();
-					else if (Timer.getFPGATimestamp() - comboStartTime >= 3.0 && !alreadyToggled) {
-					
-						safeMode = !safeMode;
-						alreadyToggled = true;
-						System.out.println("Safemode is " + (safeMode ? "Enabled" : "Disabled") + ".");
-					
-					}
-
-				} else {
-
-					comboStartTime = 0;
-					alreadyToggled = false;
-				
-				}
-
-                // toggle POV and field mode
-				if (button("driveModeToggle")) {
-
-					fieldOrientedMode = !fieldOrientedMode;
-					gyro.reset();
-
-				}
-         
-                calculateDrive(MathUtil.applyDeadband(axis("forward"), DEADBAND), 
-                              -MathUtil.applyDeadband(axis("strafe"),  DEADBAND), 
-                               -MathUtil.applyDeadband(axis("rotate"),  DEADBAND), 
-                               gyro.getYComplementaryAngle(),
-                               fieldOrientedMode);
-                
-                calculateRobotPosition();
-
-			}
-
-		}); // End set default command
-
-	} // End init default command
-
 	@Override
 	public void initSendable(SendableBuilder builder) {
 
@@ -574,7 +500,7 @@ public class SwerveDrive extends SubsystemBase {
         builder.addDoubleArrayProperty("Robot Position", () -> getRobotPosition(), null);
 
         builder.addBooleanProperty("isSafeMode", () -> safeMode, null);
-        builder.addBooleanProperty("Drive Mode", () -> fieldOrientedMode, null);
+        builder.addBooleanProperty("Drive Mode", () -> getIsFieldOriented(), null);
 		
         builder.addDoubleProperty("frontRightSpeedMotor", () -> frontRightSpeedMotor.get(), null);		
 		builder.addDoubleProperty("frontLeftSpeedMotor",  () -> frontLeftSpeedMotor.get(),  null);
@@ -587,5 +513,6 @@ public class SwerveDrive extends SubsystemBase {
 		builder.addDoubleProperty("backLeftAngleMotor",   () -> backLeftAngleMotor.get(),   null);
 		
 	}
-    
+
+   
 }
