@@ -36,41 +36,38 @@ public class SwerveDriveDefaultCommand extends CommandBase {
     @Override
 	public void execute() {
          //puts robot into safemode where the robot will go slower
-         if (drive.getSafeMode()) {
+        //  if (drive.getSafeMode()) {
 
-            if (comboStartTime == 0)
-                comboStartTime = Timer.getFPGATimestamp();
-            else if (Timer.getFPGATimestamp() - comboStartTime >= 3.0 && !alreadyToggled) {
+        //     if (comboStartTime == 0)
+        //         comboStartTime = Timer.getFPGATimestamp();
+        //     else if (Timer.getFPGATimestamp() - comboStartTime >= 3.0 && !alreadyToggled) {
             
-                safeMode = !safeMode;
-                drive.setSafeMode(safeMode);
-                alreadyToggled = true;
-                System.out.println("Safemode is " + (safeMode ? "Enabled" : "Disabled") + ".");
+        //         safeMode = !safeMode;
+        //         drive.setSafeMode(safeMode);
+        //         alreadyToggled = true;
+        //         System.out.println("Safemode is " + (safeMode ? "Enabled" : "Disabled") + ".");
             
-            }
+        //     }
 
-        } else {
+        // } else {
 
-            comboStartTime = 0;
-            alreadyToggled = false;
+        //     comboStartTime = 0;
+        //     alreadyToggled = false;
         
-        }
+        // }
 
         // toggle POV and field mode
-        if (drive.getIsFieldOriented()) {
+        // if (drive.getIsFieldOriented()) {
 
-            fieldOrientedMode = !fieldOrientedMode;
-            drive.setIsFieldOriented(fieldOrientedMode);
-            gyro.reset();
+        //     fieldOrientedMode = !fieldOrientedMode;
+        //     drive.setIsFieldOriented(fieldOrientedMode);
+        //     gyro.reset();
 
-        }
+        // }
  
-        drive.swerveDrive(axis(Input.FORWARD), 
-                          axis(Input.STRAFE), 
-                          axis(Input.TURN), 
-                          fieldOrientedMode);
+        drive.calculateDrive(axis(Input.FORWARD), axis(Input.STRAFE), axis(Input.TURN), 0, fieldOrientedMode);
           
-        drive.calculateRobotPosition();
+        //drive.calculateRobotPosition();
 	
 	}
 
@@ -81,6 +78,8 @@ public class SwerveDriveDefaultCommand extends CommandBase {
 	@Override
 	public void initSendable(SendableBuilder builder) {
 		super.initSendable(builder);
+
+        
 		
 	}
 

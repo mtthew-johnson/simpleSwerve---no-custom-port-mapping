@@ -23,8 +23,8 @@ public class Intake extends IntakeBase {
 
     private void configMotors() {
         
-        intake       = new Jaguar(configInt("intake"));
-		rollerWheels = new Jaguar(configInt("rollerWheels"));
+        intake       = new Jaguar(2);//new Jaguar(configInt("intake"));
+		rollerWheels = new Jaguar(3);//new Jaguar(configInt("rollerWheels"));
 
 		addChild("intake",       intake);
 		addChild("rollerWheels", rollerWheels);

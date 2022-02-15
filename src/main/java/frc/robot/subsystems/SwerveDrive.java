@@ -48,10 +48,10 @@ public class SwerveDrive extends SwerveBase {
 
     public ADIS16470_IMU gyro;
 
-    private Encoder frontLeftEncoder;
-    private Encoder frontRightEncoder;
-    private Encoder backLeftEncoder;
-    private Encoder backRightEncoder;
+    public Encoder frontLeftEncoder;
+    public Encoder frontRightEncoder;
+    public Encoder backLeftEncoder;
+    public Encoder backRightEncoder;
 
     private PIDController pidAnglefl;
     private PIDController pidAnglefr;
@@ -162,8 +162,8 @@ public class SwerveDrive extends SwerveBase {
     private void configureEncoders() {
 
         frontRightEncoder = new Encoder(7, 6);//new Encoder(4, 5);
-        frontLeftEncoder  = new Encoder(0,1);//new Encoder(7, 6);
-        backRightEncoder  =  new Encoder(4,5);//new Encoder(3, 2);
+        frontLeftEncoder  = new Encoder(1, 0);//new Encoder(7, 6);
+        backRightEncoder  =  new Encoder(5,4);//new Encoder(3, 2);
         backLeftEncoder   = new Encoder(3,2); //new Encoder(0, 1);
         
         final double TICKS_TO_DEGREES = 1.12;
@@ -175,7 +175,7 @@ public class SwerveDrive extends SwerveBase {
 
     }
  
-    private void calculateDrive(double FWD, double STR, double RCW, double gryroAngle, boolean driveMode) {
+    public void calculateDrive(double FWD, double STR, double RCW, double gryroAngle, boolean driveMode) {
        
         if(driveMode) {
             
@@ -499,8 +499,8 @@ public class SwerveDrive extends SwerveBase {
 
         builder.addDoubleArrayProperty("Robot Position", () -> getRobotPosition(), null);
 
-        builder.addBooleanProperty("isSafeMode", () -> safeMode, null);
-        builder.addBooleanProperty("Drive Mode", () -> getIsFieldOriented(), null);
+        // builder.addBooleanProperty("isSafeMode", () -> safeMode, null);
+        // builder.addBooleanProperty("Drive Mode", () -> getIsFieldOriented(), null);
 		
         builder.addDoubleProperty("frontRightSpeedMotor", () -> frontRightSpeedMotor.get(), null);		
 		builder.addDoubleProperty("frontLeftSpeedMotor",  () -> frontLeftSpeedMotor.get(),  null);

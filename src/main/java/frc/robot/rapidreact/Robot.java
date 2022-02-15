@@ -90,11 +90,11 @@ public class Robot extends RobotBase {
 			IntakeInput.BUTTON, () -> driver.getBButton()
 		)));
 		
-		joystickStart.whenPressed(new InstantCommand(() -> {
-			driveMode = !driveMode;
-			drive.setIsFieldOriented(driveMode);
-			gyro.reset();
-		}));
+		// joystickStart.whenPressed(new InstantCommand(() -> {
+		// 	driveMode = !driveMode;
+		// 	drive.setIsFieldOriented(driveMode);
+		// 	gyro.reset();
+		// }));
 		// mainJoystick.getButton(kX).whenHeld(new CenterBall(this, drive));
 		// mainJoystick.getButton(kY).whenHeld(new CollectBall(this, drive, intake, 0.7));
 		

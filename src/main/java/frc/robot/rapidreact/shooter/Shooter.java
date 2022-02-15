@@ -24,8 +24,8 @@ public class Shooter extends ShooterBase {
 
     private void configureMotors() {
         
-        shooterWheel = new Jaguar(configInt("shooterWheel"));
-        shooterOutake = new Jaguar(configInt("shooterOutake"));
+        shooterWheel = new Jaguar(1);//new Jaguar(configInt("shooterWheel"));
+        shooterOutake = new Jaguar(0);//new Jaguar(configInt("shooterOutake"));
 
         addChild("shooterWheel", shooterWheel);
         addChild("shooterOutake", shooterOutake);
