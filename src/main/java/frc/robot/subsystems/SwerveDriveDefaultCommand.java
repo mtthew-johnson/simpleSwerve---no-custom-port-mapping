@@ -15,7 +15,8 @@ public class SwerveDriveDefaultCommand extends CommandBase {
     final Gyro gyro;
     final Map<Input, DoubleSupplier> inputMap;
 
-    
+    private final double DEADBAND = 0.2;
+
     private boolean safeMode = false;
     private double comboStartTime = 0;
     private boolean alreadyToggled = false;
@@ -65,7 +66,10 @@ public class SwerveDriveDefaultCommand extends CommandBase {
 
         // }
  
-        drive.calculateDrive(axis(Input.FORWARD), axis(Input.STRAFE), axis(Input.TURN), 0, fieldOrientedMode);
+        drive.calculateDrive(axis(Input.FORWARD), 
+                             axis(Input.STRAFE), 
+                             axis(Input.TURN), 
+                             0, fieldOrientedMode);
           
         //drive.calculateRobotPosition();
 	

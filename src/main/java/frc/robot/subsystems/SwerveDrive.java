@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.math.MathUtil;
@@ -10,6 +12,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.RobotBase;
 
 public class SwerveDrive extends SwerveBase {
@@ -37,6 +40,13 @@ public class SwerveDrive extends SwerveBase {
     private WPI_TalonSRX frontLeftSpeedMotor;
     private WPI_TalonSRX backRightSpeedMotor;
     private WPI_TalonSRX backLeftSpeedMotor;
+
+    // private WPI_TalonFX frontRightSpeedMotor;
+    // private WPI_TalonFX frontLeftSpeedMotor;
+    // private WPI_TalonFX backRightSpeedMotor;
+    // private WPI_TalonFx backLeftSpeedMotor;
+
+    private WPI_TalonFX testMotor;
     
     private WPI_TalonSRX frontRightAngleMotor;
     private WPI_TalonSRX frontLeftAngleMotor;
@@ -86,11 +96,21 @@ public class SwerveDrive extends SwerveBase {
         frontLeftSpeedMotor  = new WPI_TalonSRX(port("frontLeftSpeedMotor"));
         backRightSpeedMotor  = new WPI_TalonSRX(port("backRightSpeedMotor"));
         backLeftSpeedMotor   = new WPI_TalonSRX(port("backLeftSpeedMotor"));
+
+        testMotor = new WPI_TalonFX(0);
+
+        // frontRightSpeedMotor = new WPI_TalonFX(port("frontRightSpeedMotor"));
+        // frontLeftSpeedMotor  = new WPI_TalonFX(port("frontLeftSpeedMotor"));
+        // backRightSpeedMotor  = new WPI_TalonFX(port("backRightSpeedMotor"));
+        // backLeftSpeedMotor   = new WPI_TalonFX(port("backLeftSpeedMotor"));
+
         
         frontRightAngleMotor = new WPI_TalonSRX(port("frontRightAngleMotor"));
         frontLeftAngleMotor  = new WPI_TalonSRX(port("frontLeftSAngleMotor"));
         backRightAngleMotor  = new WPI_TalonSRX(port("backRightAngleMotor"));
         backLeftAngleMotor   = new WPI_TalonSRX(port("backLeftAngleMotor"));
+
+        
 
         addChild("frontRightSpeedMotor", frontRightSpeedMotor);
         addChild("frontLeftSpeedMotor",  frontLeftSpeedMotor);
@@ -107,6 +127,9 @@ public class SwerveDrive extends SwerveBase {
         frontLeftSpeedMotor.setInverted(true);
         backRightSpeedMotor.setInverted(false);
         backLeftSpeedMotor.setInverted(false);
+
+        // testMotor.set(TalonFXControlMode.Position, pidAnglebl.calculate(testMotor.getSelectedSensorPosition(), 0));
+        // testMotor.getSelectedSensorPosition();
 
         //invert angle motors
         frontRightAngleMotor.setInverted(true);
@@ -148,6 +171,8 @@ public class SwerveDrive extends SwerveBase {
         backRightAngleMotor.setNeutralMode(NeutralMode.Brake);
         frontLeftAngleMotor.setNeutralMode(NeutralMode.Brake);
         frontRightAngleMotor.setNeutralMode(NeutralMode.Brake);
+
+        
     }
 
     private void configurePID() {
@@ -496,6 +521,8 @@ public class SwerveDrive extends SwerveBase {
 		builder.addDoubleProperty("Front Left Angle",  () -> frontLeftEncoder.getDistance(),  null);
 		builder.addDoubleProperty("Back Right Angle",  () -> backRightEncoder.getDistance(),  null);
 		builder.addDoubleProperty("Back Left Angle",   () -> backLeftEncoder.getDistance(),   null);
+
+       // builder.addDoubleProperty("frontLeftEncoer", () -> frontRightSpeedMotor.getSelectedSensorPosition(), null);
 
         builder.addDoubleArrayProperty("Robot Position", () -> getRobotPosition(), null);
 

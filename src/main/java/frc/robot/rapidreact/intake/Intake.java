@@ -9,7 +9,7 @@ public class Intake extends IntakeBase {
 
 	private final Timer timer = new Timer();
 
-	private final double INTAKE_SPEED = 0.3;
+	private final double INTAKE_SPEED = 1;
 
 	private Jaguar intake;
 	private Jaguar rollerWheels;
@@ -30,7 +30,7 @@ public class Intake extends IntakeBase {
 		addChild("rollerWheels", rollerWheels);
 
         intake.setInverted(false);
-		rollerWheels.setInverted(false);
+		rollerWheels.setInverted(true);
     }
 
 	public void intake() {
