@@ -10,15 +10,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.RobotBase;
 
-public class SwerveDrive extends SwerveBase {
-
-    private final double DEADBAND = 0.2;
-    private final double SPEED = 0.3;
+public class SwerveDrive extends SubsystemBase {
+    
+    private Gyro gyro;
 
     private double KpAnglefl = 0.04;
 	private double KiAnglefl = 0;
@@ -53,15 +51,12 @@ public class SwerveDrive extends SwerveBase {
     private WPI_TalonSRX backRightAngleMotor;
     private WPI_TalonSRX backLeftAngleMotor;
 
-    private boolean safeMode = false;
     public boolean isfieldOriented = true;
 
-    public ADIS16470_IMU gyro;
-
-    public Encoder frontLeftEncoder;
-    public Encoder frontRightEncoder;
-    public Encoder backLeftEncoder;
-    public Encoder backRightEncoder;
+    private Encoder frontLeftEncoder;
+    private Encoder frontRightEncoder;
+    private Encoder backLeftEncoder;
+    private Encoder backRightEncoder;
 
     private PIDController pidAnglefl;
     private PIDController pidAnglefr;
@@ -78,6 +73,11 @@ public class SwerveDrive extends SwerveBase {
 
     private NetworkTableEntry safeModeEntry;
     private NetworkTableEntry isFieldOriented;
+
+    public enum Axis {FORWARD, STRAFE, TURN, BUTTON}
+    public enum DriveMode {SAFEMMODE, FIELDMODE, GOALMODE, BALLMODE}
+    public enum SwerveModule {FRONT_LEFT, FRONT_RIGHT, BACK_LEFT, BACK_RIGHT}
+
 
     public SwerveDrive(RobotBase robot) {
         
@@ -252,10 +252,10 @@ public class SwerveDrive extends SwerveBase {
 
         }
 
-        frontRightWheelSpeed = (max * SPEED); 
-        frontLeftWheelSpeed  = (max * SPEED); 
-        backLeftWheelSpeed   = (max * SPEED); 
-        backRightWheelSpeed  = (max * SPEED);
+        frontRightWheelSpeed = max; 
+        frontLeftWheelSpeed  = max; 
+        backLeftWheelSpeed   = max; 
+        backRightWheelSpeed  = max;
 
         if (Math.abs(frontRightWheelAngle - frontRightEncoder.getDistance()) > 90 && Math.abs(frontRightWheelAngle - frontRightEncoder.getDistance()) < 270) {
             frontRightWheelAngle = (((int)frontRightWheelAngle + 180) % 360);
@@ -294,6 +294,30 @@ public class SwerveDrive extends SwerveBase {
         //setSpeedAndAngle(backRightEncoder,  backRightAngleMotor,  backRightSpeedMotor,  backRightWheelAngle,   backRightWheelSpeed,  pidAnglebr);
    
     }
+
+    private double calcYawStraight(double targetAngle, double currentAngle, double kP) {
+        double errorAngle = (targetAngle - currentAngle) % 360;
+        double correction = errorAngle * kP;
+
+        return correction;
+    }
+
+    public double correctHeading(double currentAngle, double kP, double FWD, double STR, double RCW) {
+        
+        double storedHeading = 0;
+        double correction = 0;
+
+        if(RCW != 0) {
+            storedHeading = currentAngle;
+        } else {
+
+            if(Math.abs(FWD) > 0 || Math.abs(STR) > 0) {
+                correction = calcYawStraight(storedHeading, currentAngle, kP);
+            }
+        }
+
+        return correction;
+    }
     
     //TODO: need to test this
     private void setSpeedAndAngle(Encoder encoder, WPI_TalonSRX angleMotor, WPI_TalonSRX speedMotor, double calculatedAngle, double speed, PIDController pidController) { 
@@ -331,7 +355,7 @@ public class SwerveDrive extends SwerveBase {
         //Step 5: Final raw destination angle = current encoder raw value + difference
         double finalDestination = encoderRaw + difference;
 
-        if(MathUtil.applyDeadband(axis("strafe"),  DEADBAND) == 0) {
+        if(MathUtil.applyDeadband(axis("strafe"),  0.1) == 0) {
             finalDestination = finalDestination + 360;
         }
 
@@ -480,6 +504,11 @@ public class SwerveDrive extends SwerveBase {
         safeModeEntry.setBoolean(enabled);
     }
 
+    public SwerveDrive withGyro(final Gyro gyro) {
+		this.gyro = gyro;
+		return this;
+	}
+
 	@Override
 	public void periodic() {
 		
@@ -513,9 +542,9 @@ public class SwerveDrive extends SwerveBase {
 		builder.addDoubleProperty("IAnglebr", () -> KiAnglebr, (value) -> KiAnglebr = value);
 		builder.addDoubleProperty("DAnglebr", () -> KdAnglebr, (value) -> KdAnglebr = value);
 
-		builder.addDoubleProperty("Forward", () ->   MathUtil.applyDeadband(axis("forward"), DEADBAND), null);
-		builder.addDoubleProperty("Strafe",  () ->  -MathUtil.applyDeadband(axis("strafe"),  DEADBAND), null);
-		builder.addDoubleProperty("Rotate",  () ->   MathUtil.applyDeadband(axis("rotate"),  DEADBAND), null);
+		// builder.addDoubleProperty("Forward", () ->   MathUtil.applyDeadband(axis("forward"), DEADBAND), null);
+		// builder.addDoubleProperty("Strafe",  () ->  -MathUtil.applyDeadband(axis("strafe"),  DEADBAND), null);
+		// builder.addDoubleProperty("Rotate",  () ->   MathUtil.applyDeadband(axis("rotate"),  DEADBAND), null);
         
         builder.addDoubleProperty("Front Right Angle", () -> frontRightEncoder.getDistance(), null);		
 		builder.addDoubleProperty("Front Left Angle",  () -> frontLeftEncoder.getDistance(),  null);

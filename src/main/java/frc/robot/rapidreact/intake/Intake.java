@@ -4,8 +4,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.Jaguar;
 
 import frc.robot.RobotBase;
+import frc.robot.subsystems.SubsystemBase;
 
-public class Intake extends IntakeBase {
+public class Intake extends SubsystemBase {
 
 	private final Timer timer = new Timer();
 
@@ -13,6 +14,8 @@ public class Intake extends IntakeBase {
 
 	private Jaguar intake;
 	private Jaguar rollerWheels;
+
+	public enum IntakeInput {BUTTON}
 
 	public Intake(RobotBase robot) {
 

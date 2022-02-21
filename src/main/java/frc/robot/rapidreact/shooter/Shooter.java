@@ -3,14 +3,17 @@ package frc.robot.rapidreact.shooter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.Jaguar;
 import frc.robot.RobotBase;
+import frc.robot.subsystems.SubsystemBase;
 
-public class Shooter extends ShooterBase {
+public class Shooter extends SubsystemBase {
     
     private final double SHOOTER_SPEED = 1;
     private final double OUTAKE_SPEED = 0.3;
 
     private Jaguar shooterWheel;
     private Jaguar shooterOutake;
+
+    public enum ShooterInput {BUTTON}
 
     private final Timer timer = new Timer();
     

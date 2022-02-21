@@ -6,7 +6,7 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.rapidreact.shooter.ShooterBase.ShooterInput;
+import frc.robot.rapidreact.shooter.Shooter.ShooterInput;
 
 public class ShooterDefaultCommand extends CommandBase {
     final Shooter shooter;

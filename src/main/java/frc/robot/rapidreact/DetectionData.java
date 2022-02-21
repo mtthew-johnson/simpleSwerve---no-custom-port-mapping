@@ -8,8 +8,8 @@ public class DetectionData {
     public NetworkTable resolution = NetworkTableInstance.getDefault().getTable("Resolution");
 
     public NetworkTable blueBalls = NetworkTableInstance.getDefault().getTable("Blue Balls");
-    public NetworkTable redBalls = NetworkTableInstance.getDefault().getTable("Red Balls");
-    public NetworkTable robots = NetworkTableInstance.getDefault().getTable("Robots");
+    public NetworkTable redBalls  = NetworkTableInstance.getDefault().getTable("Red Balls");
+    public NetworkTable robots    = NetworkTableInstance.getDefault().getTable("Robots");
 
     public NetworkTableEntry resX;
 	public NetworkTableEntry resY;
@@ -138,14 +138,132 @@ public class DetectionData {
     public boolean isBlueBallDetected() {
         isBlueBallDetected = blueBalls.getEntry("Blue Ball in Frame");
         
-        return isBlueBallDetected.getBoolean(true);
+        return isBlueBallDetected.getBoolean(false);
     }
     
     public boolean isRedBallDetected() {
         
         isRedBallDetected = redBalls.getEntry("Red Ball in Frame");
         
-        return isRedBallDetected.getBoolean(true);
+        return isRedBallDetected.getBoolean(false);
 
     }
+
+    public boolean isAnyBallDetected() {
+        
+        boolean temp = false;
+
+        if(isBlueBallDetected()) {
+            temp = isBlueBallDetected();
+        } else if(isRedBallDetected()) {
+            temp = isRedBallDetected();
+        } else {
+            temp = false;
+        }
+
+        return temp;
+    }
+
+    public double getCrosshairX() {
+        return getResX() / 2;
+    }
+
+    public double getCrosshairY() {
+        return getResY() / 2;
+    }
+
+    public double getOffsetX(String ballType) {
+        
+        double offset = 0;
+        
+        if(ballType.equals("red")) {
+            offset = getCrosshairX() - getRedBallCenterX();
+        } else if(ballType.equals("blue")) {
+            offset = getCrosshairX() - getBlueBallCenterX();
+        }
+
+        return offset;
+        
+    }
+
+    public double getOffsetY(String ballType) {
+        
+        double offset = 0;
+        
+        if(ballType.equals("red")) {
+            offset = getCrosshairY() - getRedBallCenterY();
+        } else if(ballType.equals("blue")) {
+            offset = getCrosshairY() - getBlueBallCenterY();
+        }
+
+        return offset;
+        
+    }
+
+    public double piXPID() {
+		
+        double kP = 0.008;
+        double correctionMin = 0.003;
+        double deadzone = 0.05;
+        double correction = 0;
+        
+        if(isBlueBallDetected()) {
+    
+            correction = getOffsetX("blue") * kP;
+
+            if(correction < correctionMin)
+                correction = Math.copySign(correctionMin, correction);
+
+            if(Math.abs(getOffsetX("blue")) < deadzone)
+                correction = 0;
+
+        } else if(isRedBallDetected()) {
+            correction = getOffsetX("red") * kP;
+
+            if(correction < correctionMin)
+                correction = Math.copySign(correctionMin, correction);
+
+            if(Math.abs(getOffsetX("red")) < deadzone)
+                correction = 0;
+        } else {
+
+            System.out.println("No ball detected");
+        }
+		
+		return correction;
+	}
+
+	public double piYPID() {
+        
+        double kP = 0.008;
+        double correctionMin = 0.003;
+        double deadzone = 0.05;
+        double correction = 0;
+        
+        if(isBlueBallDetected()) {
+    
+            correction = getOffsetY("blue") * kP;
+
+            if(correction < correctionMin)
+                correction = Math.copySign(correctionMin, correction);
+
+            if(Math.abs(getOffsetY("blue")) < deadzone)
+                correction = 0;
+
+        } else if(isRedBallDetected()) {
+            correction = getOffsetY("red") * kP;
+
+            if(correction < correctionMin)
+                correction = Math.copySign(correctionMin, correction);
+
+            if(Math.abs(getOffsetY("red")) < deadzone)
+                correction = 0;
+        } else {
+
+            System.out.println("No ball detected");
+        }
+		
+		return correction;
+
+	}
 }

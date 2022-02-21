@@ -6,7 +6,7 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.rapidreact.intake.IntakeBase.IntakeInput;
+import frc.robot.rapidreact.intake.Intake.IntakeInput;
 
 public class IntakeDefaultCommand extends CommandBase {
     final Intake intake;

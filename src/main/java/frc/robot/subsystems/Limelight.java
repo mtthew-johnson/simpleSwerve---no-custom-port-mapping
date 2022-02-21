@@ -9,7 +9,7 @@ public class Limelight extends SubsystemBase {
 
 	private NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
-	// Variables for calculations
+	// Variables for calculations //TODO: need to find these once the cameras are mounted
 	private double cameraHeight = 0;
 	private double cameraAngle = 0;
 	private double targetHeight = 0;
@@ -86,6 +86,37 @@ public class Limelight extends SubsystemBase {
 	public double getDistance() {
 
 		return (targetHeight - cameraHeight) / Math.tan(Math.toRadians(cameraAngle) + Math.toRadians(getOffsetY()));
+
+	}
+
+	public double limelightXPID() {
+		double kP = 0.008;
+		double correctionMin = 0.003;
+		double deadzone = 0.05;
+		double correction = getOffsetX() * kP;
+
+		if(correction < correctionMin)
+			correction = Math.copySign(correctionMin, correction);
+
+		if(Math.abs(getOffsetX()) < deadzone)
+			correction = 0;
+		
+		return correction;
+	}
+
+	public double limelightYPID() {
+		double kP = 0.008;
+		double correctionMin = 0.003;
+		double deadzone = 0.05;
+		double correction = getOffsetY() * kP;
+
+		if(correction < correctionMin)
+			correction = Math.copySign(correctionMin, correction);
+
+		if(Math.abs(getOffsetY()) < deadzone)
+			correction = 0;
+		
+		return correction;
 
 	}
 
