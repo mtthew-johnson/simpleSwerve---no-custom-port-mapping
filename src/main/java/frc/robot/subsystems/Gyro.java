@@ -53,6 +53,10 @@ public class Gyro extends SubsystemBase {
         return gyro.getYComplementaryAngle();
     }
 
+    public double getXComplementaryAngle() {
+       return gyro.getXComplementaryAngle();
+    }
+
     public double getYFilteredAccelAngle() {
         return gyro.getYFilteredAccelAngle();
     }

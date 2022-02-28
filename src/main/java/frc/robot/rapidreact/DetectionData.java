@@ -3,7 +3,9 @@ package frc.robot.rapidreact;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-public class DetectionData {
+import frc.robot.RobotBase;
+import frc.robot.subsystems.SubsystemBase;
+public class DetectionData extends SubsystemBase {
     
     public NetworkTable resolution = NetworkTableInstance.getDefault().getTable("Resolution");
 
@@ -30,6 +32,10 @@ public class DetectionData {
     public NetworkTableEntry isRedBallDetected;
 
     private double distanceFromTarget;
+
+    public DetectionData(RobotBase robot) {
+        super(robot);
+	}
     
     public double distanceFromTarget(String ballType) {
 		// // distance constant divided by length between centers of contours

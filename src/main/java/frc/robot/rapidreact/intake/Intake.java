@@ -1,7 +1,8 @@
 package frc.robot.rapidreact.intake;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.motorcontrol.Jaguar;
 
 import frc.robot.RobotBase;
 import frc.robot.subsystems.SubsystemBase;
@@ -12,8 +13,7 @@ public class Intake extends SubsystemBase {
 
 	private final double INTAKE_SPEED = 1;
 
-	private Jaguar intake;
-	private Jaguar rollerWheels;
+	private WPI_TalonSRX intake;
 
 	public enum IntakeInput {BUTTON}
 
@@ -26,24 +26,19 @@ public class Intake extends SubsystemBase {
 
     private void configMotors() {
         
-        intake       = new Jaguar(2);//new Jaguar(configInt("intake"));
-		rollerWheels = new Jaguar(3);//new Jaguar(configInt("rollerWheels"));
+        intake       = new WPI_TalonSRX(10);
 
-		addChild("intake",       intake);
-		addChild("rollerWheels", rollerWheels);
+		addChild("intake", intake);
 
-        intake.setInverted(false);
-		rollerWheels.setInverted(true);
+        intake.setInverted(true);
     }
 
 	public void intake() {
 		intake.set(INTAKE_SPEED);
-		rollerWheels.set(INTAKE_SPEED);
 	}
 
 	public void halt() {
 		intake.set(0);
-		rollerWheels.set(0);
 	}
 
 	public void intakeTime(double time) {

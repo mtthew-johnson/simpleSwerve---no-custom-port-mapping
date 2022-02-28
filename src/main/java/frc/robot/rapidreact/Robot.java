@@ -2,6 +2,11 @@ package frc.robot.rapidreact;
 
 import java.util.Map;
 
+import edu.wpi.first.wpilibj.ADIS16448_IMU;
+import edu.wpi.first.wpilibj.ADIS16470_IMU;
+import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
+import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -29,7 +34,7 @@ public class Robot extends RobotBase {
 	private SwerveDrive drive;
 	private Shooter shooter;
 	private Intake intake;
-	private Gyro gyro;
+	private ADIS16470_IMU gyro;
 
 	private Command autonomousCommand;
 	private Auto auto;
@@ -48,30 +53,35 @@ public class Robot extends RobotBase {
 	public Robot() {
 		super("Rapidreact");
 
-        port("shooterWheel",  1);  
-		port("shooterOutake", 0); 
-		port("intake", 2);       
-		port("rollerWheels", 3);
+        port("shooterWheel",  9);  
+		port("shooterOutake", 8); 
+		port("intake", 10);       
 		
-		port("frontRightSpeedMotor", 5);
-        port("frontLeftSpeedMotor",  1);
-        port("backRightSpeedMotor",  6);
-        port("backLeftSpeedMotor",   2);
+		port("frontRightSpeedMotor", 3);
+        port("frontLeftSpeedMotor",  0);
+        port("backRightSpeedMotor",  2);
+        port("backLeftSpeedMotor",   1);
         
-        port("frontRightAngleMotor", 4);
-        port("frontLeftSAngleMotor", 0);
-        port("backRightAngleMotor",  7);
-        port("backLeftAngleMotor",   3);
+        port("frontRightAngleMotor", 7);
+        port("frontLeftSAngleMotor", 4);
+        port("backRightAngleMotor",  6);
+        port("backLeftAngleMotor",   5);
 		
 		//button("safeModeToggle", () -> button(0, Xinput.LeftStickIn) && button(0, Xinput.RightStickIn));
 
 		//button("shoot",      driverPort, Xinput.A);
 		//button("intakeBall", driverPort, Xinput.B);
 
-		drive = new SwerveDrive(this).withGyro(gyro);
+		drive = new SwerveDrive(this);
 		
 		shooter = new Shooter(this);
 		intake  = new Intake(this);
+
+		detectionData = new DetectionData(this);
+		limelight     = new Limelight(this);
+
+		gyro = new ADIS16470_IMU();
+	
 		
 		drive.setDefaultCommand(new SwerveDriveDefaultCommand(drive, limelight, 
 																	 detectionData, gyro, SPEED_NORMAL, 

@@ -7,7 +7,9 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.rapidreact.DetectionData;
 import frc.robot.subsystems.SwerveDrive.Axis;
@@ -17,7 +19,7 @@ public class SwerveDriveDefaultCommand extends CommandBase {
     final SwerveDrive drive;
     final Limelight limelight;
     final DetectionData detectionData;
-    final Gyro gyro;
+    final ADIS16470_IMU gyro;
     final Map<Axis, DoubleSupplier> axisMap;
     final Map<DriveMode, BooleanSupplier> buttonMap;
 
@@ -52,12 +54,12 @@ public class SwerveDriveDefaultCommand extends CommandBase {
     public SwerveDriveDefaultCommand(final SwerveDrive drive,
                                      final Limelight limelight,
                                      final DetectionData detectionData, 
-                                     final Gyro gyro,
+                                     final ADIS16470_IMU gyro,
                                      final double SPEED_NORMAL,
                                      final double SPEED_SAFE,
                                      final double DEADBAND, 
-                                     final Map<Axis, DoubleSupplier> axisMap,
-                                     final Map<DriveMode, BooleanSupplier> buttonMap) {
+                                           Map<Axis, DoubleSupplier> axisMap,
+                                           Map<DriveMode, BooleanSupplier> buttonMap) {
         
         this.detectionData = detectionData;
         this.limelight     = limelight;
@@ -73,6 +75,8 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         addRequirements(drive);
         SendableRegistry.addChild(SwerveDriveDefaultCommand.this, this);
 
+        gyro.setYawAxis(IMUAxis.kZ);
+
     }
 
     @Override
@@ -80,11 +84,11 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         
         speed = safeMode ? SPEED_SAFE : SPEED_NORMAL;
         
-        forward =  MathUtil.applyDeadband(axis(Axis.FORWARD), DEADBAND) * speed;
-        strafe  = -MathUtil.applyDeadband(axis(Axis.STRAFE),  DEADBAND) * speed;
-        rotate  = -MathUtil.applyDeadband(axis(Axis.TURN),    DEADBAND) * speed;
+        forward =  MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.FORWARD), DEADBAND) * speed, -1, 1);
+        strafe  = -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.STRAFE),  DEADBAND) * speed, -1, 1);
+        rotate  = -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.TURN),    DEADBAND) * speed, -1, 1);
 
-        yawCorrection = drive.correctHeading(gyro.getAngle(), 0.004, forward, strafe, rotate);
+        yawCorrection = drive.correctHeading(gyro.getYComplementaryAngle(), 0.004, forward, strafe, rotate);
         
         //puts robot into safemode where the robot will go slower
          if (button(DriveMode.SAFEMMODE)) {
@@ -106,68 +110,74 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         
         }
 
-         // toggle POV and field mode
-         if (button(DriveMode.FIELDMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.BALLMODE)) {
+        //  // toggle POV and field mode
+        //  if (button(DriveMode.FIELDMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.BALLMODE)) {
 
-            fieldOrientedMode = !fieldOrientedMode;
+        //     fieldOrientedMode = !fieldOrientedMode;
 
-            driveMode = fieldOrientedMode ? fieldOriented : robotOriented;
-            System.out.println("Switching to " + (fieldOrientedMode ? "Field Oriented" : "Robot POV") + ".");
+        //     driveMode = fieldOrientedMode ? fieldOriented : robotOriented;
+        //     System.out.println("Switching to " + (fieldOrientedMode ? "Field Oriented" : "Robot POV") + ".");
 
-        }
+        // }
 
-        //toggle goal centric mode
-        if(button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !button(DriveMode.BALLMODE) && limelight.isTargetValid()) {
+        // //toggle goal centric mode
+        // if(button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !button(DriveMode.BALLMODE) && limelight.isTargetValid()) {
             
-            goalOrientedMode = !goalOrientedMode;
+        //     goalOrientedMode = !goalOrientedMode;
 
-            driveMode = goalOrientedMode ? goalOriented : fieldOriented;
-            System.out.println("Switching to " + (goalOrientedMode ? "Goal Oriented" : "Field Oriented") + ".");
+        //     driveMode = goalOrientedMode ? goalOriented : fieldOriented;
+        //     System.out.println("Switching to " + (goalOrientedMode ? "Goal Oriented" : "Field Oriented") + ".");
 
-        } else if (button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !limelight.isTargetValid()) {
+        // } else if (button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !limelight.isTargetValid()) {
 
-            driveMode = fieldOriented;
-            System.out.println("No valid target to change drive mode" + "\n Switching to Field Oriented Mode");
-        }
+        //     driveMode = fieldOriented;
+        //     System.out.println("No valid target to change drive mode" + "\n Switching to Field Oriented Mode");
+        // }
 
-        //toggle ball centric mode
-        if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && detectionData.isAnyBallDetected()) {
+        // //toggle ball centric mode
+        // if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && detectionData.isAnyBallDetected()) {
 
-            ballOrientedMode = !goalOrientedMode;
+        //     ballOrientedMode = !goalOrientedMode;
 
-            driveMode = ballOrientedMode ? ballOriented : fieldOriented;
-            System.out.println("Switching to " + (ballOrientedMode ? "Ball Oriented" : "Field Oriented") + ".");
+        //     driveMode = ballOrientedMode ? ballOriented : fieldOriented;
+        //     System.out.println("Switching to " + (ballOrientedMode ? "Ball Oriented" : "Field Oriented") + ".");
 
-        } else if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !detectionData.isAnyBallDetected()) {
+        // } else if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !detectionData.isAnyBallDetected()) {
 
-            driveMode = fieldOriented;
-            System.out.println("No valid target to change drive mode" + "\n Switching to Field Oriented Mode");
-        }
+        //     driveMode = fieldOriented;
+        //     System.out.println("No valid target to change drive mode" + "\n Switching to Field Oriented Mode");
+        // }
 
-        //set drive mode
-        switch (driveMode) {
-            case fieldOriented: drive.calculateDrive(forward, strafe, rotate + yawCorrection, gyro.getAngle(), true);
-                    break;
-            case robotOriented: drive.calculateDrive(forward, strafe, rotate + yawCorrection, gyro.getAngle(), false);
-                    break;
-            case goalOriented: drive.calculateDrive(forward + limelight.limelightYPID(), 
-                                                    strafe, 
-                                                    rotate + limelight.limelightXPID() + yawCorrection, 
-                                                    gyro.getAngle(), 
-                                                    false);
-                    break;
-            case ballOriented: drive.calculateDrive(-forward + detectionData.piYPID(), 
-                                                    -strafe, 
-                                                    -rotate + detectionData.piXPID() + yawCorrection, 
-                                                    gyro.getAngle(), 
-                                                    false);
-                    break;
-            default: drive.calculateDrive(forward, strafe, rotate + yawCorrection, gyro.getAngle(), true);
-                     break;
-        }
+        // //set drive mode
+        // switch (driveMode) {
+        //     case fieldOriented: drive.calculateDrive(forward, strafe, rotate + yawCorrection, gyro.getYComplementaryAngle(), true);
+        //             break;
+        //     case robotOriented: drive.calculateDrive(forward, strafe, rotate + yawCorrection, gyro.getYComplementaryAngle(), false);
+        //             break;
+        //     case goalOriented: drive.calculateDrive(forward + limelight.limelightYPID(), 
+        //                                             strafe, 
+        //                                             rotate + limelight.limelightXPID() + yawCorrection, 
+        //                                             gyro.getAngle(), 
+        //                                             false);
+        //             break;
+        //     case ballOriented: drive.calculateDrive(-forward + detectionData.piYPID(), 
+        //                                             -strafe, 
+        //                                             -rotate + detectionData.piXPID() + yawCorrection, 
+        //                                             gyro.getAngle(), 
+        //                                             false);
+        //             break;
+        //     default: drive.calculateDrive(forward, strafe, rotate + yawCorrection, gyro.getYComplementaryAngle(), true);
+        //              break;
+        // }
+
+        drive.calculateDrive(forward, strafe, rotate, gyro.getAngle(), true);
+
+        //System.out.println(gyro.getYawAxis());
+
+        System.out.println(gyro.getRate());
           
         //robot odometry
-        drive.calculateRobotPosition();
+        //drive.calculateRobotPosition();
 	
 	}
 
