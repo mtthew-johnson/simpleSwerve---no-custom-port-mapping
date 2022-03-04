@@ -3,7 +3,7 @@ package frc.robot.rapidreact.commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.rapidreact.shooter.Shooter;
+import frc.robot.rapidreact.Shooter;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.SwerveDrive;
 
@@ -52,16 +52,16 @@ public class AutoShoot extends CommandBase {
 
         if(!limelight.isTargetValid()) {
             
-            drive.rotate(ROTATION_SPEED);
+            drive.rotate(ROTATION_SPEED, false);
 
         } else {
 
             if(!(limelight.getDistance() <= targetDistance)) {
 
-                // drive.swerveDrive(forwardSpeedController, 
-                //                     strafeSpeedController, 
-                //                     rotateSpeedController,
-                //                     true);
+                drive.swerveDrive(forwardSpeedController, 
+                                    strafeSpeedController, 
+                                    rotateSpeedController,
+                                    true);
 
             } else {
 

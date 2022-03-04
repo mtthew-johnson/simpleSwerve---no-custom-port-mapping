@@ -30,7 +30,7 @@ public class SearchForBall extends CommandBase {
         
         if(!detectionData.isBlueBallDetected() || !detectionData.isRedBallDetected()) {
 
-            drive.rotate(ROTATE_SPEED);
+            drive.rotate(ROTATE_SPEED, false);
 
         } else if (detectionData.isBlueBallDetected() || detectionData.isRedBallDetected()) {
 

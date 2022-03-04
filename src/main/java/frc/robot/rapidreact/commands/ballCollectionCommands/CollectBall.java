@@ -3,7 +3,7 @@ package frc.robot.rapidreact.commands.ballCollectionCommands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotBase;
 import frc.robot.rapidreact.DetectionData;
-import frc.robot.rapidreact.intake.Intake;
+import frc.robot.rapidreact.Intake;
 import frc.robot.subsystems.SwerveDrive;
 
 public class CollectBall extends CommandBase {
@@ -37,7 +37,7 @@ public class CollectBall extends CommandBase {
             
             while(detectionData.distanceFromTarget("blue") > targetDistance) {
 
-                drive.driveForward(speed);
+                drive.driveForward(speed, false);
             
             }
 
@@ -47,7 +47,7 @@ public class CollectBall extends CommandBase {
             
             while(detectionData.distanceFromTarget("red") > targetDistance) {
 
-                drive.driveForward(speed);
+                drive.driveForward(speed, false);
             
             }
 

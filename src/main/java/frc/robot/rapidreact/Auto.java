@@ -7,9 +7,6 @@ import frc.robot.rapidreact.commands.ballCollectionCommands.CenterBall;
 import frc.robot.rapidreact.commands.ballCollectionCommands.CollectBall;
 import frc.robot.rapidreact.commands.ballCollectionCommands.SearchForBall;
 import frc.robot.rapidreact.commands.driveCommands.StopDrive;
-import frc.robot.rapidreact.commands.driveCommands.driveForTimeCommands.DriveForTimeForward;
-import frc.robot.rapidreact.intake.Intake;
-import frc.robot.rapidreact.shooter.Shooter;
 import frc.robot.subsystems.SwerveDrive;
 
 
@@ -21,7 +18,6 @@ public class Auto extends SequentialCommandGroup {
 
 		addCommands(
 
-        	new DriveForTimeForward(1, 0.5, drive),
 			new StopDrive(drive),
 
 			new SearchForBall(drive),

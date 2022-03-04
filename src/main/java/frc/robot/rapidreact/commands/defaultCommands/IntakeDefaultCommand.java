@@ -1,4 +1,4 @@
-package frc.robot.rapidreact.intake;
+package frc.robot.rapidreact.commands.defaultCommands;
 
 import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -6,7 +6,8 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.rapidreact.intake.Intake.IntakeInput;
+import frc.robot.rapidreact.Intake;
+import frc.robot.rapidreact.Intake.IntakeInput;
 
 public class IntakeDefaultCommand extends CommandBase {
     final Intake intake;
@@ -24,12 +25,14 @@ public class IntakeDefaultCommand extends CommandBase {
     @Override
 	public void execute() {
         
-        if(button(IntakeInput.BUTTON)) {   
+        if(button(IntakeInput.COLLECT)) {   
             
-            intake.intake();
+            intake.extend();
+            intake.collect();
 
         } else {
            
+            intake.retract();
             intake.halt();
 
         }

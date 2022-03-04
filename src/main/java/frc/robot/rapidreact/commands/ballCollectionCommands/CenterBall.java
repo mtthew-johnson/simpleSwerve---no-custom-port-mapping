@@ -38,11 +38,11 @@ public class CenterBall extends CommandBase {
 
             if(detectionData.getBlueBallCenterX() < imageCenter) {
 
-                drive.rotate(rotationSpeed.calculate(detectionData.getBlueBallCenterX(), imageCenter));
+                drive.rotate(rotationSpeed.calculate(detectionData.getBlueBallCenterX(), imageCenter), false);
 
             } else if(detectionData.getBlueBallCenterX() > imageCenter) {
 
-                drive.rotate(-rotationSpeed.calculate(detectionData.getBlueBallCenterX(), imageCenter));
+                drive.rotate(-rotationSpeed.calculate(detectionData.getBlueBallCenterX(), imageCenter), false);
 
             } else {
 
@@ -54,11 +54,11 @@ public class CenterBall extends CommandBase {
 
             if(detectionData.getRedBallCenterX() < imageCenter) {
 
-                drive.rotate(rotationSpeed.calculate(detectionData.getRedBallCenterX(), imageCenter));
+                drive.rotate(rotationSpeed.calculate(detectionData.getRedBallCenterX(), imageCenter), false);
 
             } else if(detectionData.getRedBallCenterX() > imageCenter) {
 
-                drive.rotate(-rotationSpeed.calculate(detectionData.getRedBallCenterX(), imageCenter));
+                drive.rotate(-rotationSpeed.calculate(detectionData.getRedBallCenterX(), imageCenter), false);
 
             } else {
 
