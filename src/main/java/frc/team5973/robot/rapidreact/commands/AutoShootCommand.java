@@ -7,7 +7,7 @@ import frc.team5973.robot.rapidreact.Shooter;
 import frc.team5973.robot.subsystems.Limelight;
 import frc.team5973.robot.subsystems.SwerveDrive;
 
-public class AutoShoot extends CommandBase {
+public class AutoShootCommand extends CommandBase {
 
 	private final SwerveDrive drive;
     private final Shooter shooter;
@@ -29,7 +29,7 @@ public class AutoShoot extends CommandBase {
     private boolean isFinished = false;
 
 
-	public AutoShoot(SwerveDrive drive, Shooter shooter) {
+	public AutoShootCommand(SwerveDrive drive, Shooter shooter) {
 		
 		this.drive = drive;
         this.shooter = shooter;

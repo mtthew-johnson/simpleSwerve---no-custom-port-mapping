@@ -6,7 +6,7 @@ import frc.team5973.robot.rapidreact.DetectionData;
 import frc.team5973.robot.rapidreact.Intake;
 import frc.team5973.robot.subsystems.SwerveDrive;
 
-public class CollectBall extends CommandBase {
+public class CollectBallCommand extends CommandBase {
 
 	private final SwerveDrive drive;
     private final Intake intake;
@@ -19,7 +19,7 @@ public class CollectBall extends CommandBase {
 
     private final double speed;
 
-	public CollectBall(RobotBase robot, SwerveDrive drive, Intake intake, double speed) {
+	public CollectBallCommand(RobotBase robot, SwerveDrive drive, Intake intake, double speed) {
 		
 		this.drive = drive;
         this.intake = intake;

@@ -6,7 +6,7 @@ import frc.team5973.robot.RobotBase;
 import frc.team5973.robot.rapidreact.DetectionData;
 import frc.team5973.robot.subsystems.SwerveDrive;
 
-public class CenterBall extends CommandBase {
+public class CenterBallCommand extends CommandBase {
 
 	private final SwerveDrive drive;
     
@@ -20,7 +20,7 @@ public class CenterBall extends CommandBase {
     private double imageCenter = imageWidth / 2;
 
 
-	public CenterBall(RobotBase robot, SwerveDrive drive) {
+	public CenterBallCommand(RobotBase robot, SwerveDrive drive) {
 		
 		this.drive = drive;
 	}

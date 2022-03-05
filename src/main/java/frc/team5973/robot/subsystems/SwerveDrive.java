@@ -60,8 +60,8 @@ public class SwerveDrive extends SubsystemBase {
     private final double L  = 23; //vehicle tracklength
     private final double W  = 23; //vehicle trackwidth
     private final double R  = Math.sqrt(Math.pow(L, 2) + Math.pow(W, 2));
-    private final double PI = Math.PI; 
-    
+    private final double PI = Math.PI;
+
     private double positionAlongField = 0;
     private double positionAcrossField = 0;
 
@@ -404,54 +404,33 @@ public class SwerveDrive extends SubsystemBase {
         positionAcrossField = 0;
     }
 
-    public void driveDistance(WPI_TalonFX motor, double requestedDistance) {
-        double targetRotations = (requestedDistance / 6) * 2048;
-        while (motor.getSelectedSensorPosition() < targetRotations) {
-            motor.set(0.6);
-        }
-
-    }
-
-    //Drive methods for auto
+    //Drive methods for commands
     public void driveForward(double speed, boolean useGyro) {
-        
         calculateDrive(speed, 0, 0, useGyro);
-    
     }
-
 
     public void driveBackward(double speed, boolean useGyo) {
-
         calculateDrive(-speed, 0, 0, useGyo);
     }
 
     public void strafeLeft(double speed, boolean useGyro) {
-
         calculateDrive(0, speed, 0, useGyro);
-
     }
 
     public void strafeRight(double speed, boolean useGyro) {
-
         calculateDrive(0, -speed, 0, useGyro);
-
     }
 
     public void rotate(double speed, boolean useGyro) {
-
         calculateDrive(0, 0, speed, useGyro);
-
-    }
-
-    public void swerveDrive(double FWD, double STR, double RCW, boolean useGyro) {
-
-        calculateDrive(FWD, STR, RCW, useGyro);
     }
 
     public void halt() {
-        
         calculateDrive(0, 0, 0, false);
+    }
 
+    public void swerveDrive(double FWD, double STR, double RCW, boolean useGyro) {
+        calculateDrive(FWD, STR, RCW, useGyro);
     }
 
 	@Override

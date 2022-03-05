@@ -2,10 +2,10 @@ package frc.team5973.robot.rapidreact;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.team5973.robot.RobotBase;
-import frc.team5973.robot.rapidreact.commands.AutoShoot;
-import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.CenterBall;
-import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.CollectBall;
-import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.SearchForBall;
+import frc.team5973.robot.rapidreact.commands.AutoShootCommand;
+import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.CenterBallCommand;
+import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.CollectBallCommand;
+import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.SearchForBallCommand;
 import frc.team5973.robot.rapidreact.commands.driveCommands.StopDrive;
 import frc.team5973.robot.subsystems.SwerveDrive;
 
@@ -20,10 +20,10 @@ public class Auto extends SequentialCommandGroup {
 
 			new StopDrive(drive),
 
-			new SearchForBall(drive),
-			new CenterBall(robot, drive),
-			new CollectBall(robot, drive, intake, speed),
-			new AutoShoot(drive, shooter)
+			new SearchForBallCommand(drive),
+			new CenterBallCommand(robot, drive),
+			new CollectBallCommand(robot, drive, intake, speed),
+			new AutoShootCommand(drive, shooter)
 			
 		);
 

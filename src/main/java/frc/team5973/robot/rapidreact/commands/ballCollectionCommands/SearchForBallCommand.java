@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team5973.robot.rapidreact.DetectionData;
 import frc.team5973.robot.subsystems.SwerveDrive;
 
-public class SearchForBall extends CommandBase {
+public class SearchForBallCommand extends CommandBase {
 
 	private final SwerveDrive drive;
     
@@ -14,7 +14,7 @@ public class SearchForBall extends CommandBase {
 
     private final double ROTATE_SPEED = 0.5;
 
-	public SearchForBall(SwerveDrive drive) {
+	public SearchForBallCommand(SwerveDrive drive) {
 		
 		this.drive = drive;
 	}
