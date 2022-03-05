@@ -2,6 +2,7 @@ package frc.team5973.robot.rapidreact;
 
 import java.util.Map;
 
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.team5973.robot.RobotBase;
@@ -37,7 +38,6 @@ public class Robot extends RobotBase {
 	
 	private final double DEADBAND_LOW  = 0.1;
 	private final double DEADBAND_HIGH = 1;
-
 
 	private XinputController driver  = new XinputController(driverPort);
 	private XinputController copilot = new XinputController(copilotPort);

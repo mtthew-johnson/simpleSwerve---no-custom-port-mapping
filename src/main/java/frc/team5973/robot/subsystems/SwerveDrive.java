@@ -9,6 +9,8 @@ import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Timer;
+
 import frc.team5973.robot.RobotBase;
 public class SwerveDrive extends SubsystemBase {
     
@@ -68,6 +70,9 @@ public class SwerveDrive extends SubsystemBase {
     public enum Axis {FORWARD, STRAFE, TURN, BUTTON}
     public enum DriveMode {SAFEMMODE, FIELDMODE, GOALMODE, BALLMODE}
     public enum SwerveModule {FRONT_LEFT, FRONT_RIGHT, BACK_LEFT, BACK_RIGHT}
+
+    private double comboStartTime;
+    private boolean flag = false;
 
     public SwerveDrive(RobotBase robot) {
         
@@ -386,14 +391,24 @@ public class SwerveDrive extends SubsystemBase {
         double forwardNew = (forward * Math.cos(gyro.getYaw())) + (strafe *  Math.sin(gyro.getYaw())); 
         double strafeNew  = (strafe *  Math.cos(gyro.getYaw())) - (forward * Math.sin(gyro.getYaw()));
 
-        double timeStep = 0.020; //milliseconds //Timer.getFPGATimestamp() - lastTime //don't know how to do this so just constant from whitepaper
-        
+        double lastTime = Timer.getFPGATimestamp();
+        double timeStep = Timer.getFPGATimestamp() - lastTime; //milliseconds //Timer.getFPGATimestamp() - lastTime //don't know how to do this so just constant from whitepaper
+        System.out.println("time step: " + timeStep);
+
         positionAlongField = positionAlongField + (forwardNew * timeStep);
         positionAcrossField = positionAcrossField + (strafeNew * timeStep);
 
     }
 
-    private double[] getRobotPosition() {
+    public void goToPosition(double posX, double posY) {
+        
+        //so we need to reverse the above method to get motor outputs
+        while(!(posX == positionAcrossField) && !(posY == positionAlongField)) {
+
+        }
+    }
+
+    public double[] getRobotPosition() {
 
         double[] coordinates = {positionAcrossField, positionAlongField};
         return coordinates;
