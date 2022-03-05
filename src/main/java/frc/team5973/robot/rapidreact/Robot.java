@@ -1,23 +1,22 @@
-package frc.robot.rapidreact;
+package frc.team5973.robot.rapidreact;
 
 import java.util.Map;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-import frc.robot.RobotBase;
-import frc.robot.XinputController;
-import frc.robot.rapidreact.Intake.IntakeInput;
-import frc.robot.rapidreact.Shooter.ShooterInput;
-import frc.robot.rapidreact.commands.ballCollectionCommands.CenterBall;
-import frc.robot.rapidreact.commands.ballCollectionCommands.CollectBall;
-import frc.robot.rapidreact.commands.defaultCommands.IntakeDefaultCommand;
-import frc.robot.rapidreact.commands.defaultCommands.ShooterDefaultCommand;
-import frc.robot.rapidreact.commands.defaultCommands.SwerveDriveDefaultCommand;
-import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.SwerveDrive;
-import frc.robot.subsystems.SwerveDrive.Axis;
-import frc.robot.subsystems.SwerveDrive.DriveMode;
+import frc.team5973.robot.RobotBase;
+import frc.team5973.robot.XinputController;
+import frc.team5973.robot.rapidreact.Intake.IntakeInput;
+import frc.team5973.robot.rapidreact.Shooter.ShooterInput;
+import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.CenterBall;
+import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.CollectBall;
+import frc.team5973.robot.rapidreact.commands.defaultCommands.IntakeDefaultCommand;
+import frc.team5973.robot.rapidreact.commands.defaultCommands.ShooterDefaultCommand;
+import frc.team5973.robot.rapidreact.commands.defaultCommands.SwerveDriveDefaultCommand;
+import frc.team5973.robot.subsystems.Limelight;
+import frc.team5973.robot.subsystems.SwerveDrive;
+import frc.team5973.robot.subsystems.SwerveDrive.Axis;
+import frc.team5973.robot.subsystems.SwerveDrive.DriveMode;
 
 public class Robot extends RobotBase {
 	

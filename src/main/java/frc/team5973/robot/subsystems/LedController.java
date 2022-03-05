@@ -1,8 +1,7 @@
-package frc.robot.subsystems;
+package frc.team5973.robot.subsystems;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
-
-import frc.robot.RobotBase;
+import frc.team5973.robot.RobotBase;
 
 public class LedController extends SubsystemBase {
     private final I2C i2c;

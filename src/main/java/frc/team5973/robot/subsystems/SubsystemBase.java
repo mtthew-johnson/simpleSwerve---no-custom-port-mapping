@@ -1,11 +1,11 @@
-package frc.robot.subsystems;
+package frc.team5973.robot.subsystems;
 
 import static edu.wpi.first.wpilibj.DriverStation.reportWarning;
 
 import java.util.Arrays;
 
 import edu.wpi.first.networktables.NetworkTable;
-import frc.robot.RobotBase;
+import frc.team5973.robot.RobotBase;
 
 public abstract class SubsystemBase extends edu.wpi.first.wpilibj2.command.SubsystemBase {
 	public final RobotBase robot;

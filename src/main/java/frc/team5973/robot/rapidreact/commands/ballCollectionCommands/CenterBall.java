@@ -1,10 +1,10 @@
-package frc.robot.rapidreact.commands.ballCollectionCommands;
+package frc.team5973.robot.rapidreact.commands.ballCollectionCommands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.RobotBase;
-import frc.robot.rapidreact.DetectionData;
-import frc.robot.subsystems.SwerveDrive;
+import frc.team5973.robot.RobotBase;
+import frc.team5973.robot.rapidreact.DetectionData;
+import frc.team5973.robot.subsystems.SwerveDrive;
 
 public class CenterBall extends CommandBase {
 

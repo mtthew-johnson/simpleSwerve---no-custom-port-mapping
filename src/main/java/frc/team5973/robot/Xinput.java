@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.team5973.robot;
 
 public final class Xinput {
 

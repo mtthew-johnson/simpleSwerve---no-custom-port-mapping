@@ -1,12 +1,11 @@
-package frc.robot.rapidreact;
+package frc.team5973.robot.rapidreact;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
-
-import frc.robot.RobotBase;
-import frc.robot.subsystems.SubsystemBase;
+import frc.team5973.robot.RobotBase;
+import frc.team5973.robot.subsystems.SubsystemBase;
 
 public class Intake extends SubsystemBase {
 

@@ -1,10 +1,10 @@
-package frc.robot.rapidreact;
+package frc.team5973.robot.rapidreact;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.RobotBase;
-import frc.robot.subsystems.SubsystemBase;
+import frc.team5973.robot.RobotBase;
+import frc.team5973.robot.subsystems.SubsystemBase;
 public class DetectionData extends SubsystemBase {
     
     public NetworkTable resolution = NetworkTableInstance.getDefault().getTable("Resolution");

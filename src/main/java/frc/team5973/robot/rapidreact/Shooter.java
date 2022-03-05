@@ -1,4 +1,4 @@
-package frc.robot.rapidreact;
+package frc.team5973.robot.rapidreact;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.ColorMatch;
@@ -8,8 +8,8 @@ import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.RobotBase;
-import frc.robot.subsystems.SubsystemBase;
+import frc.team5973.robot.RobotBase;
+import frc.team5973.robot.subsystems.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
     

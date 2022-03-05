@@ -1,11 +1,11 @@
-package frc.robot.rapidreact.commands;
+package frc.team5973.robot.rapidreact.commands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.rapidreact.Shooter;
-import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.SwerveDrive;
+import frc.team5973.robot.rapidreact.Shooter;
+import frc.team5973.robot.subsystems.Limelight;
+import frc.team5973.robot.subsystems.SwerveDrive;
 
 public class AutoShoot extends CommandBase {
 

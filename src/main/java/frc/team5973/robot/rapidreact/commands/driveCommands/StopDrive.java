@@ -1,7 +1,7 @@
-package frc.robot.rapidreact.commands.driveCommands;
+package frc.team5973.robot.rapidreact.commands.driveCommands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.SwerveDrive;
+import frc.team5973.robot.subsystems.SwerveDrive;
 
 public class StopDrive extends CommandBase {
 

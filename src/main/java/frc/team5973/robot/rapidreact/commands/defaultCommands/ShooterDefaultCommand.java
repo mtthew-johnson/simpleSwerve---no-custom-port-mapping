@@ -1,4 +1,4 @@
-package frc.robot.rapidreact.commands.defaultCommands;
+package frc.team5973.robot.rapidreact.commands.defaultCommands;
 
 import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -6,8 +6,8 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.rapidreact.Shooter;
-import frc.robot.rapidreact.Shooter.ShooterInput;
+import frc.team5973.robot.rapidreact.Shooter;
+import frc.team5973.robot.rapidreact.Shooter.ShooterInput;
 
 public class ShooterDefaultCommand extends CommandBase {
     final Shooter shooter;

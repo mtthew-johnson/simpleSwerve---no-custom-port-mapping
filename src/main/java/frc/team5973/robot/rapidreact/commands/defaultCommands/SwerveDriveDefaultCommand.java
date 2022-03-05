@@ -1,4 +1,4 @@
-package frc.robot.rapidreact.commands.defaultCommands;
+package frc.team5973.robot.rapidreact.commands.defaultCommands;
 
 import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -9,11 +9,11 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.rapidreact.DetectionData;
-import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.SwerveDrive;
-import frc.robot.subsystems.SwerveDrive.Axis;
-import frc.robot.subsystems.SwerveDrive.DriveMode;
+import frc.team5973.robot.rapidreact.DetectionData;
+import frc.team5973.robot.subsystems.Limelight;
+import frc.team5973.robot.subsystems.SwerveDrive;
+import frc.team5973.robot.subsystems.SwerveDrive.Axis;
+import frc.team5973.robot.subsystems.SwerveDrive.DriveMode;
 
 public class SwerveDriveDefaultCommand extends CommandBase {
     final SwerveDrive drive;

@@ -1,9 +1,9 @@
-package frc.robot.subsystems;
+package frc.team5973.robot.subsystems;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import frc.robot.RobotBase;
+import frc.team5973.robot.RobotBase;
 
 public class Limelight extends SubsystemBase {
 
