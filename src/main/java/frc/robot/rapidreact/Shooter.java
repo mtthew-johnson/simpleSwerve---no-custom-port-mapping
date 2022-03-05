@@ -104,6 +104,22 @@ public class Shooter extends SubsystemBase {
 
     }
 
+    public boolean isBallObtianed() {
+        
+        boolean isRed  = detectedBallColor(colorSensor).equals("Red")  ? true : false;
+        boolean isBlue = detectedBallColor(colorSensor).equals("Blue") ? true : false;
+        
+        return (isRed || isBlue) ? true : false;
+    } 
+
+    public boolean isBlueBallObtained() {
+        return detectedBallColor(colorSensor).equals("Blue") ? true : false;
+    }
+
+    public boolean isRedBallObtained() {
+        return detectedBallColor(colorSensor).equals("Red")  ? true : false;
+    }
+
     public String detectedBallColor(ColorSensorV3 colorSensor) {
         
         String colorString;

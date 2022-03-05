@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -12,7 +13,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.RobotBase;
 public class SwerveDrive extends SubsystemBase {
     
-    private WPI_PigeonIMU gyro;
+    private Pigeon2 gyro;
 
     private double KpAnglefl = 0.01;
 	private double KiAnglefl = 0;
@@ -48,7 +49,7 @@ public class SwerveDrive extends SubsystemBase {
     // private Encoder backRightEncoder;
 
     private boolean sensorPhasefl = false;
-    private boolean sensorPhasefr = false;
+    private boolean sensorPhasefr = true;
     private boolean sensorPhaseBr = false;
     private boolean sensorPhaseBl = false;
 
@@ -188,9 +189,9 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     private void configureGyro() {
-        gyro = new WPI_PigeonIMU(0);
+        gyro = new Pigeon2(0);
 
-        gyro.reset();
+       gyro.setYaw(0, 69);
 
     }
 
@@ -222,9 +223,13 @@ public class SwerveDrive extends SubsystemBase {
                
         if(useGyro) {
             
-            double temp = FWD*Math.cos(gyro.getRoll()) + STR*Math.sin(gyro.getRoll());
+            // double gyroDegrees = gyro.getYaw();
+            // double gyroRadians = gyroDegrees * (Math.PI / 180);
+            // System.out.println(gyroRadians);
+
+            double temp = FWD*Math.cos(Math.abs((gyro.getYaw()))) + STR*Math.sin(Math.abs((gyro.getYaw())));
         
-            STR = -FWD*Math.sin(gyro.getRoll()) + STR*Math.cos(gyro.getRoll());
+            STR = -FWD*Math.sin(Math.abs((gyro.getYaw()))) + STR*Math.cos(Math.abs((gyro.getYaw())));
             FWD = temp;
 
         } else {
@@ -280,7 +285,7 @@ public class SwerveDrive extends SubsystemBase {
         frontRightAngleMotor.set(pidAnglefr.calculate(ticksToDegrees(frontRightAngleMotor),  setDirection(frontRightWheelAngle, frontRightAngleMotor, frontRightSpeedMotor, frontRightWheelSpeed)));
         frontLeftAngleMotor.set(pidAnglefl.calculate(ticksToDegrees(frontLeftAngleMotor),    setDirection(frontLeftWheelAngle,  frontLeftAngleMotor, frontLeftSpeedMotor, frontLeftWheelSpeed)));
 
-        System.out.println(gyro.getRoll());
+       System.out.println(gyro.getYaw());
 
     }
 
@@ -337,11 +342,11 @@ public class SwerveDrive extends SubsystemBase {
         double correction = 0;
 
         if(RCW != 0) {
-            storedHeading = gyro.getRoll();
+            storedHeading = gyro.getYaw();
         } else {
 
             if(Math.abs(FWD) > 0 || Math.abs(STR) > 0) {
-                correction = calcYawStraight(storedHeading, gyro.getRoll(), kP);
+                correction = calcYawStraight(storedHeading, gyro.getYaw(), kP);
             }
         }
 
@@ -379,8 +384,8 @@ public class SwerveDrive extends SubsystemBase {
         double strafe = (strafe1 + strafe2) / 2;
 
 
-        double forwardNew = (forward * Math.cos(gyro.getRoll())) + (strafe *  Math.sin(gyro.getRoll())); 
-        double strafeNew  = (strafe *  Math.cos(gyro.getRoll())) - (forward * Math.sin(gyro.getRoll()));
+        double forwardNew = (forward * Math.cos(gyro.getYaw())) + (strafe *  Math.sin(gyro.getYaw())); 
+        double strafeNew  = (strafe *  Math.cos(gyro.getYaw())) - (forward * Math.sin(gyro.getYaw()));
 
         double timeStep = 0.020; //milliseconds //Timer.getFPGATimestamp() - lastTime //don't know how to do this so just constant from whitepaper
         

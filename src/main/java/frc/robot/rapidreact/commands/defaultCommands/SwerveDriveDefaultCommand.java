@@ -83,8 +83,13 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         
         speed = safeMode ? SPEED_SAFE : SPEED_NORMAL;
         
-        forward =  MathUtil.clamp(MathUtil.applyDeadband(applyRadialDeadZoneX(axis(Axis.FORWARD), axis(Axis.STRAFE), DEADBAND_LOW, DEADBAND_HIGH), DEADBAND_LOW) * speed, -1, 1);
-        strafe  = -MathUtil.clamp(MathUtil.applyDeadband(applyRadialDeadZoneY(axis(Axis.FORWARD), axis(Axis.STRAFE), DEADBAND_LOW, DEADBAND_HIGH), DEADBAND_LOW) * speed, -1, 1);
+        // forward =  MathUtil.clamp(MathUtil.applyDeadband(applyRadialDeadZoneX(axis(Axis.FORWARD), axis(Axis.STRAFE), DEADBAND_LOW, DEADBAND_HIGH), DEADBAND_LOW) * speed, -1, 1);
+        // strafe  = -MathUtil.clamp(MathUtil.applyDeadband(applyRadialDeadZoneY(axis(Axis.FORWARD), axis(Axis.STRAFE), DEADBAND_LOW, DEADBAND_HIGH), DEADBAND_LOW) * speed, -1, 1);
+        // rotate  = -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.TURN),    DEADBAND_LOW) * speed, -1, 1);
+
+
+        forward =  MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.FORWARD), DEADBAND_LOW) * speed, -1, 1);
+        strafe  = -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.STRAFE), DEADBAND_LOW) * speed, -1, 1);
         rotate  = -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.TURN),    DEADBAND_LOW) * speed, -1, 1);
 
         yawCorrection = drive.correctHeading(0.004, forward, strafe, rotate);
@@ -109,65 +114,65 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         
         }
 
-         // toggle POV and field mode
-         if (button(DriveMode.FIELDMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.BALLMODE)) {
+        //  // toggle POV and field mode
+        //  if (button(DriveMode.FIELDMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.BALLMODE)) {
 
-            fieldOrientedMode = !fieldOrientedMode;
+        //     fieldOrientedMode = !fieldOrientedMode;
 
-            driveMode = fieldOrientedMode ? fieldOriented : robotOriented;
-            System.out.println("Switching to " + (fieldOrientedMode ? "Field Oriented" : "Robot POV") + ".");
+        //     driveMode = fieldOrientedMode ? fieldOriented : robotOriented;
+        //     System.out.println("Switching to " + (fieldOrientedMode ? "Field Oriented" : "Robot POV") + ".");
 
-        }
+        // }
 
-        //toggle goal centric mode
-        if(button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !button(DriveMode.BALLMODE) && limelight.isTargetValid()) {
+        // //toggle goal centric mode
+        // if(button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !button(DriveMode.BALLMODE) && limelight.isTargetValid()) {
             
-            goalOrientedMode = !goalOrientedMode;
+        //     goalOrientedMode = !goalOrientedMode;
 
-            driveMode = goalOrientedMode ? goalOriented : fieldOriented;
-            System.out.println("Switching to " + (goalOrientedMode ? "Goal Oriented" : "Field Oriented") + ".");
+        //     driveMode = goalOrientedMode ? goalOriented : fieldOriented;
+        //     System.out.println("Switching to " + (goalOrientedMode ? "Goal Oriented" : "Field Oriented") + ".");
 
-        } else if (button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !limelight.isTargetValid()) {
+        // } else if (button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !limelight.isTargetValid()) {
 
-            driveMode = fieldOriented;
-            System.out.println("No valid target to change drive mode" + "\n Switching to Field Oriented Mode");
-        }
+        //     driveMode = fieldOriented;
+        //     System.out.println("No valid target to change drive mode" + "\n Switching to Field Oriented Mode");
+        // }
 
-        //toggle ball centric mode
-        if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && detectionData.isAnyBallDetected()) {
+        // //toggle ball centric mode
+        // if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && detectionData.isAnyBallDetected()) {
 
-            ballOrientedMode = !goalOrientedMode;
+        //     ballOrientedMode = !goalOrientedMode;
 
-            driveMode = ballOrientedMode ? ballOriented : fieldOriented;
-            System.out.println("Switching to " + (ballOrientedMode ? "Ball Oriented" : "Field Oriented") + ".");
+        //     driveMode = ballOrientedMode ? ballOriented : fieldOriented;
+        //     System.out.println("Switching to " + (ballOrientedMode ? "Ball Oriented" : "Field Oriented") + ".");
 
-        } else if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !detectionData.isAnyBallDetected()) {
+        // } else if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !detectionData.isAnyBallDetected()) {
 
-            driveMode = fieldOriented;
-            System.out.println("No valid target to change drive mode" + "\n Switching to Field Oriented Mode");
-        }
+        //     driveMode = fieldOriented;
+        //     System.out.println("No valid target to change drive mode" + "\n Switching to Field Oriented Mode");
+        // }
 
-        //set drive modes
-        switch (driveMode) {
-            case fieldOriented: drive.swerveDrive(forward, strafe, rotate + yawCorrection, true);
-                    break;
-            case robotOriented: drive.swerveDrive(forward, strafe, rotate + yawCorrection, false);
-                    break;
-            case goalOriented: drive.swerveDrive(forward + limelight.limelightYPID(), 
-                                                    strafe, 
-                                                    rotate + limelight.limelightXPID() + yawCorrection, 
-                                                    false);
-                    break;
-            case ballOriented: drive.swerveDrive(-forward + detectionData.piYPID(), 
-                                                    -strafe, 
-                                                    -rotate + detectionData.piXPID() + yawCorrection, 
-                                                    false);
-                    break;
-            default: drive.swerveDrive(forward, strafe, rotate + yawCorrection, true);
-                     break;
-        }
+        // //set drive modes
+        // switch (driveMode) {
+        //     case fieldOriented: drive.swerveDrive(forward, strafe, rotate + yawCorrection, true);
+        //             break;
+        //     case robotOriented: drive.swerveDrive(forward, strafe, rotate + yawCorrection, false);
+        //             break;
+        //     case goalOriented: drive.swerveDrive(forward + limelight.limelightYPID(), 
+        //                                             strafe, 
+        //                                             rotate + limelight.limelightXPID() + yawCorrection, 
+        //                                             false);
+        //             break;
+        //     case ballOriented: drive.swerveDrive(-forward + detectionData.piYPID(), 
+        //                                             -strafe, 
+        //                                             -rotate + detectionData.piXPID() + yawCorrection, 
+        //                                             false);
+        //             break;
+        //     default: drive.swerveDrive(forward, strafe, rotate + yawCorrection, true);
+        //              break;
+        // }
 
-       // drive.calculateDrive(forward, strafe, rotate, true);
+       drive.swerveDrive(forward, strafe, rotate, false);
           
         //robot odometry
         //drive.calculateRobotPosition();
