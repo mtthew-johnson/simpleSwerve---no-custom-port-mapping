@@ -14,7 +14,7 @@ import frc.team5973.robot.subsystems.SubsystemBase;
 public class Shooter extends SubsystemBase {
     
     private final double SHOOTER_SPEED = 1;
-    private final double OUTAKE_SPEED = 0.3;
+    private final double OUTAKE_SPEED = 0.7;
 
     private WPI_TalonSRX shooterWheel;
     private WPI_TalonSRX shooterOutake;

@@ -27,15 +27,23 @@ public class IntakeDefaultCommand extends CommandBase {
         
         if(button(IntakeInput.COLLECT)) {   
             
-            intake.extend();
             intake.collect();
 
         } else {
            
-            intake.retract();
             intake.halt();
 
         }
+
+        if(button(IntakeInput.EXTEND)) {
+
+            intake.extend();
+        } else {
+
+            intake.retract();;
+        }
+
+
 	
 	}
 

@@ -33,8 +33,9 @@ public class Robot extends RobotBase {
 	private int driverPort  = 0;
 	private int copilotPort = 1;
 
-	private final double SPEED_NORMAL  = 1;
+	private final double SPEED_NORMAL  = 0.7;
 	private final double SPEED_SAFE    = 0.3;
+	private final double SPEED_ROTATE = 0.5;
 	
 	private final double DEADBAND_LOW  = 0.1;
 	private final double DEADBAND_HIGH = 1;
@@ -64,8 +65,8 @@ public class Robot extends RobotBase {
 
 		drive = new SwerveDrive(this);
 		
-		//shooter = new Shooter(this);
-		//intake  = new Intake(this);
+		shooter = new Shooter(this);
+		intake  = new Intake(this);
 
 		detectionData = new DetectionData(this);
 		limelight     = new Limelight(this);
@@ -73,7 +74,8 @@ public class Robot extends RobotBase {
 		drive.setDefaultCommand(new SwerveDriveDefaultCommand(drive, limelight, 
 																	 detectionData, DEADBAND_HIGH,
 																	 				DEADBAND_LOW,
-																	 				SPEED_NORMAL, 
+																	 				SPEED_ROTATE,
+																					SPEED_NORMAL, 
 																					SPEED_SAFE, 
 																					Map.of(
 			Axis.FORWARD, () -> driver.getLeftY(),
@@ -81,18 +83,20 @@ public class Robot extends RobotBase {
 			Axis.TURN,    () -> driver.getRightX()),
 			Map.of(
 			DriveMode.SAFEMMODE, () -> driver.getLeftStickButton() && driver.getRightStickButton(),
-			DriveMode.FIELDMODE, () -> driver.getStartButton(),
-			DriveMode.GOALMODE,  () -> driver.getXButton(),
-			DriveMode.BALLMODE,  () -> driver.getYButton()
+			DriveMode.FIELDMODE, () -> copilot.getBButton(),
+			DriveMode.GOALMODE,  () -> copilot.getXButton(),
+			DriveMode.BALLMODE,  () -> copilot.getYButton(),
+			DriveMode.ZERO_GYRO, () -> copilot.getStartButton()
 			)));
 
-		// shooter.setDefaultCommand(new ShooterDefaultCommand(shooter, Map.of(
-		// 	ShooterInput.BUTTON, () -> driver.getAButton()
-		// )));
+		shooter.setDefaultCommand(new ShooterDefaultCommand(shooter, Map.of(
+			ShooterInput.BUTTON, () -> driver.getBButton()
+		)));
 
-		// intake.setDefaultCommand(new IntakeDefaultCommand(intake, Map.of(
-		// 	IntakeInput.COLLECT, () -> driver.getBButton()
-		// )));
+		intake.setDefaultCommand(new IntakeDefaultCommand(intake, Map.of(
+			IntakeInput.EXTEND, () -> driver.getAButton(),
+			IntakeInput.COLLECT, () -> driver.getXButton()
+		)));
 	
 		// mainJoystick.getButton(kX).whenHeld(new CenterBall(this, drive));
 		// mainJoystick.getButton(kY).whenHeld(new CollectBall(this, drive, intake, 0.7));

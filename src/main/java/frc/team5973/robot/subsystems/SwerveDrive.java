@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.sensors.Pigeon2;
-import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -16,19 +15,19 @@ public class SwerveDrive extends SubsystemBase {
     
     private Pigeon2 gyro;
 
-    private double KpAnglefl = 0.01;
+    private double KpAnglefl = 0.015;
 	private double KiAnglefl = 0;
 	private double KdAnglefl = 0;
 
-    private double KpAnglefr = 0.01;
+    private double KpAnglefr = 0.015;
 	private double KiAnglefr = 0;
 	private double KdAnglefr = 0;
 
-    private double KpAnglebl = 0.01;
+    private double KpAnglebl = 0.015;
 	private double KiAnglebl = 0;
 	private double KdAnglebl = 0;
 
-    private double KpAnglebr = 0.01;
+    private double KpAnglebr = 0.015;
 	private double KiAnglebr = 0;
 	private double KdAnglebr = 0;
 
@@ -68,11 +67,17 @@ public class SwerveDrive extends SubsystemBase {
     private double positionAcrossField = 0;
 
     public enum Axis {FORWARD, STRAFE, TURN, BUTTON}
-    public enum DriveMode {SAFEMMODE, FIELDMODE, GOALMODE, BALLMODE}
+    public enum DriveMode {SAFEMMODE, FIELDMODE, GOALMODE, BALLMODE, ZERO_GYRO}
     public enum SwerveModule {FRONT_LEFT, FRONT_RIGHT, BACK_LEFT, BACK_RIGHT}
 
     private double comboStartTime;
     private boolean flag = false;
+
+    private double STRNew = 0;
+    private double FWDNew = 0;
+
+    private double storedHeading = 0;
+    private double correction = 0;
 
     public SwerveDrive(RobotBase robot) {
         
@@ -132,33 +137,6 @@ public class SwerveDrive extends SubsystemBase {
         frontLeftAngleMotor.setSensorPhase(sensorPhasefl);
         backLeftAngleMotor.setSensorPhase(sensorPhaseBl);
         backRightAngleMotor.setSensorPhase(sensorPhaseBr);
-       
-		int absolutePositionfl = frontLeftAngleMotor.getSensorCollection().getPulseWidthPosition();
-		int absolutePositionfr = frontRightAngleMotor.getSensorCollection().getPulseWidthPosition();
-		int absolutePositionbr = backRightAngleMotor.getSensorCollection().getPulseWidthPosition();
-		int absolutePositionbl = backLeftAngleMotor.getSensorCollection().getPulseWidthPosition();
-
-		// Mask out overflows, keep bottom 12 bits
-        absolutePositionfl &= 0xFFF;
-		absolutePositionfr &= 0xFFF;
-		absolutePositionbr &= 0xFFF;
-		absolutePositionbl &= 0xFFF;
-
-        if (frontLeftAngleMotor.getInverted())  { absolutePositionfl *= -1; }
-		if (frontRightAngleMotor.getInverted()) { absolutePositionfr *= -1; }
-		if (backRightAngleMotor.getInverted())  { absolutePositionbr *= -1; }
-		if (backLeftAngleMotor.getInverted())   { absolutePositionbl *= -1; }
-
-        if (sensorPhasefl)  { absolutePositionfl *= -1; }
-        if (sensorPhasefr)  { absolutePositionfr *= -1; }
-        if (sensorPhaseBr)  { absolutePositionbr *= -1; }
-        if (sensorPhaseBl)  { absolutePositionbl *= -1; }
-		
-		// Set the quadrature (relative) sensor to match absolute
-		frontLeftAngleMotor.setSelectedSensorPosition(absolutePositionfl);
-		frontRightAngleMotor.setSelectedSensorPosition(absolutePositionfr);
-		backRightAngleMotor.setSelectedSensorPosition(absolutePositionbr);
-		backLeftAngleMotor.setSelectedSensorPosition(absolutePositionbl);
         
         frontRightSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
         frontLeftSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
@@ -226,29 +204,23 @@ public class SwerveDrive extends SubsystemBase {
     private void calculateDrive(double FWD, double STR, double RCW, boolean useGyro) {
                
         if(useGyro) {
-            
-            // double gyroDegrees = gyro.getYaw();
-            // double gyroRadians = gyroDegrees * (Math.PI / 180);
-            // System.out.println(gyroRadians);
 
-            double temp = FWD*Math.cos(Math.abs((gyro.getYaw()))) + STR*Math.sin(Math.abs((gyro.getYaw())));
-        
-            STR = -FWD*Math.sin(Math.abs((gyro.getYaw()))) + STR*Math.cos(Math.abs((gyro.getYaw())));
-            FWD = temp;
+            double gyroAngle = -gyro.getYaw() * PI / 180;
+
+            FWDNew = FWD*Math.cos(gyroAngle) + STR*Math.sin(gyroAngle);
+            STRNew = STR*Math.cos(gyroAngle) - FWD*Math.sin(gyroAngle);
 
         } else {
             
-            double temp = FWD*Math.cos(0) + STR*Math.sin(0);
-        
-            STR = -FWD*Math.sin(0) + STR*Math.cos(0);
-            FWD = temp;
+            FWDNew = FWD*Math.cos(0) + STR*Math.sin(0);
+            STRNew = STR*Math.cos(0) - FWD*Math.sin(0);
 
         }
 
-        double A = STR - RCW*(L/R);
-        double B = STR + RCW*(L/R);
-        double C = FWD - RCW*(W/R);
-        double D = FWD + RCW*(W/R); 
+        double A = STRNew - RCW*(L/R);
+        double B = STRNew + RCW*(L/R);
+        double C = FWDNew - RCW*(W/R);
+        double D = FWDNew + RCW*(W/R); 
 
         double frontRightWheelSpeed = Math.sqrt(Math.pow(B, 2) + Math.pow(C, 2));
         double frontLeftWheelSpeed  = Math.sqrt(Math.pow(B, 2) + Math.pow(D, 2));
@@ -288,8 +260,6 @@ public class SwerveDrive extends SubsystemBase {
         backRightAngleMotor.set(pidAnglebr.calculate(ticksToDegrees(backRightAngleMotor),    setDirection(backRightWheelAngle,  backRightAngleMotor, backRightSpeedMotor, backRightWheelSpeed)));
         frontRightAngleMotor.set(pidAnglefr.calculate(ticksToDegrees(frontRightAngleMotor),  setDirection(frontRightWheelAngle, frontRightAngleMotor, frontRightSpeedMotor, frontRightWheelSpeed)));
         frontLeftAngleMotor.set(pidAnglefl.calculate(ticksToDegrees(frontLeftAngleMotor),    setDirection(frontLeftWheelAngle,  frontLeftAngleMotor, frontLeftSpeedMotor, frontLeftWheelSpeed)));
-
-       System.out.println(gyro.getYaw());
 
     }
 
@@ -334,23 +304,24 @@ public class SwerveDrive extends SubsystemBase {
     }
     
     private double calcYawStraight(double targetAngle, double currentAngle, double kP) {
-        double errorAngle = (targetAngle - currentAngle) % 360;
+        double errorAngle = (targetAngle - (currentAngle % 360));
         double correction = errorAngle * kP;
 
         return correction;
     }
 
     public double correctHeading(double kP, double FWD, double STR, double RCW) {
-        
-        double storedHeading = 0;
-        double correction = 0;
 
         if(RCW != 0) {
-            storedHeading = gyro.getYaw();
+            storedHeading = -gyro.getYaw();
         } else {
 
             if(Math.abs(FWD) > 0 || Math.abs(STR) > 0) {
-                correction = calcYawStraight(storedHeading, gyro.getYaw(), kP);
+                correction = calcYawStraight(storedHeading, -gyro.getYaw(), kP);
+
+                if(Math.abs(correction) > 1) {
+                    correction = 0;
+                }
             }
         }
 
@@ -419,6 +390,14 @@ public class SwerveDrive extends SubsystemBase {
         positionAcrossField = 0;
     }
 
+    public double getGyroAngle() {
+        return -gyro.getYaw();
+    }
+
+    public void resetGyro() {
+        gyro.zeroGyroBiasNow();
+    }
+
     //Drive methods for commands
     public void driveForward(double speed, boolean useGyro) {
         calculateDrive(speed, 0, 0, useGyro);
@@ -481,9 +460,11 @@ public class SwerveDrive extends SubsystemBase {
 		builder.addDoubleProperty("IAnglebr", () -> KiAnglebr, (value) -> KiAnglebr = value);
 		builder.addDoubleProperty("DAnglebr", () -> KdAnglebr, (value) -> KdAnglebr = value);
 
-		// builder.addDoubleProperty("Forward", () ->   MathUtil.applyDeadband(axis("forward"), DEADBAND), null);
-		// builder.addDoubleProperty("Strafe",  () ->  -MathUtil.applyDeadband(axis("strafe"),  DEADBAND), null);
+		builder.addDoubleProperty("Forward", () ->   FWDNew, null);
+		builder.addDoubleProperty("Strafe",  () ->  STRNew, null);
 		// builder.addDoubleProperty("Rotate",  () ->   MathUtil.applyDeadband(axis("rotate"),  DEADBAND), null);
+
+        builder.addDoubleProperty("Gyro Angle", () -> -gyro.getYaw(), null);
         
         builder.addDoubleProperty("Front Right Angle", () -> ticksToDegrees(frontRightAngleMotor), null);		
 		builder.addDoubleProperty("Front Left Angle",  () -> ticksToDegrees(frontLeftAngleMotor),  null);

@@ -11,7 +11,7 @@ public class Intake extends SubsystemBase {
 
 	private final Timer timer = new Timer();
 
-	private final double INTAKE_SPEED = 1;
+	private final double INTAKE_SPEED = 0.5;
 
 	private WPI_TalonSRX intakeWheels;
 
@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase {
 
     private void configMotors() {
         
-        intakeWheels = new WPI_TalonSRX(10);
+        intakeWheels = new WPI_TalonSRX(11);
 
 		leftArm  = new Servo(port("leftArm"));
 		rightArm = new Servo(1);
@@ -38,7 +38,7 @@ public class Intake extends SubsystemBase {
 		addChild("leftArm",  leftArm);
 		addChild("rightArm", rightArm);
 
-        intakeWheels.setInverted(true);
+        intakeWheels.setInverted(false);
 
 		leftArm.setSpeed(1);
 		rightArm.setSpeed(1);
