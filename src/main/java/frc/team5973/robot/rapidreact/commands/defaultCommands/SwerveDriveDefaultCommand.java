@@ -96,7 +96,6 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         // strafe  = -MathUtil.clamp(MathUtil.applyDeadband(applyRadialDeadZoneY(axis(Axis.FORWARD), axis(Axis.STRAFE), DEADBAND_LOW, DEADBAND_HIGH), DEADBAND_LOW) * speed, -1, 1);
         // rotate  = -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.TURN),    DEADBAND_LOW) * speed, -1, 1);
 
-
         forward =   MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.FORWARD), DEADBAND_LOW) * speed, -1, 1);
         strafe  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.STRAFE),  DEADBAND_LOW) * speed, -1, 1);
         rotate  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.TURN),    DEADBAND_LOW) * speed, -1, 1);

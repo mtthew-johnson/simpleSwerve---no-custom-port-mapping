@@ -231,20 +231,12 @@ public class SwerveDrive extends SubsystemBase {
 
         //normalize wheel speeds
         if(frontLeftWheelSpeed > max) {
-            
             max = frontLeftWheelSpeed;
-        
         } else if(backLeftWheelSpeed > max) {
-            
             max = backLeftWheelSpeed;
-
         } else if (backRightWheelSpeed > max) {
-            
             max = backRightWheelSpeed;
-
-        } else {
-
-        }
+        } else {}
 
         frontRightWheelSpeed = max; 
         frontLeftWheelSpeed  = max; 
@@ -306,7 +298,6 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public double correctHeading(double kP, double FWD, double STR, double RCW) {
-
         if(RCW != 0) {
             storedHeading = -gyro.getYaw();
         } else {
@@ -325,7 +316,7 @@ public class SwerveDrive extends SubsystemBase {
     
     //TODO: need to test this
     public void calculateRobotPosition() {
-        
+
         double Bfl = Math.sin(frontLeftAngleMotor.getSelectedSensorPosition())  * frontLeftSpeedMotor.getSelectedSensorVelocity();
         double Bfr = Math.sin(frontRightAngleMotor.getSelectedSensorPosition()) * frontRightSpeedMotor.getSelectedSensorVelocity();
         double Abl = Math.sin(backLeftAngleMotor.getSelectedSensorPosition())   * backLeftSpeedMotor.getSelectedSensorVelocity();
@@ -352,7 +343,6 @@ public class SwerveDrive extends SubsystemBase {
         double strafe1 = rotation * (W / 2) + C;
         double strafe2 = -rotation * ( W / 2) + D;
         double strafe = (strafe1 + strafe2) / 2;
-
 
         double forwardNew = (forward * Math.cos(gyro.getYaw())) + (strafe *  Math.sin(gyro.getYaw())); 
         double strafeNew  = (strafe *  Math.cos(gyro.getYaw())) - (forward * Math.sin(gyro.getYaw()));
