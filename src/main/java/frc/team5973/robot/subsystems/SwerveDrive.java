@@ -41,8 +41,6 @@ public class SwerveDrive extends SubsystemBase {
     private WPI_TalonSRX backRightAngleMotor;
     private WPI_TalonSRX backLeftAngleMotor;
 
-    public boolean isfieldOriented = true;
-
     // private Encoder frontLeftEncoder;
     // private Encoder frontRightEncoder;
     // private Encoder backLeftEncoder;
@@ -69,9 +67,6 @@ public class SwerveDrive extends SubsystemBase {
     public enum Axis {FORWARD, STRAFE, TURN, BUTTON}
     public enum DriveMode {SAFEMMODE, FIELDMODE, GOALMODE, BALLMODE, ZERO_GYRO}
     public enum SwerveModule {FRONT_LEFT, FRONT_RIGHT, BACK_LEFT, BACK_RIGHT}
-
-    private double comboStartTime;
-    private boolean flag = false;
 
     private double STRNew = 0;
     private double FWDNew = 0;
@@ -269,7 +264,7 @@ public class SwerveDrive extends SubsystemBase {
             double dir = (b % 360) - (a % 360);
 
             // convert from -360 to 360 to -180 to 180
-            if (Math.abs(dir) > 180.0) {
+            if(Math.abs(dir) > 180.0) {
                     dir = -(Math.signum(dir) * 360.0) + dir;
             }
             return dir;
@@ -284,7 +279,7 @@ public class SwerveDrive extends SubsystemBase {
         // find closest angle to setpoint + 180
         double setpointAngleFlipped = closestAngle(currentAngle, setpoint + 180.0);
         // if the closest angle to setpoint is shorter
-        if (Math.abs(setpointAngle) <= Math.abs(setpointAngleFlipped)) {
+        if(Math.abs(setpointAngle) <= Math.abs(setpointAngleFlipped)) {
             // unflip the motor direction use the setpoint
             direction = currentAngle + setpointAngle;
         }

@@ -28,17 +28,25 @@ public class SwerveDriveDefaultCommand extends CommandBase {
 
     private final double SPEED_NORMAL;
     private final double SPEED_SAFE;
-    private final double SPEED_ROTATE;
 
     private double speed;
+ 
+    private double comboStartTimeSafe  = 0;
+    private double comboStartTimeField = 0;
+    private double comboStartTimeGoal  = 0;
+    private double comboStartTimeBall  = 0;
+    
+    private boolean alreadyToggledSafeMode  = false;
+    private boolean alreadyToggledFieldMode = false;
+    private boolean alreadyToggledGoalMode  = false;
+    private boolean alreadyToggledBallMode   = false;
 
-    private boolean safeMode = false;
-    private double comboStartTime = 0;
-    private boolean alreadyToggledSafeMode = false;
-
+    private boolean safeMode          = false;
     private boolean fieldOrientedMode = false;
     private boolean goalOrientedMode  = false;
     private boolean ballOrientedMode  = false;
+
+    private double buttonDelay = 0.1;
 
     private double forward;
     private double strafe;
@@ -58,7 +66,6 @@ public class SwerveDriveDefaultCommand extends CommandBase {
                                      final DetectionData detectionData, 
                                      final double DEADBAND_HIGH,
                                      final double DEADBAND_LOW,
-                                     final double SPEED_ROTATE,
                                      final double SPEED_NORMAL,
                                      final double SPEED_SAFE,
                                      final Map<Axis, DoubleSupplier> axisMap,
@@ -74,9 +81,7 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         this.DEADBAND_LOW  = DEADBAND_LOW;
         this.SPEED_NORMAL = SPEED_NORMAL;
         this.SPEED_SAFE   = SPEED_SAFE;
-        this.SPEED_ROTATE = SPEED_ROTATE;
     
-
         addRequirements(drive);
         SendableRegistry.addChild(SwerveDriveDefaultCommand.this, this);
 
@@ -92,20 +97,21 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         // rotate  = -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.TURN),    DEADBAND_LOW) * speed, -1, 1);
 
 
-        forward =  MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.FORWARD), DEADBAND_LOW) * speed, -1, 1);
-        strafe  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.STRAFE), DEADBAND_LOW) * speed, -1, 1);
+        forward =   MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.FORWARD), DEADBAND_LOW) * speed, -1, 1);
+        strafe  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.STRAFE),  DEADBAND_LOW) * speed, -1, 1);
         rotate  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.TURN),    DEADBAND_LOW) * speed, -1, 1);
 
         yawCorrection = drive.correctHeading(0.004, forward, strafe, rotate);
 
         //puts robot into safemode where the robot will go slower
-         if (button(DriveMode.SAFEMMODE)) {
+         if(button(DriveMode.SAFEMMODE)) {
 
-            if (comboStartTime == 0)
-                comboStartTime = Timer.getFPGATimestamp();
-            else if (Timer.getFPGATimestamp() - comboStartTime >= 3.0 && !alreadyToggledSafeMode) {
+            if(comboStartTimeSafe == 0)
+                comboStartTimeSafe = Timer.getFPGATimestamp();
+            else if(Timer.getFPGATimestamp() - comboStartTimeSafe >= 3.0 && !alreadyToggledSafeMode) {
             
                 safeMode = !safeMode;
+                
                 alreadyToggledSafeMode = true;
                 System.out.println("Safemode is " + (safeMode ? "Enabled" : "Disabled") + ".");
             
@@ -113,31 +119,50 @@ public class SwerveDriveDefaultCommand extends CommandBase {
 
         } else {
 
-            comboStartTime = 0;
+            comboStartTimeSafe = 0;
             alreadyToggledSafeMode = false;
         
         }
 
-         // toggle POV and field mode
-         if (button(DriveMode.FIELDMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.BALLMODE)) {
+        // toggle POV and field mode
+        if(button(DriveMode.FIELDMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.BALLMODE)) {
 
-            fieldOrientedMode = !fieldOrientedMode;
+            if(comboStartTimeField == 0) {
+                comboStartTimeField = Timer.getFPGATimestamp();
+            } else if(Timer.getFPGATimestamp() - comboStartTimeField >= buttonDelay && !alreadyToggledFieldMode) {
+                
+                fieldOrientedMode = !fieldOrientedMode;
 
-            driveMode = fieldOrientedMode ? fieldOriented : robotOriented;
-            System.out.println("Switching to " + (fieldOrientedMode ? "Field Oriented" : "Robot POV") + ".");
+                alreadyToggledFieldMode = true;
+                driveMode = fieldOrientedMode ? fieldOriented : robotOriented;
+                System.out.println("Switching to " + (fieldOrientedMode ? "Field Oriented" : "Robot POV") + ".");
+            }
 
+        } else {
+
+            comboStartTimeField = 0;
+            alreadyToggledFieldMode = false;
+            
         }
 
         //toggle goal centric mode
         if(button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !button(DriveMode.BALLMODE) && limelight.isTargetValid()) {
             
-            goalOrientedMode = !goalOrientedMode;
+            if(comboStartTimeGoal == 0) {
+                comboStartTimeGoal = Timer.getFPGATimestamp();
+            } else if(Timer.getFPGATimestamp() - comboStartTimeGoal >= buttonDelay && !alreadyToggledGoalMode) {
+                goalOrientedMode = !goalOrientedMode;
 
-            driveMode = goalOrientedMode ? goalOriented : fieldOriented;
-            System.out.println("Switching to " + (goalOrientedMode ? "Goal Oriented" : "Field Oriented") + ".");
+                alreadyToggledGoalMode = true;
+                driveMode = goalOrientedMode ? goalOriented : fieldOriented;
+                System.out.println("Switching to " + (goalOrientedMode ? "Goal Oriented" : "Field Oriented") + ".");
+            }
+            
+        } else if (button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !button(DriveMode.BALLMODE) && !limelight.isTargetValid()) {
 
-        } else if (button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !limelight.isTargetValid()) {
-
+            comboStartTimeGoal = 0;
+            alreadyToggledGoalMode = false;
+            
             driveMode = fieldOriented;
             System.out.println("No valid target to change drive mode" + "\n Switching to Field Oriented Mode");
         }
@@ -145,13 +170,21 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         //toggle ball centric mode
         if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && detectionData.isAnyBallDetected()) {
 
-            ballOrientedMode = !goalOrientedMode;
+            if(comboStartTimeBall == 0) {
+                comboStartTimeGoal = Timer.getFPGATimestamp();
+            } else if(Timer.getFPGATimestamp() - comboStartTimeBall >= buttonDelay && !alreadyToggledBallMode) {
+                ballOrientedMode = !goalOrientedMode;
 
-            driveMode = ballOrientedMode ? ballOriented : fieldOriented;
-            System.out.println("Switching to " + (ballOrientedMode ? "Ball Oriented" : "Field Oriented") + ".");
+                alreadyToggledBallMode = false;
+                driveMode = ballOrientedMode ? ballOriented : fieldOriented;
+                System.out.println("Switching to " + (ballOrientedMode ? "Ball Oriented" : "Field Oriented") + ".");
+            }
 
         } else if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && !detectionData.isAnyBallDetected()) {
 
+            comboStartTimeBall = 0;
+            alreadyToggledBallMode = false;
+            
             driveMode = fieldOriented;
             System.out.println("No valid target to change drive mode" + "\n Switching to Field Oriented Mode");
         }
@@ -169,14 +202,14 @@ public class SwerveDriveDefaultCommand extends CommandBase {
             case robotOriented: drive.swerveDrive(forward, strafe, rotate - yawCorrection, false);
                     break;
             case goalOriented: drive.swerveDrive(forward + limelight.limelightYPID(), 
-                                                    strafe, 
-                                                    rotate + limelight.limelightXPID() - yawCorrection, 
-                                                    false);
+                                                 strafe, 
+                                                 rotate + limelight.limelightXPID() - yawCorrection, 
+                                                 false);
                     break;
             case ballOriented: drive.swerveDrive(-forward + detectionData.piYPID(), 
-                                                    -strafe, 
-                                                    -rotate + detectionData.piXPID() - yawCorrection, 
-                                                    false);
+                                                 -strafe, 
+                                                 -rotate + detectionData.piXPID() - yawCorrection, 
+                                                  false);
                     break;
             default: drive.swerveDrive(forward, strafe, rotate - yawCorrection, true);
                      break;

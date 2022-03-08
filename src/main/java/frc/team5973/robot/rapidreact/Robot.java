@@ -35,7 +35,6 @@ public class Robot extends RobotBase {
 
 	private final double SPEED_NORMAL  = 0.7;
 	private final double SPEED_SAFE    = 0.3;
-	private final double SPEED_ROTATE = 0.5;
 	
 	private final double DEADBAND_LOW  = 0.1;
 	private final double DEADBAND_HIGH = 1;
@@ -74,7 +73,6 @@ public class Robot extends RobotBase {
 		drive.setDefaultCommand(new SwerveDriveDefaultCommand(drive, limelight, 
 																	 detectionData, DEADBAND_HIGH,
 																	 				DEADBAND_LOW,
-																	 				SPEED_ROTATE,
 																					SPEED_NORMAL, 
 																					SPEED_SAFE, 
 																					Map.of(
