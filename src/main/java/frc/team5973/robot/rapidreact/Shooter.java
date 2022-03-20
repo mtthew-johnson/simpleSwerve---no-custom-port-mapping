@@ -28,7 +28,8 @@ public class Shooter extends SubsystemBase {
 
    // private DutyCycleEncoder rotateEncoder;
 
-    public enum ShooterInput {BUTTON}
+    public enum ShooterInput {BUTTON, SPIN_WHEEL}
+    public enum ShooterAxis {INTERNAL_WHEEL}
 
     private final Timer timer = new Timer();
     
@@ -91,6 +92,10 @@ public class Shooter extends SubsystemBase {
     public void halt() {
         shooterWheel.set(0);
         shooterOutake.set(0);
+    }
+
+    public void spinwheel(double speed) {
+        shooterOutake.set(speed);
     }
 
     public void shootForTime(double time) {

@@ -18,7 +18,7 @@ public class Intake extends SubsystemBase {
 	private Servo leftArm;
 	private Servo rightArm;
 
-	public enum IntakeInput {EXTEND, COLLECT}
+	public enum IntakeInput {EXTEND, COLLECT, COLLECT_CEDRIC}
 
 	public Intake(RobotBase robot) {
 

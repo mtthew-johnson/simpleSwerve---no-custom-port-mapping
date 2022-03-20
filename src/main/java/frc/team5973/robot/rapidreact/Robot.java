@@ -9,6 +9,7 @@ import frc.team5973.robot.RobotBase;
 import frc.team5973.robot.XinputController;
 import frc.team5973.robot.rapidreact.Intake.IntakeInput;
 import frc.team5973.robot.rapidreact.Shooter.ShooterInput;
+import frc.team5973.robot.rapidreact.Shooter.ShooterAxis;
 import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.CenterBallCommand;
 import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.CollectBallCommand;
 import frc.team5973.robot.rapidreact.commands.defaultCommands.IntakeDefaultCommand;
@@ -89,11 +90,14 @@ public class Robot extends RobotBase {
 
 		shooter.setDefaultCommand(new ShooterDefaultCommand(shooter, limelight, Map.of(
 			ShooterInput.BUTTON, () -> driver.getBButton()
+		), Map.of(
+			ShooterAxis.INTERNAL_WHEEL, () -> copilot.getLeftY()
 		)));
 
 		intake.setDefaultCommand(new IntakeDefaultCommand(intake, Map.of(
-			IntakeInput.EXTEND, () -> driver.getAButton(),
-			IntakeInput.COLLECT, () -> driver.getXButton()
+			IntakeInput.EXTEND, () -> copilot.getLeftBumper(),
+			IntakeInput.COLLECT, () -> driver.getRightBumper()//,
+			//IntakeInput.COLLECT_CEDRIC, () -> copilot.getAButton()
 		)));
 	
 		// mainJoystick.getButton(kX).whenHeld(new CenterBall(this, drive));

@@ -25,7 +25,7 @@ public class IntakeDefaultCommand extends CommandBase {
     @Override
 	public void execute() {
         
-        if(button(IntakeInput.COLLECT)) {   
+        if(button(IntakeInput.COLLECT) || button(IntakeInput.COLLECT_CEDRIC)) {   
             
             intake.collect();
 
@@ -42,6 +42,7 @@ public class IntakeDefaultCommand extends CommandBase {
 
             intake.retract();;
         }
+
 
 
 	

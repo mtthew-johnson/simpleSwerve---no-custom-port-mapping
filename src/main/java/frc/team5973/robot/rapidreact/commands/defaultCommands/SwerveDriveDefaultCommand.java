@@ -98,7 +98,7 @@ public class SwerveDriveDefaultCommand extends CommandBase {
 
         forward =   MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.FORWARD), DEADBAND_LOW) * speed, -1, 1);
         strafe  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.STRAFE),  DEADBAND_LOW) * speed, -1, 1);
-        rotate  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.TURN),    DEADBAND_LOW) * speed, -1, 1);
+        rotate  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.TURN),    0.1) * speed, -1, 1);
 
         if(driveMode == goalOriented || driveMode == ballOriented) {
             yawCorrection = 0;
