@@ -96,9 +96,8 @@ public class Robot extends RobotBase {
                 outputStream.putFrame(mat);
               }
             });
-			m_visionThread.setDaemon(true);
-			m_visionThread.start();
-		}
+		m_visionThread.setDaemon(true);
+		m_visionThread.start();
 		
 
 		/*
