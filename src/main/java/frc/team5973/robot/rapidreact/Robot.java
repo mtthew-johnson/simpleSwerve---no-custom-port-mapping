@@ -90,7 +90,7 @@ public class Robot extends RobotBase {
 		
 		new Thread(() -> {
 			// Creates UsbCamera and MjpegServer [1] and connects them
-			UsbCamera usbCamera = CameraServer.startAutomaticCapture();
+			UsbCamera usbCamera = new UsbCamera("USB Camera 1", 1);
 			MjpegServer mjpegServer1 = new MjpegServer("serve_USB Camera 1", 1181);
 			mjpegServer1.setSource(usbCamera);
 
