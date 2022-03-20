@@ -58,8 +58,8 @@ public class Robot extends RobotBase {
 		
 		// -------------------
 		// CAMERA FEEDS 
-		UsbCamera usbCamera0 = CameraServer.startAutomaticCapture();
-		UsbCamera usbCamera1 = CameraServer.startAutomaticCapture();
+		UsbCamera usbCamera0 = new UsbCamera("cam0", 0);
+		UsbCamera usbCamera1 = new UsbCamera("cam1", 1);
 		new Thread(() -> {
 			// Creates UsbCamera and MjpegServer [1] and connects them
 			
