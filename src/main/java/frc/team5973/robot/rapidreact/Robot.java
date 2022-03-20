@@ -66,7 +66,7 @@ public class Robot extends RobotBase {
         	new Thread(
             () -> {
               // Get the UsbCamera from CameraServer
-              UsbCamera camera = CameraServer.startAutomaticCapture();
+              UsbCamera camera = CameraServer.startAutomaticCapture(0);
               // Set the resolution
               camera.setResolution(640, 480);
 
@@ -102,7 +102,7 @@ public class Robot extends RobotBase {
 			new Thread(
 			() -> {
 				// Get the UsbCamera from CameraServer
-				UsbCamera camera = new UsbCamera("cam1", 1);
+				UsbCamera camera = CameraServer.startAutomaticCapture(1);
 				// Set the resolution
 				camera.setResolution(640, 480);
 
