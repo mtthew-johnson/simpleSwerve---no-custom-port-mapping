@@ -58,15 +58,17 @@ public class Robot extends RobotBase {
 		
 		// -------------------
 		// CAMERA FEEDS 
+		UsbCamera usbCamera0 = CameraServer.startAutomaticCapture();
+		UsbCamera usbCamera1 = CameraServer.startAutomaticCapture();
 		new Thread(() -> {
 			// Creates UsbCamera and MjpegServer [1] and connects them
-			UsbCamera usbCamera = CameraServer.startAutomaticCapture();
+			
 			MjpegServer mjpegServer1 = new MjpegServer("serve_USB Camera 0", 1181);
-			mjpegServer1.setSource(usbCamera);
+			mjpegServer1.setSource(usbCamera0);
 
 			// Creates the CvSink and connects it to the UsbCamera
 			CvSink cvSink = new CvSink("opencv_USB Camera 0");
-			cvSink.setSource(usbCamera);
+			cvSink.setSource(usbCamera0);
 
 			// Creates the CvSource and MjpegServer [2] and connects them
 			CvSource outputStream = new CvSource("Blur", PixelFormat.kMJPEG, 640, 480, 30);
@@ -90,13 +92,12 @@ public class Robot extends RobotBase {
 		
 		new Thread(() -> {
 			// Creates UsbCamera and MjpegServer [1] and connects them
-			UsbCamera usbCamera = CameraServer.startAutomaticCapture();
 			MjpegServer mjpegServer1 = new MjpegServer("serve_USB Camera 1", 1181);
-			mjpegServer1.setSource(usbCamera);
+			mjpegServer1.setSource(usbCamera1);
 
 			// Creates the CvSink and connects it to the UsbCamera
 			CvSink cvSink = new CvSink("opencv_USB Camera 1");
-			cvSink.setSource(usbCamera);
+			cvSink.setSource(usbCamera1);
 
 			// Creates the CvSource and MjpegServer [2] and connects them
 			CvSource outputStream = new CvSource("Blur", PixelFormat.kMJPEG, 640, 480, 30);
