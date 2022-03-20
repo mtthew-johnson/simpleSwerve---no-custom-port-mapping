@@ -73,7 +73,7 @@ public class Robot extends RobotBase {
               // Get a CvSink. This will capture Mats from the camera
               CvSink cvSink = CameraServer.getVideo(camera);
               // Setup a CvSource. This will send images back to the Dashboard
-              CvSource outputStream = CameraServer.putVideo("Rectangle", 640, 480);
+              CvSource outputStream = CameraServer.putVideo("cam_stream0", 640, 480);
 
               // Mats are very memory expensive. Lets reuse this Mat.
               Mat mat = new Mat();
@@ -90,9 +90,6 @@ public class Robot extends RobotBase {
                   // skip the rest of the current iteration
                   continue;
                 }
-                // Put a rectangle on the image
-                Imgproc.rectangle(
-                    mat, new Point(100, 100), new Point(400, 400), new Scalar(255, 255, 255), 5);
                 // Give the output stream a new image to display
                 outputStream.putFrame(mat);
               }
@@ -109,7 +106,7 @@ public class Robot extends RobotBase {
 				// Get a CvSink. This will capture Mats from the camera
 				CvSink cvSink = CameraServer.getVideo(camera);
 				// Setup a CvSource. This will send images back to the Dashboard
-				CvSource outputStream = CameraServer.putVideo("Rectangle1", 640, 480);
+				CvSource outputStream = CameraServer.putVideo("cam_stream1", 640, 480);
 
 				// Mats are very memory expensive. Lets reuse this Mat.
 				Mat mat = new Mat();
@@ -120,15 +117,12 @@ public class Robot extends RobotBase {
 				while (!Thread.interrupted()) {
 				// Tell the CvSink to grab a frame from the camera and put it
 				// in the source mat.  If there is an error notify the output.
-				if (cvSink.grabFrame(mat) == 0) {
+				if (cvSink.grabFrame(mat) == 1) {
 					// Send the output the error.
 					outputStream.notifyError(cvSink.getError());
 					// skip the rest of the current iteration
 					continue;
 				}
-				// Put a rectangle on the image
-				Imgproc.rectangle(
-					mat, new Point(100, 100), new Point(400, 400), new Scalar(255, 255, 255), 5);
 				// Give the output stream a new image to display
 				outputStream.putFrame(mat);
 				}
