@@ -11,7 +11,7 @@ public class Intake extends SubsystemBase {
 
 	private final Timer timer = new Timer();
 
-	private final double INTAKE_SPEED = 0.5;
+	private final double INTAKE_SPEED = 0.7;
 
 	private WPI_TalonSRX intakeWheels;
 

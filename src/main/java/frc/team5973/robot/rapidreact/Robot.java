@@ -2,6 +2,11 @@ package frc.team5973.robot.rapidreact;
 
 import java.util.Map;
 
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoMode.PixelFormat;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -133,8 +138,8 @@ public class Robot extends RobotBase {
 
 		intake.setDefaultCommand(new IntakeDefaultCommand(intake, Map.of(
 			IntakeInput.EXTEND, () -> copilot.getLeftBumper(),
-			IntakeInput.COLLECT, () -> driver.getRightBumper()//,
-			//IntakeInput.COLLECT_CEDRIC, () -> copilot.getAButton()
+			IntakeInput.COLLECT, () -> copilot.getRightBumper(),
+			IntakeInput.COLLECT_CEDRIC, () -> copilot.getAButton()
 		)));
 	
 		// mainJoystick.getButton(kX).whenHeld(new CenterBall(this, drive));

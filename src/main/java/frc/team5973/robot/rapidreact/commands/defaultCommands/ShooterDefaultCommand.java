@@ -36,7 +36,7 @@ public class ShooterDefaultCommand extends CommandBase {
     @Override
 	public void execute() {
 
-        internalControl = -MathUtil.applyDeadband(axis(ShooterAxis.INTERNAL_WHEEL), 0.1) * 0.25;
+        internalControl = -MathUtil.applyDeadband(axis(ShooterAxis.INTERNAL_WHEEL), 0.1) * 0.3;
         
         if(limelight.getOffsetY() <= 13.5) {
             shooterSpeed = 0.9688 - (0.0399 * limelight.getOffsetY()) +
