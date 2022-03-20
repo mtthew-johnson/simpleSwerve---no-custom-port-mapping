@@ -71,7 +71,7 @@ public class Robot extends RobotBase {
               camera.setResolution(640, 480);
 
               // Get a CvSink. This will capture Mats from the camera
-              CvSink cvSink = CameraServer.getVideo();
+              CvSink cvSink = CameraServer.getVideo(camera);
               // Setup a CvSource. This will send images back to the Dashboard
               CvSource outputStream = CameraServer.putVideo("Rectangle", 640, 480);
 
@@ -107,7 +107,7 @@ public class Robot extends RobotBase {
 				camera.setResolution(640, 480);
 
 				// Get a CvSink. This will capture Mats from the camera
-				CvSink cvSink = CameraServer.getVideo();
+				CvSink cvSink = CameraServer.getVideo(camera);
 				// Setup a CvSource. This will send images back to the Dashboard
 				CvSource outputStream = CameraServer.putVideo("Rectangle1", 640, 480);
 
