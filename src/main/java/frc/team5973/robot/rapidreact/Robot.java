@@ -2,10 +2,15 @@ package frc.team5973.robot.rapidreact;
 
 import java.util.Map;
 
+// CAMERA IMPORTS
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.UsbCamera;
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
 import edu.wpi.first.cscore.VideoMode.PixelFormat;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -55,7 +60,7 @@ public class Robot extends RobotBase {
 		// CAMERA FEEDS 
 		new Thread(() -> {
 			// Creates UsbCamera and MjpegServer [1] and connects them
-			UsbCamera usbCamera = new UsbCamera("USB Camera 0", 0);
+			UsbCamera usbCamera = CameraServer.startAutomaticCapture();
 			MjpegServer mjpegServer1 = new MjpegServer("serve_USB Camera 0", 1181);
 			mjpegServer1.setSource(usbCamera);
 
@@ -67,8 +72,22 @@ public class Robot extends RobotBase {
 			CvSource outputStream = new CvSource("Blur", PixelFormat.kMJPEG, 640, 480, 30);
 			MjpegServer mjpegServer2 = new MjpegServer("serve_Blur", 1182);
 			mjpegServer2.setSource(outputStream);
+
+			Mat source = new Mat();
+      		Mat output = new Mat();
+
+			while(!Thread.interrupted()) {
+				if (cvSink.grabFrame(source) == 0) {
+				  continue;
+				}
+				Imgproc.cvtColor(source, output, Imgproc.COLOR_BGR2GRAY);
+				outputStream.putFrame(output);
+			}
+
+
 		}).start();
 	  
+		/*
 		new Thread(() -> {
 			// Creates UsbCamera and MjpegServer [1] and connects them
 			UsbCamera usbCamera = new UsbCamera("USB Camera 1", 1);
@@ -84,6 +103,7 @@ public class Robot extends RobotBase {
 			MjpegServer mjpegServer2 = new MjpegServer("serve_Blur", 1182);
 			mjpegServer2.setSource(outputStream);
 		}).start();
+		*/
 
 		// ---- END CAMERA FEEDS
 		// ----------------------
