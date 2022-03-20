@@ -63,7 +63,7 @@ public class Robot extends RobotBase {
 
 
 		m_visionThread0 =
-        new Thread(
+        	new Thread(
             () -> {
               // Get the UsbCamera from CameraServer
               UsbCamera camera = CameraServer.startAutomaticCapture();
@@ -99,7 +99,7 @@ public class Robot extends RobotBase {
             });
 		
 		m_visionThread1 =
-		new Thread(
+			new Thread(
 			() -> {
 				// Get the UsbCamera from CameraServer
 				UsbCamera camera = CameraServer.startAutomaticCapture();
