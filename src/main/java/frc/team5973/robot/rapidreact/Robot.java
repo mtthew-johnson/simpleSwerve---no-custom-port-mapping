@@ -71,8 +71,8 @@ public class Robot extends RobotBase {
 			cvSink.setSource(usbCamera0);
 
 			// Creates the CvSource and MjpegServer [2] and connects them
-			CvSource outputStream = new CvSource("Blur", PixelFormat.kMJPEG, 640, 480, 30);
-			MjpegServer mjpegServer2 = new MjpegServer("serve_Blur", 1182);
+			CvSource outputStream = new CvSource("Blur0", PixelFormat.kMJPEG, 640, 480, 30);
+			MjpegServer mjpegServer2 = new MjpegServer("serve_Blur0", 1182);
 			mjpegServer2.setSource(outputStream);
 
 			Mat source = new Mat();
@@ -100,8 +100,8 @@ public class Robot extends RobotBase {
 			cvSink.setSource(usbCamera1);
 
 			// Creates the CvSource and MjpegServer [2] and connects them
-			CvSource outputStream = new CvSource("Blur", PixelFormat.kMJPEG, 640, 480, 30);
-			MjpegServer mjpegServer2 = new MjpegServer("serve_Blur", 1182);
+			CvSource outputStream = new CvSource("Blur1", PixelFormat.kMJPEG, 640, 480, 30);
+			MjpegServer mjpegServer2 = new MjpegServer("serve_Blur1", 1182);
 			mjpegServer2.setSource(outputStream);
 
 			Mat source = new Mat();
