@@ -244,47 +244,56 @@ public class DetectionData extends SubsystemBase {
 		
 		// return correction;
 
-        double kP = 0.001;
+        double kP = 0.0005;
 		double deadzone = 5;
-		double correction = getOffsetX("blue") * kP;
+		double correction = getOffsetX(ballType) * kP;
 
-		if(Math.abs(getOffsetX("blue")) < deadzone)
+		if(Math.abs(getOffsetX(ballType)) < deadzone)
 			correction = 0;
 
 		return correction;
 	}
 
-	public double piYPID() {
+	public double piYPID(String ballType) {
         
-        double kP = 0.008;
-        double correctionMin = 0.003;
-        double deadzone = 0.05;
-        double correction = 0;
-        
-        if(isBlueBallDetected()) {
-    
-            correction = getOffsetY("blue") * kP;
+        double kP = 0.0005;
+		double deadzone = 5;
+		double correction = getOffsetY(ballType) * kP;
 
-            if(correction < correctionMin)
-                correction = Math.copySign(correctionMin, correction);
+		if(Math.abs(getOffsetY(ballType)) < deadzone)
+			correction = 0;
 
-            if(Math.abs(getOffsetY("blue")) < deadzone)
-                correction = 0;
-
-        } else if(isRedBallDetected()) {
-            correction = getOffsetY("red") * kP;
-
-            if(correction < correctionMin)
-                correction = Math.copySign(correctionMin, correction);
-
-            if(Math.abs(getOffsetY("red")) < deadzone)
-                correction = 0;
-        } else {
-
-            System.out.println("No ball detected");
-        }
-		
 		return correction;
+        
+        // double kP = 0.008;
+        // double correctionMin = 0.003;
+        // double deadzone = 0.05;
+        // double correction = 0;
+        
+        // if(isBlueBallDetected()) {
+    
+        //     correction = getOffsetY("blue") * kP;
+
+        //     if(correction < correctionMin)
+        //         correction = Math.copySign(correctionMin, correction);
+
+        //     if(Math.abs(getOffsetY("blue")) < deadzone)
+        //         correction = 0;
+
+        // } else if(isRedBallDetected()) {
+        //     correction = getOffsetY("red") * kP;
+
+        //     if(correction < correctionMin)
+        //         correction = Math.copySign(correctionMin, correction);
+
+        //     if(Math.abs(getOffsetY("red")) < deadzone)
+        //         correction = 0;
+        // } else {
+
+        //     System.out.println("No ball detected");
+        // }
+		
+		// return correction;
 
 	}
 }

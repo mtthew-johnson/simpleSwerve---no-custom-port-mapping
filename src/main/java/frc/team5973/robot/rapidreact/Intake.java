@@ -1,5 +1,6 @@
 package frc.team5973.robot.rapidreact;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Servo;
@@ -11,7 +12,7 @@ public class Intake extends SubsystemBase {
 
 	private final Timer timer = new Timer();
 
-	private final double INTAKE_SPEED = 0.7;
+	private final double INTAKE_SPEED = 0.6;
 
 	private WPI_TalonSRX intakeWheels;
 
@@ -38,7 +39,9 @@ public class Intake extends SubsystemBase {
 		addChild("leftArm",  leftArm);
 		addChild("rightArm", rightArm);
 
-        intakeWheels.setInverted(false);
+        intakeWheels.setInverted(true);
+
+		intakeWheels.setNeutralMode(NeutralMode.Coast);
 
 		leftArm.setSpeed(1);
 		rightArm.setSpeed(1);

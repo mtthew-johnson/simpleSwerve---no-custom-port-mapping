@@ -104,7 +104,7 @@ public class Limelight extends SubsystemBase {
 		
 		// return correction;
 
-		double kP = 0.01;
+		double kP = 0.02;
 		double deadzone = 0.05;
 		double correction = getOffsetX() * kP;
 

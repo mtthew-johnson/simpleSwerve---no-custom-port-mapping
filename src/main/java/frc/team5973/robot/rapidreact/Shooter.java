@@ -1,5 +1,6 @@
 package frc.team5973.robot.rapidreact;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
@@ -58,6 +59,8 @@ public class Shooter extends SubsystemBase {
         
         shooterOutake.configOpenloopRamp(0);
         shooterOutake.configClosedloopRamp(0);
+
+        shooterOutake.setNeutralMode(NeutralMode.Brake);
     }
 
     // private void cofigEncoder() {
@@ -82,7 +85,7 @@ public class Shooter extends SubsystemBase {
             // Wait for 1 second to allow wheel to spin up   
             timer.reset();
             timer.start();
-            while (!timer.hasElapsed(1)) {}
+            while (!timer.hasElapsed(0.75)) {}
             timer.stop();
 
             //send ball through

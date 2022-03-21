@@ -49,7 +49,7 @@ public class Robot extends RobotBase {
 	private final double SPEED_NORMAL  = 0.9;
 	private final double SPEED_SAFE    = 0.3;
 	
-	private final double DEADBAND_LOW  = 0.04;
+	private final double DEADBAND_LOW  = 0.06;
 	private final double DEADBAND_HIGH = 1;
 
 	private XinputController driver  = new XinputController(driverPort);
@@ -62,97 +62,19 @@ public class Robot extends RobotBase {
 		super("Rapidreact");
 
 
-		m_visionThread0 =
-        	new Thread(
-            () -> {
-              // Get the UsbCamera from CameraServer
-              UsbCamera camera = CameraServer.startAutomaticCapture(0);
-              // Set the resolution
-              camera.setResolution(640, 480);
-
-              // Get a CvSink. This will capture Mats from the camera
-              CvSink cvSink = CameraServer.getVideo(camera);
-              // Setup a CvSource. This will send images back to the Dashboard
-              CvSource outputStream = CameraServer.putVideo("cam_stream0", 640, 480);
-
-              // Mats are very memory expensive. Lets reuse this Mat.
-              Mat mat = new Mat();
-
-              // This cannot be 'true'. The program will never exit if it is. This
-              // lets the robot stop this thread when restarting robot code or
-              // deploying.
-              while (!Thread.interrupted()) {
-                // Tell the CvSink to grab a frame from the camera and put it
-                // in the source mat.  If there is an error notify the output.
-                if (cvSink.grabFrame(mat) == 0) {
-                  // Send the output the error.
-                  outputStream.notifyError(cvSink.getError());
-                  // skip the rest of the current iteration
-                  continue;
-                }
-                // Give the output stream a new image to display
-                outputStream.putFrame(mat);
-              }
-            });
-		
-		m_visionThread1 =
-			new Thread(
-			() -> {
-				// Get the UsbCamera from CameraServer
-				UsbCamera camera = CameraServer.startAutomaticCapture(1);
-				// Set the resolution
-				camera.setResolution(640, 480);
-
-				// Get a CvSink. This will capture Mats from the camera
-				CvSink cvSink = CameraServer.getVideo(camera);
-				// Setup a CvSource. This will send images back to the Dashboard
-				CvSource outputStream = CameraServer.putVideo("cam_stream1", 640, 480);
-
-				// Mats are very memory expensive. Lets reuse this Mat.
-				Mat mat = new Mat();
-
-				// This cannot be 'true'. The program will never exit if it is. This
-				// lets the robot stop this thread when restarting robot code or
-				// deploying.
-				while (!Thread.interrupted()) {
-				// Tell the CvSink to grab a frame from the camera and put it
-				// in the source mat.  If there is an error notify the output.
-				if (cvSink.grabFrame(mat) == 1) {
-					// Send the output the error.
-					outputStream.notifyError(cvSink.getError());
-					// skip the rest of the current iteration
-					continue;
-				}
-				// Give the output stream a new image to display
-				outputStream.putFrame(mat);
-				}
-		});
-				
-		m_visionThread0.setDaemon(true);
-		m_visionThread0.start();
-
-		m_visionThread1.setDaemon(true);
-		m_visionThread1.start();
-		
-
-		/*
-		// -------------------
-		// SINGLE CAMERA FEED SETUP WORKS
-		
 		new Thread(() -> {
-			UsbCamera usbCamera0 = CameraServer.startAutomaticCapture();
 			// Creates UsbCamera and MjpegServer [1] and connects them
-			
+			UsbCamera usbCamera = CameraServer.startAutomaticCapture();
 			MjpegServer mjpegServer1 = new MjpegServer("serve_USB Camera 0", 1181);
-			mjpegServer1.setSource(usbCamera0);
+			mjpegServer1.setSource(usbCamera);
 
 			// Creates the CvSink and connects it to the UsbCamera
 			CvSink cvSink = new CvSink("opencv_USB Camera 0");
-			cvSink.setSource(usbCamera0);
+			cvSink.setSource(usbCamera);
 
 			// Creates the CvSource and MjpegServer [2] and connects them
-			CvSource outputStream = new CvSource("Blur0", PixelFormat.kMJPEG, 640, 480, 30);
-			MjpegServer mjpegServer2 = new MjpegServer("serve_Blur0", 1182);
+			CvSource outputStream = new CvSource("Blur", PixelFormat.kMJPEG, 640, 480, 30);
+			MjpegServer mjpegServer2 = new MjpegServer("serve_Blur", 1182);
 			mjpegServer2.setSource(outputStream);
 
 			Mat source = new Mat();
@@ -168,10 +90,6 @@ public class Robot extends RobotBase {
 
 
 		}).start();
-
-		// ---- END CAMERA FEEDS
-		// ----------------------
-		*/
 
         port("shooterWheel",  12);  
 		port("shooterOutake", 8); 
@@ -210,9 +128,9 @@ public class Robot extends RobotBase {
 			Map.of(
 			DriveMode.SAFEMMODE, () -> driver.getLeftStickButton() && driver.getRightStickButton(),
 			DriveMode.FIELDMODE, () -> copilot.getBButton(),
-			DriveMode.GOALMODE,  () -> copilot.getXButton(),
+			DriveMode.GOALMODE,  () -> driver.getAButton(),
 			DriveMode.BALLMODE,  () -> copilot.getYButton(),
-			DriveMode.ZERO_GYRO, () -> copilot.getStartButton()
+			DriveMode.ZERO_GYRO, () -> copilot.getXButton()
 			)));
 
 		shooter.setDefaultCommand(new ShooterDefaultCommand(shooter, limelight, Map.of(

@@ -189,7 +189,7 @@ public class SwerveDriveDefaultCommand extends CommandBase {
                 System.out.println("Switching to " + (ballOrientedMode ? "Ball Oriented" : "Field Oriented") + ".");
             }
 
-        } else if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE)) { //&& !detectionData.isAnyBallDetected()) {
+        } else if(button(DriveMode.BALLMODE) && !button(DriveMode.GOALMODE) && !button(DriveMode.FIELDMODE) && false) { //&& !detectionData.isAnyBallDetected()) {
 
             comboStartTimeBall = 0;
             alreadyToggledBallMode = false;
@@ -213,14 +213,14 @@ public class SwerveDriveDefaultCommand extends CommandBase {
                     break;
             case robotOriented: drive.swerveDrive(forward, strafe, rotate - yawCorrection, false);
                     break;
-            case goalOriented: drive.swerveDrive(-forward, 
-                                                 -strafe, 
+            case goalOriented: drive.swerveDrive(forward, 
+                                                 strafe, 
                                                  rotate - limelight.limelightXPID(), 
-                                                 false);
+                                                 true);
                     break;
-            case ballOriented: drive.swerveDrive(-forward + detectionData.piYPID(), 
-                                                 -strafe, 
-                                                 -rotate - detectionData.piXPID("blue"), 
+            case ballOriented: drive.swerveDrive(-forward + detectionData.piYPID("red"), 
+                                                 strafe, 
+                                                 -rotate - detectionData.piXPID("red"), 
                                                   false);
                     break;
             default: drive.swerveDrive(forward, strafe, rotate - yawCorrection, true);
@@ -228,7 +228,7 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         }
 
         //System.out.println(detectionData.getOffsetX("blue"));
-        System.out.println(detectionData.piXPID("blue"));
+        //System.out.println(detectionData.piYPID("red"));
 
         //System.out.println(driveMode);
 

@@ -380,7 +380,7 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public void resetGyro() {
-        gyro.configFactoryDefault();
+        gyro.setYaw(0);
     }
 
     //Drive methods for commands
