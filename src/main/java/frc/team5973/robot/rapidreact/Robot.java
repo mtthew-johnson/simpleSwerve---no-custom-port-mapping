@@ -4,17 +4,19 @@ import java.util.Map;
 
 // CAMERA IMPORTS
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
-import edu.wpi.first.cscore.MjpegServer;
+// import edu.wpi.first.cscore.CvSink;
+// import edu.wpi.first.cscore.CvSource;
+// import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.UsbCamera;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
+// import org.opencv.core.Mat;
+// import org.opencv.core.Point;
+// import org.opencv.core.Scalar;
+// import org.opencv.imgproc.Imgproc;
 
 import edu.wpi.first.cscore.VideoMode.PixelFormat;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.team5973.robot.RobotBase;
@@ -55,13 +57,19 @@ public class Robot extends RobotBase {
 	private XinputController driver  = new XinputController(driverPort);
 	private XinputController copilot = new XinputController(copilotPort);
 
-	Thread m_visionThread0; 
-	Thread m_visionThread1; 
+	UsbCamera camera1;
+	UsbCamera camera2;
+	NetworkTableEntry cameraSelection;
 
 	public Robot() {
 		super("Rapidreact");
 
+		camera1 = CameraServer.startAutomaticCapture(0);
+		camera2 = CameraServer.startAutomaticCapture(1);
+	
+		cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
 
+		/*
 		new Thread(() -> {
 			// Creates UsbCamera and MjpegServer [1] and connects them
 			UsbCamera usbCamera0 = CameraServer.startAutomaticCapture(0);
@@ -102,6 +110,7 @@ public class Robot extends RobotBase {
 
 
 		}).start();
+		*/
 
         port("shooterWheel",  12);  
 		port("shooterOutake", 8); 
