@@ -64,28 +64,40 @@ public class Robot extends RobotBase {
 
 		new Thread(() -> {
 			// Creates UsbCamera and MjpegServer [1] and connects them
-			UsbCamera usbCamera = CameraServer.startAutomaticCapture();
-			MjpegServer mjpegServer1 = new MjpegServer("serve_USB Camera 0", 1181);
-			mjpegServer1.setSource(usbCamera);
+			UsbCamera usbCamera0 = CameraServer.startAutomaticCapture(0);
+			UsbCamera usbCamera1 = CameraServer.startAutomaticCapture(1);
+			MjpegServer mjpegServer0 = new MjpegServer("serve_USB Camera 0", 1181);
+			MjpegServer mjpegServer1 = new MjpegServer("serve_USB Camera 1", 1181);
+			mjpegServer0.setSource(usbCamera0);
+			mjpegServer1.setSource(usbCamera1);
 
 			// Creates the CvSink and connects it to the UsbCamera
-			CvSink cvSink = new CvSink("opencv_USB Camera 0");
-			cvSink.setSource(usbCamera);
+			CvSink cvSink0 = new CvSink("opencv_USB Camera 0");
+			CvSink cvSink1 = new CvSink("opencv_USB Camera 1");
+			cvSink0.setSource(usbCamera0);
+			cvSink1.setSource(usbCamera1);
 
 			// Creates the CvSource and MjpegServer [2] and connects them
-			CvSource outputStream = new CvSource("Blur", PixelFormat.kMJPEG, 640, 480, 30);
-			MjpegServer mjpegServer2 = new MjpegServer("serve_Blur", 1182);
-			mjpegServer2.setSource(outputStream);
+			CvSource outputStream0 = new CvSource("Blur0", PixelFormat.kMJPEG, 640, 480, 30);
+			CvSource outputStream1 = new CvSource("Blur1", PixelFormat.kMJPEG, 640, 480, 30);
+			MjpegServer mjpegServ0 = new MjpegServer("serve_Blur0", 1182);
+			MjpegServer mjpegServ1 = new MjpegServer("serve_Blur1", 1182);
+			mjpegServ0.setSource(outputStream0);
+			mjpegServ1.setSource(outputStream1);
 
-			Mat source = new Mat();
-      		Mat output = new Mat();
+			Mat source0 = new Mat();
+      		Mat output0 = new Mat();
+			Mat source1 = new Mat();
+      		Mat output1 = new Mat();
 
 			while(!Thread.interrupted()) {
-				if (cvSink.grabFrame(source) == 0) {
+				if (cvSink0.grabFrame(source0) == 0) {
 				  continue;
 				}
-				Imgproc.cvtColor(source, output, Imgproc.COLOR_BGR2GRAY);
-				outputStream.putFrame(output);
+				Imgproc.cvtColor(source0, output0, Imgproc.COLOR_BGR2GRAY);
+				outputStream0.putFrame(output0);
+				Imgproc.cvtColor(source1, output1, Imgproc.COLOR_BGR2GRAY);
+				outputStream0.putFrame(output1);
 			}
 
 
