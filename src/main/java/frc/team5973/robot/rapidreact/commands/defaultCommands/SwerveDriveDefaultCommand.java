@@ -46,20 +46,22 @@ public class SwerveDriveDefaultCommand extends CommandBase {
     private boolean goalOrientedMode  = false;
     private boolean ballOrientedMode  = false;
 
-    private double buttonDelay = 0.1;
+    private double buttonDelay = 0.0;
 
     private double forward;
     private double strafe;
     private double rotate;
 
-    private double yawCorrection;
+    public double yawCorrection;
    
-    private int driveMode;
+    private int driveMode = 1;
 
     private final int fieldOriented = 1;
     private final int robotOriented = 2;
     private final int goalOriented  = 3;
     private final int ballOriented  = 4;
+
+    private Timer timer = new Timer();
 
     public SwerveDriveDefaultCommand(final SwerveDrive drive,
                                      final Limelight limelight,
@@ -104,6 +106,7 @@ public class SwerveDriveDefaultCommand extends CommandBase {
             yawCorrection = 0;
         } else if (driveMode == robotOriented || driveMode == fieldOriented) {
             yawCorrection = drive.correctHeading(0.004, forward, strafe, rotate);
+            //System.out.println(forward);
 
         }
         
@@ -204,6 +207,8 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         if(button(DriveMode.ZERO_GYRO)) {
             drive.resetGyro();
 
+            yawCorrection = 0;
+
             System.out.println("Gyro reset");
         }
 
@@ -226,6 +231,16 @@ public class SwerveDriveDefaultCommand extends CommandBase {
             default: drive.swerveDrive(forward, strafe, rotate - yawCorrection, true);
                      break;
         }
+
+        //System.out.println(yawCorrection);
+
+
+
+        // drive.driveDistance(12, -0.3, 0, 0);
+
+        // timer.reset();
+        // timer.start();
+        // while(!timer.hasElapsed(30)) {}
 
         //System.out.println(detectionData.getOffsetX("blue"));
         //System.out.println(detectionData.piYPID("red"));
@@ -295,6 +310,8 @@ public class SwerveDriveDefaultCommand extends CommandBase {
 	@Override
 	public void initSendable(SendableBuilder builder) {
 		super.initSendable(builder);
+
+        builder.addDoubleProperty("hello", () -> yawCorrection, null);
 
         
 		

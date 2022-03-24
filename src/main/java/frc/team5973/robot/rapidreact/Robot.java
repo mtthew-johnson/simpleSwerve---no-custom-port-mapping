@@ -2,8 +2,14 @@ package frc.team5973.robot.rapidreact;
 
 import java.util.Map;
 
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
 // CAMERA IMPORTS
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.MjpegServer;
 // import edu.wpi.first.cscore.CvSink;
 // import edu.wpi.first.cscore.CvSource;
 // import edu.wpi.first.cscore.MjpegServer;
@@ -12,20 +18,24 @@ import edu.wpi.first.cscore.UsbCamera;
 // import org.opencv.core.Point;
 // import org.opencv.core.Scalar;
 // import org.opencv.imgproc.Imgproc;
-
 import edu.wpi.first.cscore.VideoMode.PixelFormat;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 import frc.team5973.robot.RobotBase;
 import frc.team5973.robot.XinputController;
 import frc.team5973.robot.rapidreact.Intake.IntakeInput;
 import frc.team5973.robot.rapidreact.Shooter.ShooterInput;
 import frc.team5973.robot.rapidreact.Shooter.ShooterAxis;
-import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.CenterBallCommand;
-import frc.team5973.robot.rapidreact.commands.ballCollectionCommands.CollectBallCommand;
+import frc.team5973.robot.rapidreact.commands.AutoShoot2Command;
+import frc.team5973.robot.rapidreact.commands.AutoShootCommand;
+import frc.team5973.robot.rapidreact.commands.DriveDistance;
 import frc.team5973.robot.rapidreact.commands.defaultCommands.IntakeDefaultCommand;
 import frc.team5973.robot.rapidreact.commands.defaultCommands.ShooterDefaultCommand;
 import frc.team5973.robot.rapidreact.commands.defaultCommands.SwerveDriveDefaultCommand;
@@ -43,7 +53,12 @@ public class Robot extends RobotBase {
 	private Intake intake;
 
 	private Command autonomousCommand;
-	private Auto auto;
+
+	private ShuffleboardTab tab;
+	// private Command autoshoot1 = new AutoShootCommand(drive, shooter, intake, limelight);
+	// private Command autoshoot2 = new AutoShoot2Command(drive, shooter, intake, limelight);
+
+	private SendableChooser<Command> chooser;
 
 	private int driverPort  = 0;
 	private int copilotPort = 1;
@@ -51,7 +66,7 @@ public class Robot extends RobotBase {
 	private final double SPEED_NORMAL  = 0.9;
 	private final double SPEED_SAFE    = 0.3;
 	
-	private final double DEADBAND_LOW  = 0.06;
+	private final double DEADBAND_LOW  = 0.07;
 	private final double DEADBAND_HIGH = 1;
 
 	private XinputController driver  = new XinputController(driverPort);
@@ -64,12 +79,11 @@ public class Robot extends RobotBase {
 	public Robot() {
 		super("Rapidreact");
 
-		camera1 = CameraServer.startAutomaticCapture(0);
-		camera2 = CameraServer.startAutomaticCapture(1);
+		//camera1 = CameraServer.startAutomaticCapture(0);
+		//camera2 = CameraServer.startAutomaticCapture(1);
 	
-		cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
+		//cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
 
-		/*
 		new Thread(() -> {
 			// Creates UsbCamera and MjpegServer [1] and connects them
 			UsbCamera usbCamera0 = CameraServer.startAutomaticCapture(0);
@@ -86,17 +100,17 @@ public class Robot extends RobotBase {
 			cvSink1.setSource(usbCamera1);
 
 			// Creates the CvSource and MjpegServer [2] and connects them
-			CvSource outputStream0 = new CvSource("Blur0", PixelFormat.kMJPEG, 640, 480, 30);
-			CvSource outputStream1 = new CvSource("Blur1", PixelFormat.kMJPEG, 640, 480, 30);
+			CvSource outputStream0 = new CvSource("Blur0", PixelFormat.kMJPEG, 120, 120, 30);
+			CvSource outputStream1 = new CvSource("Blur1", PixelFormat.kMJPEG, 120, 120, 30);
 			MjpegServer mjpegServ0 = new MjpegServer("serve_Blur0", 1182);
 			MjpegServer mjpegServ1 = new MjpegServer("serve_Blur1", 1182);
 			mjpegServ0.setSource(outputStream0);
 			mjpegServ1.setSource(outputStream1);
 
 			Mat source0 = new Mat();
-      		Mat output0 = new Mat();
+			  Mat output0 = new Mat();
 			Mat source1 = new Mat();
-      		Mat output1 = new Mat();
+			  Mat output1 = new Mat();
 
 			while(!Thread.interrupted()) {
 				if (cvSink0.grabFrame(source0) == 0) {
@@ -110,7 +124,7 @@ public class Robot extends RobotBase {
 
 
 		}).start();
-		*/
+
 
         port("shooterWheel",  12);  
 		port("shooterOutake", 8); 
@@ -165,6 +179,13 @@ public class Robot extends RobotBase {
 			IntakeInput.COLLECT, () -> copilot.getRightBumper(),
 			IntakeInput.COLLECT_CEDRIC, () -> copilot.getAButton()
 		)));
+
+		// Add commands to the autonomous command chooser
+		
+		//chooser.addOption("Auto 2", autoshoot2);
+
+		// Put the chooser on the dashboard
+		//SmartDashboard.putData(chooser);
 	
 		// mainJoystick.getButton(kX).whenHeld(new CenterBall(this, drive));
 		// mainJoystick.getButton(kY).whenHeld(new CollectBall(this, drive, intake, 0.7));
@@ -175,12 +196,27 @@ public class Robot extends RobotBase {
 	}
 
 	@Override
+	public void robotInit() {
+
+		tab = Shuffleboard.getTab("parameters");
+		
+		chooser = new SendableChooser<>();
+
+		chooser.setDefaultOption("Auto 1", new AutoShootCommand(drive, shooter, intake, limelight));
+		chooser.addOption("Auto 1", new AutoShootCommand(drive, shooter, intake, limelight));
+		chooser.addOption("Auto 2", new AutoShoot2Command(drive, shooter, intake, limelight));
+		chooser.addOption("Drive Distance", new DriveDistance(12, drive));
+		
+
+		tab.add(chooser);
+
+	}
+
+	@Override
 	public void teleopInit() {
+			
 		if (autonomousCommand != null)
 			autonomousCommand.cancel();
-
-		// if (auto != null)
-		// 	auto.cancel();
 	}
 
 	@Override
@@ -196,13 +232,21 @@ public class Robot extends RobotBase {
 
 	@Override
 	public void disabledInit() {
-		
+		if (autonomousCommand != null) {
+			autonomousCommand.cancel();
+			autonomousCommand = null;
+		}
 	}
 
 	@Override
 	public void autonomousInit() {
 
-		//auto.schedule();
+		autonomousCommand = chooser.getSelected();
+
+		// schedule the autonomous command (example)
+		if (autonomousCommand != null) {
+			autonomousCommand.schedule();
+		  }
 		
 	}
 

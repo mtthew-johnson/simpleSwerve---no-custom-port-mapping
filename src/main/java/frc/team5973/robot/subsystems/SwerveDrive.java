@@ -1,7 +1,10 @@
 package frc.team5973.robot.subsystems;
 
+import javax.print.attribute.standard.RequestingUserName;
+
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.sensors.Pigeon2;
@@ -9,11 +12,14 @@ import com.ctre.phoenix.sensors.Pigeon2;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
-
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
+import frc.team5973.robot.Gains;
 import frc.team5973.robot.RobotBase;
 public class SwerveDrive extends SubsystemBase {
     
-    private Pigeon2 gyro;
+    public Pigeon2 gyro;
+
+    private final int timeoutMs = 30;
 
     private double KpAnglefl = 0.015;
 	private double KiAnglefl = 0;
@@ -30,6 +36,11 @@ public class SwerveDrive extends SubsystemBase {
     private double KpAnglebr = 0.015;
 	private double KiAnglebr = 0;
 	private double KdAnglebr = 0;
+
+    public final static Gains kGains_Velocitfl  = new Gains( 0.1, 0.001, 5, 1023.0/20660.0,  300,  1.00);
+    public final static Gains kGains_Velocitfr  = new Gains( 0.1, 0.001, 5, 1023.0/20660.0,  300,  1.00);
+    public final static Gains kGains_Velocitbr  = new Gains( 0.1, 0.001, 5, 1023.0/20660.0,  300,  1.00);
+    public final static Gains kGains_Velocitbl  = new Gains( 0.1, 0.001, 5, 1023.0/20660.0,  300,  1.00);
 
     private WPI_TalonFX frontRightSpeedMotor;
     private WPI_TalonFX frontLeftSpeedMotor;
@@ -74,6 +85,11 @@ public class SwerveDrive extends SubsystemBase {
     private double storedHeading = 0;
     private double correction = 0;
 
+    private final double TICKS_PER_REVOLUTION = 2048;
+    private final double WHEEL_DIAMETER = 4; //in
+    private final double DISTANCE_PER_REVOLUTION = 2 * PI * (WHEEL_DIAMETER / 2);
+    private final double DISTANCE_TO_TICKS = TICKS_PER_REVOLUTION / DISTANCE_PER_REVOLUTION;
+
     public SwerveDrive(RobotBase robot) {
         
         super(robot);
@@ -106,6 +122,16 @@ public class SwerveDrive extends SubsystemBase {
         addChild("backRightAngleMotor",  backRightAngleMotor);
         addChild("backLeftAngleMotor",   backLeftAngleMotor);
 
+        frontRightAngleMotor.configFactoryDefault();
+        frontLeftAngleMotor.configFactoryDefault();
+        backRightAngleMotor.configFactoryDefault();
+        backLeftAngleMotor.configFactoryDefault();
+
+        frontRightSpeedMotor.configFactoryDefault();
+        frontLeftSpeedMotor.configFactoryDefault();
+        backRightSpeedMotor.configFactoryDefault();
+        backLeftSpeedMotor.configFactoryDefault();
+       
         //invert speed motors
         frontRightSpeedMotor.setInverted(true);
         frontLeftSpeedMotor.setInverted(false);
@@ -117,11 +143,6 @@ public class SwerveDrive extends SubsystemBase {
         frontLeftAngleMotor.setInverted(true);
         backRightAngleMotor.setInverted(true);
         backLeftAngleMotor.setInverted(true);
-
-        frontRightAngleMotor.configFactoryDefault();
-        frontLeftAngleMotor.configFactoryDefault();
-        backRightAngleMotor.configFactoryDefault();
-        backLeftAngleMotor.configFactoryDefault();
     
         frontRightAngleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
         frontLeftAngleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
@@ -133,10 +154,56 @@ public class SwerveDrive extends SubsystemBase {
         backLeftAngleMotor.setSensorPhase(sensorPhaseBl);
         backRightAngleMotor.setSensorPhase(sensorPhaseBr);
         
-        frontRightSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-        frontLeftSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-        backRightSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-        backLeftSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+        frontRightSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, timeoutMs);
+        frontLeftSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,  0, timeoutMs);
+        backRightSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,  0, timeoutMs);
+        backLeftSpeedMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,   0, timeoutMs);
+
+        //config pid for falcons
+        frontRightSpeedMotor.configNeutralDeadband(0.02);
+        frontLeftSpeedMotor.configNeutralDeadband(0.02);
+        backRightSpeedMotor.configNeutralDeadband(0.02);
+        backLeftSpeedMotor.configNeutralDeadband(0.02);
+
+        // frontRightSpeedMotor.configNominalOutputForward(0, timeoutMs);
+        // frontRightSpeedMotor.configNominalOutputReverse(0, timeoutMs);
+        // frontRightSpeedMotor.configPeakOutputForward(1,    timeoutMs);
+        // frontRightSpeedMotor.configPeakOutputReverse(-1,   timeoutMs);  
+        
+        frontRightSpeedMotor.config_kF(0, kGains_Velocitfr.kF, timeoutMs);
+		frontRightSpeedMotor.config_kP(0, kGains_Velocitfr.kP, timeoutMs);
+		frontRightSpeedMotor.config_kI(0, kGains_Velocitfr.kI, timeoutMs);
+		frontRightSpeedMotor.config_kD(0, kGains_Velocitfr.kD, timeoutMs);
+
+        // frontLeftSpeedMotor.configNominalOutputForward(0, timeoutMs);
+        // frontLeftSpeedMotor.configNominalOutputReverse(0, timeoutMs);
+        // frontLeftSpeedMotor.configPeakOutputForward(1,    timeoutMs);
+        // frontLeftSpeedMotor.configPeakOutputReverse(-1,   timeoutMs);  
+        
+        frontLeftSpeedMotor.config_kF(0, kGains_Velocitfl.kF, timeoutMs);
+		frontLeftSpeedMotor.config_kP(0, kGains_Velocitfl.kP, timeoutMs);
+		frontLeftSpeedMotor.config_kI(0, kGains_Velocitfl.kI, timeoutMs);
+		frontLeftSpeedMotor.config_kD(0, kGains_Velocitfl.kD, timeoutMs);
+
+        // backRightSpeedMotor.configNominalOutputForward(0, timeoutMs);
+        // backRightSpeedMotor.configNominalOutputReverse(0, timeoutMs);
+        // backRightSpeedMotor.configPeakOutputForward(1,    timeoutMs);
+        // backRightSpeedMotor.configPeakOutputReverse(-1,   timeoutMs);  
+        
+        backRightSpeedMotor.config_kF(0, kGains_Velocitbr.kF, timeoutMs);
+		backRightSpeedMotor.config_kP(0, kGains_Velocitbr.kP, timeoutMs);
+		backRightSpeedMotor.config_kI(0, kGains_Velocitbr.kI, timeoutMs);
+		backRightSpeedMotor.config_kD(0, kGains_Velocitbr.kD, timeoutMs);
+
+        // backLeftSpeedMotor.configNominalOutputForward(0, timeoutMs);
+        // backLeftSpeedMotor.configNominalOutputReverse(0, timeoutMs);
+        // backLeftSpeedMotor.configPeakOutputForward(1,    timeoutMs);
+        // backLeftSpeedMotor.configPeakOutputReverse(-1,   timeoutMs);  
+        
+        backLeftSpeedMotor.config_kF(0, kGains_Velocitbl.kF, timeoutMs);
+		backLeftSpeedMotor.config_kP(0, kGains_Velocitbl.kP, timeoutMs);
+		backLeftSpeedMotor.config_kI(0, kGains_Velocitbl.kI, timeoutMs);
+		backLeftSpeedMotor.config_kD(0, kGains_Velocitbl.kD, timeoutMs);
 
         //turn off ramping for angleMotors
         backLeftAngleMotor.configOpenloopRamp(0);
@@ -248,6 +315,7 @@ public class SwerveDrive extends SubsystemBase {
         frontRightAngleMotor.set(pidAnglefr.calculate(ticksToDegrees(frontRightAngleMotor),  setDirection(frontRightWheelAngle, frontRightAngleMotor, frontRightSpeedMotor, frontRightWheelSpeed)));
         frontLeftAngleMotor.set(pidAnglefl.calculate(ticksToDegrees(frontLeftAngleMotor),    setDirection(frontLeftWheelAngle,  frontLeftAngleMotor, frontLeftSpeedMotor, frontLeftWheelSpeed)));
 
+        //System.out.println(frontRightSpeedMotor.getSelectedSensorPosition());
     }
 
     //Get the closest angle between the given angles.
@@ -282,7 +350,7 @@ public class SwerveDrive extends SubsystemBase {
             direction = currentAngle + setpointAngleFlipped;
         }
 
-        speedMotor.set(speed);
+        speedMotor.set(TalonFXControlMode.PercentOutput, speed);
         return direction;
     }
     
@@ -301,7 +369,7 @@ public class SwerveDrive extends SubsystemBase {
         if(RCW != 0) {
             storedHeading = -gyro.getYaw();
         } else {
-
+            //System.out.println(STR);
             if(Math.abs(FWD) > 0 || Math.abs(STR) > 0) {
                 correction = calcYawStraight(storedHeading, -gyro.getYaw(), kP);
 
@@ -380,7 +448,7 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public void resetGyro() {
-        gyro.setYaw(0);
+        gyro.setYaw(0, 100);
     }
 
     //Drive methods for commands
@@ -410,6 +478,117 @@ public class SwerveDrive extends SubsystemBase {
 
     public void swerveDrive(double FWD, double STR, double RCW, boolean useGyro) {
         calculateDrive(FWD, STR, RCW, useGyro);
+    }
+
+    public void driveDistance(double distance, double FWD, double STR, double RCW) {
+        double distanceTicks = (40960 / (12 * PI)) * (distance);
+        
+
+        double averageSensorPosition = (frontRightSpeedMotor.getSelectedSensorPosition() +
+                                        frontLeftSpeedMotor.getSelectedSensorPosition() +
+                                        backRightSpeedMotor.getSelectedSensorPosition() +
+                                        backLeftSpeedMotor.getSelectedSensorPosition()) / 4;
+
+        while(Math.abs(frontRightSpeedMotor.getSelectedSensorPosition()) < distanceTicks) {
+            
+            // averageSensorPosition = (frontRightSpeedMotor.getSelectedSensorPosition() +
+            //                             frontLeftSpeedMotor.getSelectedSensorPosition() +
+            //                             backRightSpeedMotor.getSelectedSensorPosition() +
+            //                             backLeftSpeedMotor.getSelectedSensorPosition()) / 4;
+            swerveDrive(FWD, STR, RCW - correctHeading(0.004, -0.3, 0, 0), false);
+           // System.out.println(averageSensorPosition);
+        }
+    }
+
+    public double getAverageEncoderPosition() {
+        return (frontRightSpeedMotor.getSelectedSensorPosition() +
+        frontLeftSpeedMotor.getSelectedSensorPosition() +
+        backRightSpeedMotor.getSelectedSensorPosition() +
+        backLeftSpeedMotor.getSelectedSensorPosition()) / 4;
+    }
+
+    public void resetDriveSensors() {
+        frontRightSpeedMotor.setSelectedSensorPosition(0);
+        frontLeftSpeedMotor.setSelectedSensorPosition(0);
+        backRightSpeedMotor.setSelectedSensorPosition(0);
+        backLeftSpeedMotor.setSelectedSensorPosition(0);
+    }
+
+    public void driveStraightDistanceTcisk(double distance, double kP, double FWD, double STR, double RCW) {
+        double distanceTicks = (40960 / (12 * PI)) * (distance);
+        frontRightSpeedMotor.setSelectedSensorPosition(0);
+        frontLeftSpeedMotor.setSelectedSensorPosition(0);
+        backRightSpeedMotor.setSelectedSensorPosition(0);
+        backLeftSpeedMotor.setSelectedSensorPosition(0);
+
+        double averageSensorPosition = (frontRightSpeedMotor.getSelectedSensorPosition() +
+                                        frontLeftSpeedMotor.getSelectedSensorPosition() +
+                                        backRightSpeedMotor.getSelectedSensorPosition() +
+                                        backLeftSpeedMotor.getSelectedSensorPosition()) / 4;
+
+        double averageLeft  = (frontLeftSpeedMotor.getSelectedSensorPosition()  + backLeftSpeedMotor.getSelectedSensorPosition()) / 2;
+        double averageRight = (frontRightSpeedMotor.getSelectedSensorPosition() + backRightSpeedMotor.getSelectedSensorPosition()) / 2;
+        double difference   = Math.abs(averageLeft) - Math.abs(averageRight);
+        double error        = difference * kP;
+        while(Math.abs(averageSensorPosition) > distanceTicks) {
+
+            averageSensorPosition = (frontRightSpeedMotor.getSelectedSensorPosition() +
+                                        frontLeftSpeedMotor.getSelectedSensorPosition() +
+                                        backRightSpeedMotor.getSelectedSensorPosition() +
+                                        backLeftSpeedMotor.getSelectedSensorPosition()) / 4;
+
+            averageLeft  = (frontLeftSpeedMotor.getSelectedSensorPosition() + backLeftSpeedMotor.getSelectedSensorPosition()) / 2;
+            averageRight = (frontRightSpeedMotor.getSelectedSensorPosition() + backRightSpeedMotor.getSelectedSensorPosition()) / 2;
+            difference   = averageLeft - averageRight;
+            error = difference * kP;
+            
+            
+            swerveDrive(-0.3, 0, -error, false);
+            //System.out.println(averageSensorPosition);
+        }
+    }
+
+    public void rotateTicks(double degrees) {
+        double distanceTicks = (40960 / (12 * PI)) * (((26 * PI) / 360) * degrees);
+        frontRightSpeedMotor.setSelectedSensorPosition(0);
+        frontLeftSpeedMotor.setSelectedSensorPosition(0);
+        backRightSpeedMotor.setSelectedSensorPosition(0);
+        backLeftSpeedMotor.setSelectedSensorPosition(0);
+
+        double averageSensorPosition = (frontRightSpeedMotor.getSelectedSensorPosition() +
+                                        frontLeftSpeedMotor.getSelectedSensorPosition() +
+                                        backRightSpeedMotor.getSelectedSensorPosition() +
+                                        backLeftSpeedMotor.getSelectedSensorPosition()) / 4;
+
+        while(Math.abs(averageSensorPosition) > distanceTicks) {
+            
+             averageSensorPosition = (frontRightSpeedMotor.getSelectedSensorPosition() +
+                                        frontLeftSpeedMotor.getSelectedSensorPosition() +
+                                        backRightSpeedMotor.getSelectedSensorPosition() +
+                                        backLeftSpeedMotor.getSelectedSensorPosition()) / 4;
+            swerveDrive(0, 0, 0.3, false);
+            //System.out.println(averageSensorPosition);
+        }
+    }
+
+    public void rotateDegrees(double degrees) {
+       
+        gyro.setYaw(0);
+
+        while(degrees >= -gyro.getYaw()) {
+           // System.out.println(-gyro.getYaw());
+            swerveDrive(0, 0, -0.3, false);
+        }
+
+    }
+
+    public void straightenWheels() {
+        
+        backLeftAngleMotor.set(pidAnglebl.calculate(ticksToDegrees(backLeftAngleMotor),      setDirection(0,   backLeftAngleMotor, backLeftSpeedMotor, 0)));
+        backRightAngleMotor.set(pidAnglebr.calculate(ticksToDegrees(backRightAngleMotor),    setDirection(0,  backRightAngleMotor, backRightSpeedMotor, 0)));
+        frontRightAngleMotor.set(pidAnglefr.calculate(ticksToDegrees(frontRightAngleMotor),  setDirection(0, frontRightAngleMotor, frontRightSpeedMotor, 0)));
+        frontLeftAngleMotor.set(pidAnglefl.calculate(ticksToDegrees(frontLeftAngleMotor),    setDirection(0,  frontLeftAngleMotor, frontLeftSpeedMotor, 0)));
+
     }
 
 	@Override

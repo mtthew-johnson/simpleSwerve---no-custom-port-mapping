@@ -1,7 +1,7 @@
 package frc.team5973.robot.rapidreact;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
@@ -14,7 +14,7 @@ public class Intake extends SubsystemBase {
 
 	private final double INTAKE_SPEED = 0.6;
 
-	private WPI_TalonSRX intakeWheels;
+	public WPI_TalonFX intakeWheels;
 
 	private Servo leftArm;
 	private Servo rightArm;
@@ -24,13 +24,13 @@ public class Intake extends SubsystemBase {
 	public Intake(RobotBase robot) {
 
 		super(robot);
-
+ 
         configMotors();
 	}
 
     private void configMotors() {
         
-        intakeWheels = new WPI_TalonSRX(11);
+        intakeWheels = new WPI_TalonFX(14);
 
 		leftArm  = new Servo(port("leftArm"));
 		rightArm = new Servo(1);
@@ -39,12 +39,12 @@ public class Intake extends SubsystemBase {
 		addChild("leftArm",  leftArm);
 		addChild("rightArm", rightArm);
 
-        intakeWheels.setInverted(true);
+        intakeWheels.setInverted(false);
 
 		intakeWheels.setNeutralMode(NeutralMode.Coast);
 
-		leftArm.setSpeed(1);
-		rightArm.setSpeed(1);
+		// leftArm.setSpeed(1);
+		// rightArm.setSpeed(1);
     }
 
 	public void collect() {
@@ -65,6 +65,10 @@ public class Intake extends SubsystemBase {
 		leftArm.setAngle(30);
 		rightArm.setAngle(0);
 
+	}
+
+	public double getIntakeSpeed() {
+		return intakeWheels.getSelectedSensorVelocity();
 	}
 
 	public void intakeTime(double time) {
