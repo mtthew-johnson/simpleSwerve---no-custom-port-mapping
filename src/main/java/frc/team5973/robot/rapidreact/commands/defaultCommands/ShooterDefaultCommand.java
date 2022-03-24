@@ -39,19 +39,18 @@ public class ShooterDefaultCommand extends CommandBase {
         internalControl = -MathUtil.applyDeadband(axis(ShooterAxis.INTERNAL_WHEEL), 0.1) * 0.4;
         
         if(limelight.getOffsetY() <= 13.5) {
-            shooterSpeed = 0.9670 - (0.03439       * limelight.getOffsetY())
+            shooterSpeed = 0.9500 - (0.03439       * limelight.getOffsetY())
                                   + (0.002301      * Math.pow(limelight.getOffsetY(), 2)) 
-                                  + (0.0001523     * Math.pow(limelight.getOffsetY(), 3))                                                                 
-                                  - (0.0000181     * Math.pow(limelight.getOffsetY(), 4))                                                                       
+                                  + (0.0001523     * Math.pow(limelight.getOffsetY(), 3))
+                                  - (0.0000181     * Math.pow(limelight.getOffsetY(), 4))
                                   + (0.00000009149 * Math.pow(limelight.getOffsetY(), 5));
         } else if(limelight.getOffsetY() > 13.5) {
-            shooterSpeed = 4.510 - (0.9352       * limelight.getOffsetY())
+            shooterSpeed = 4.510 - (0.9352       * limelight.getOffsetY()) 
                                  + (0.09102      * Math.pow(limelight.getOffsetY(), 2)) 
                                  - (0.004322     * Math.pow(limelight.getOffsetY(), 3))
                                  + (0.00009939   * Math.pow(limelight.getOffsetY(), 4))
                                  - (0.0000008843 * Math.pow(limelight.getOffsetY(), 5));
         }
-
       // System.out.println(shooterSpeed);
        
        

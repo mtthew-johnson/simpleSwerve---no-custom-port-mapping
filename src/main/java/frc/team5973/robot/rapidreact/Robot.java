@@ -35,7 +35,7 @@ import frc.team5973.robot.rapidreact.Shooter.ShooterInput;
 import frc.team5973.robot.rapidreact.Shooter.ShooterAxis;
 import frc.team5973.robot.rapidreact.commands.AutoShoot2Command;
 import frc.team5973.robot.rapidreact.commands.AutoShootCommand;
-import frc.team5973.robot.rapidreact.commands.DriveDistance;
+import frc.team5973.robot.rapidreact.commands.defaultCommands.DriveDistance;
 import frc.team5973.robot.rapidreact.commands.defaultCommands.IntakeDefaultCommand;
 import frc.team5973.robot.rapidreact.commands.defaultCommands.ShooterDefaultCommand;
 import frc.team5973.robot.rapidreact.commands.defaultCommands.SwerveDriveDefaultCommand;
@@ -205,7 +205,7 @@ public class Robot extends RobotBase {
 		chooser.setDefaultOption("Auto 1", new AutoShootCommand(drive, shooter, intake, limelight));
 		chooser.addOption("Auto 1", new AutoShootCommand(drive, shooter, intake, limelight));
 		chooser.addOption("Auto 2", new AutoShoot2Command(drive, shooter, intake, limelight));
-		chooser.addOption("Drive Distance", new DriveDistance(12, drive));
+		chooser.addOption("Drive Distance", new DriveDistance(intake, drive));
 		
 
 		tab.add(chooser);

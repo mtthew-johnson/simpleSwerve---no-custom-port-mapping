@@ -315,7 +315,7 @@ public class SwerveDrive extends SubsystemBase {
         frontRightAngleMotor.set(pidAnglefr.calculate(ticksToDegrees(frontRightAngleMotor),  setDirection(frontRightWheelAngle, frontRightAngleMotor, frontRightSpeedMotor, frontRightWheelSpeed)));
         frontLeftAngleMotor.set(pidAnglefl.calculate(ticksToDegrees(frontLeftAngleMotor),    setDirection(frontLeftWheelAngle,  frontLeftAngleMotor, frontLeftSpeedMotor, frontLeftWheelSpeed)));
 
-        //System.out.println(frontRightSpeedMotor.getSelectedSensorPosition());
+        //System.out.println(-gyro.getYaw());
     }
 
     //Get the closest angle between the given angles.
@@ -372,6 +372,23 @@ public class SwerveDrive extends SubsystemBase {
             //System.out.println(STR);
             if(Math.abs(FWD) > 0 || Math.abs(STR) > 0) {
                 correction = calcYawStraight(storedHeading, -gyro.getYaw(), kP);
+
+                if(Math.abs(correction) > 1) {
+                    correction = 0;
+                }
+            }
+        }
+
+        return correction;
+    }
+
+    public double correctHeadingAuto(double kP, double FWD, double STR, double RCW, double gyroHeading) {
+        if(RCW != 0) {
+            storedHeading = -gyro.getYaw();
+        } else {
+            //System.out.println(STR);
+            if(Math.abs(FWD) > 0 || Math.abs(STR) > 0) {
+                correction = calcYawStraight(gyroHeading, -gyro.getYaw(), kP);
 
                 if(Math.abs(correction) > 1) {
                     correction = 0;
@@ -483,11 +500,14 @@ public class SwerveDrive extends SubsystemBase {
     public void driveDistance(double distance, double FWD, double STR, double RCW) {
         double distanceTicks = (40960 / (12 * PI)) * (distance);
         
-
+        swerveDrive(0, 0, 0.1, false);
+        
         double averageSensorPosition = (frontRightSpeedMotor.getSelectedSensorPosition() +
                                         frontLeftSpeedMotor.getSelectedSensorPosition() +
                                         backRightSpeedMotor.getSelectedSensorPosition() +
                                         backLeftSpeedMotor.getSelectedSensorPosition()) / 4;
+
+        double autoHeading = -gyro.getYaw();
 
         while(Math.abs(frontRightSpeedMotor.getSelectedSensorPosition()) < distanceTicks) {
             
@@ -495,7 +515,7 @@ public class SwerveDrive extends SubsystemBase {
             //                             frontLeftSpeedMotor.getSelectedSensorPosition() +
             //                             backRightSpeedMotor.getSelectedSensorPosition() +
             //                             backLeftSpeedMotor.getSelectedSensorPosition()) / 4;
-            swerveDrive(FWD, STR, RCW - correctHeading(0.004, -0.3, 0, 0), false);
+            swerveDrive(FWD, STR, RCW - correctHeadingAuto(0.004, -0.3, 0, 0, autoHeading), false);
            // System.out.println(averageSensorPosition);
         }
     }
@@ -550,23 +570,21 @@ public class SwerveDrive extends SubsystemBase {
 
     public void rotateTicks(double degrees) {
         double distanceTicks = (40960 / (12 * PI)) * (((26 * PI) / 360) * degrees);
-        frontRightSpeedMotor.setSelectedSensorPosition(0);
-        frontLeftSpeedMotor.setSelectedSensorPosition(0);
-        backRightSpeedMotor.setSelectedSensorPosition(0);
-        backLeftSpeedMotor.setSelectedSensorPosition(0);
 
         double averageSensorPosition = (frontRightSpeedMotor.getSelectedSensorPosition() +
                                         frontLeftSpeedMotor.getSelectedSensorPosition() +
                                         backRightSpeedMotor.getSelectedSensorPosition() +
                                         backLeftSpeedMotor.getSelectedSensorPosition()) / 4;
-
-        while(Math.abs(averageSensorPosition) > distanceTicks) {
+        System.out.println("starting");
+        while(Math.abs(frontLeftSpeedMotor.getSelectedSensorPosition()) > distanceTicks) {
             
              averageSensorPosition = (frontRightSpeedMotor.getSelectedSensorPosition() +
                                         frontLeftSpeedMotor.getSelectedSensorPosition() +
                                         backRightSpeedMotor.getSelectedSensorPosition() +
                                         backLeftSpeedMotor.getSelectedSensorPosition()) / 4;
-            swerveDrive(0, 0, 0.3, false);
+
+                                        System.out.println("looping");
+            swerveDrive(0, 0, -0.2, false);
             //System.out.println(averageSensorPosition);
         }
     }
