@@ -33,7 +33,7 @@ public class Robot extends RobotBase {
 	private XinputController copilot = new XinputController(copilotPort);
 
 	public Robot() {
-		super("Rapidreact");
+		super("swerveBot");
 				
 		port("frontRightSpeedMotor", 3); //drive motor ports
         port("frontLeftSpeedMotor",  0);
