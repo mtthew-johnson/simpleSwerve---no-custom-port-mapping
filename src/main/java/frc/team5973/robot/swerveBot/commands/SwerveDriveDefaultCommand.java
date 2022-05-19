@@ -81,7 +81,7 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         strafe  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.STRAFE),  DEADBAND) * speed, -1, 1);
         rotate  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.ROTATE),    0.1) * speed, -1, 1);
 
-       
+        //yaw correction calculation - think of this as a gyro straight function for you FLL people
         yawCorrection = drive.correctHeading(0.004, forward, strafe, rotate);
         
 

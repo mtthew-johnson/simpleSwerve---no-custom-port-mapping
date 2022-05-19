@@ -72,7 +72,7 @@ public class SwerveDrive extends SubsystemBase {
     private final double PI = Math.PI;
 
     public enum Axis {FORWARD, STRAFE, ROTATE} //controller inputs for swerve
-    public enum DriveMode {SAFEMMODE, FIELDMODE, ZERO_GYRO}
+    public enum DriveMode {SAFEMMODE, FIELDMODE, ZERO_GYRO} //button inputs 
     private double STRNew = 0; //variables for swerve drive calculations
     private double FWDNew = 0;
 
@@ -94,6 +94,7 @@ public class SwerveDrive extends SubsystemBase {
 
         //declare ports for the motors using custom port mapping
         // if you dont want to use the custom port mapping just replace port() with the port number of the motor or your own variables
+        //or do your own version of port mapping
         frontRightSpeedMotor = new WPI_TalonFX(port("frontRightSpeedMotor"));
         frontLeftSpeedMotor  = new WPI_TalonFX(port("frontLeftSpeedMotor"));
         backRightSpeedMotor  = new WPI_TalonFX(port("backRightSpeedMotor"));
@@ -259,7 +260,7 @@ public class SwerveDrive extends SubsystemBase {
 
         }
 
-        double A = STRNew - RCW*(L/R); //values a b c and d are used to calcualte meaningful wheel speeds based on our inputs
+        double A = STRNew - RCW*(L/R); //values a b c and d are used to calculate meaningful wheel speeds based on our inputs
         double B = STRNew + RCW*(L/R);
         double C = FWDNew - RCW*(W/R);
         double D = FWDNew + RCW*(W/R); 
@@ -273,6 +274,8 @@ public class SwerveDrive extends SubsystemBase {
         double frontLeftWheelAngle  = (Math.atan2(B, D) * (180 / PI));
         double backLeftWheelAngle   = (Math.atan2(A, D) * (180 / PI));
         double backRightWheelAngle  = (Math.atan2(A, C) * (180 / PI));
+
+        //now we have our wheel speeds and angles, what do we do with them?
 
         //normalize wheel speeds
         double max = frontRightWheelSpeed;
@@ -293,6 +296,26 @@ public class SwerveDrive extends SubsystemBase {
         backRightWheelSpeed  = max;
 
         //set wheel angles and speeds
+        //the way it's done here is to make sure the wheels have to turn the least amount of distance possible
+        //take a look at the closestAngle method and the setDirection method that calcualte the most efficient position for the wheels to be in
+        //your robot isn't going to drive very well
+        //the best way to show why to do it this way is just to try and directly input the wheel speeds instead of these fun calcualtions
+
+        // //uncomment this code and comment out lines 319-322
+        
+        // //set wheel angles
+        // backLeftAngleMotor.set(pidAnglebl.calculate(ticksToDegrees(backLeftAngleMotor), backLeftWheelAngle));
+        // backRightAngleMotor.set(pidAnglebl.calculate(ticksToDegrees(backLeftAngleMotor), backLeftWheelAngle));
+        // frontRightAngleMotor.set(pidAnglebl.calculate(ticksToDegrees(backLeftAngleMotor), backLeftWheelAngle));
+        // frontLeftAngleMotor.set(pidAnglebl.calculate(ticksToDegrees(backLeftAngleMotor), backLeftWheelAngle));
+
+        // //sets wheel speeds
+        // backLeftSpeedMotor.set(backLeftWheelSpeed);
+        // backRightSpeedMotor.set(backRightWheelSpeed);
+        // frontLeftSpeedMotor.set(frontLeftWheelSpeed);
+        // frontRightSpeedMotor.set(frontRightWheelSpeed);
+
+        //see much more elegant and less code
         backLeftAngleMotor.set(pidAnglebl.calculate(ticksToDegrees(backLeftAngleMotor),      setDirection(backLeftWheelAngle,   backLeftAngleMotor,   backLeftSpeedMotor,   backLeftWheelSpeed)));
         backRightAngleMotor.set(pidAnglebr.calculate(ticksToDegrees(backRightAngleMotor),    setDirection(backRightWheelAngle,  backRightAngleMotor,  backRightSpeedMotor,  backRightWheelSpeed)));
         frontRightAngleMotor.set(pidAnglefr.calculate(ticksToDegrees(frontRightAngleMotor),  setDirection(frontRightWheelAngle, frontRightAngleMotor, frontRightSpeedMotor, frontRightWheelSpeed)));
@@ -312,6 +335,7 @@ public class SwerveDrive extends SubsystemBase {
             return dir;
     }
 
+    //Sets the final position of the rotation motors
     private double setDirection(double setpoint, WPI_TalonSRX motor, WPI_TalonFX speedMotor, double speed) {
         
         double direction = 0;
