@@ -360,9 +360,9 @@ public class SwerveDrive extends SubsystemBase {
         return correction;
     }
 
-    //method that does the heading correction depending on whether the robot is currently rotating or not
-    public double correctHeading(double kP, double FWD, double STR, double RCW) {
-        if(RCW != 0) {
+     //method that does the heading correction depending on whether the robot is currently rotating or not
+     public double correctHeading(double kP, double FWD, double STR, double RCW) {
+        if(RCW != 0) { //if the robot is being rotated by the driver, store a new heading to correct to
             storedHeading = -gyro.getYaw();
         } else {
             //System.out.println(STR);
