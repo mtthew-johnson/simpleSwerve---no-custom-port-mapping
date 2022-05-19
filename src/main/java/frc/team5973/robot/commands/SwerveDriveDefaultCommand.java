@@ -1,4 +1,4 @@
-package frc.team5973.robot.swerveBot.commands;
+package frc.team5973.robot.commands;
 
 import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -35,7 +35,7 @@ public class SwerveDriveDefaultCommand extends CommandBase {
     private boolean safeMode          = false;
     private boolean fieldOrientedMode = false;
 
-    private double buttonDelay = 0.0;
+    private double buttonDelay = 0.0; //increase this value in seconds to add a button delay for switching drive modes
 
     private double forward;
     private double strafe;
@@ -48,7 +48,6 @@ public class SwerveDriveDefaultCommand extends CommandBase {
     private final int fieldOriented = 1;
     private final int robotOriented = 2;
  
-
     public SwerveDriveDefaultCommand(final SwerveDrive drive,
                                      final double DEADBAND,
                                      final double SPEED_NORMAL,
@@ -61,7 +60,7 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         this.axisMap       = axisMap;
         this.drive         = drive;
         
-        this.DEADBAND  = DEADBAND;
+        this.DEADBAND     = DEADBAND;
         this.SPEED_NORMAL = SPEED_NORMAL;
         this.SPEED_SAFE   = SPEED_SAFE;
     
@@ -79,13 +78,13 @@ public class SwerveDriveDefaultCommand extends CommandBase {
         //controller inputs
         forward =   MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.FORWARD), DEADBAND) * speed, -1, 1);
         strafe  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.STRAFE),  DEADBAND) * speed, -1, 1);
-        rotate  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.ROTATE),    0.1) * speed, -1, 1);
+        rotate  =  -MathUtil.clamp(MathUtil.applyDeadband(axis(Axis.ROTATE),       0.1) * speed, -1, 1);
 
         //yaw correction calculation - think of this as a gyro straight function for you FLL people
         yawCorrection = drive.correctHeading(0.004, forward, strafe, rotate);
         
 
-        //puts robot into safemode where the robot will go slower
+        //puts robot into safemode where the robot will go slower - uses button toggle
          if(button(DriveMode.SAFEMMODE)) {
 
             if(comboStartTimeSafe == 0)
@@ -137,7 +136,7 @@ public class SwerveDriveDefaultCommand extends CommandBase {
 
         //set drive modes
         switch (driveMode) {
-            case fieldOriented: drive.swerveDrive(forward, strafe, rotate - yawCorrection, true);
+            case fieldOriented: drive.swerveDrive(forward, strafe, rotate - yawCorrection, true); //you might have to add or subtract the yawCorrection - depending on your gyro setup
                     break;
             case robotOriented: drive.swerveDrive(forward, strafe, rotate - yawCorrection, false);
                     break;

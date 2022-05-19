@@ -1,19 +1,18 @@
-package frc.team5973.robot.swerveBot;
+package frc.team5973.robot;
 
 import java.util.Map;
 
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-import frc.team5973.robot.RobotBase;
-import frc.team5973.robot.XinputController;
+import frc.team5973.robot.commands.SwerveDriveDefaultCommand;
 import frc.team5973.robot.subsystems.SwerveDrive;
 import frc.team5973.robot.subsystems.SwerveDrive.Axis;
 import frc.team5973.robot.subsystems.SwerveDrive.DriveMode;
-import frc.team5973.robot.swerveBot.commands.SwerveDriveDefaultCommand;
 
-public class Robot extends RobotBase {
+public class Robot extends TimedRobot {
 	
 	private SwerveDrive drive;
 
@@ -29,23 +28,12 @@ public class Robot extends RobotBase {
 	
 	private final double DEADBAND  = 0.07;
 
-	private XinputController driver  = new XinputController(driverPort);
-	private XinputController copilot = new XinputController(copilotPort);
+	private XboxController driver  = new XboxController(driverPort);
+	private XboxController copilot = new XboxController(copilotPort);
 
 	public Robot() {
-		super("swerveBot");
-				
-		port("frontRightSpeedMotor", 3); //drive motor ports
-        port("frontLeftSpeedMotor",  0);
-        port("backRightSpeedMotor",  2);
-        port("backLeftSpeedMotor",   1);
-        
-        port("frontRightAngleMotor", 7); //rotation motor ports
-        port("frontLeftSAngleMotor", 4);
-        port("backRightAngleMotor",  6);
-        port("backLeftAngleMotor",   5);
 
-		drive = new SwerveDrive(this);
+		drive = new SwerveDrive();
 
 		drive.setDefaultCommand(new SwerveDriveDefaultCommand(drive, 
 															  DEADBAND,
@@ -109,6 +97,18 @@ public class Robot extends RobotBase {
 	@Override
 	public void autonomousPeriodic() {
 		CommandScheduler.getInstance().run();
+	}
+
+	@Override
+	public void startCompetition() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void endCompetition() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

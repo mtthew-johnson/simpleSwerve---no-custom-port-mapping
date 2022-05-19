@@ -1,5 +1,5 @@
 package frc.team5973.robot;
-
+//a place to store the PID values/gains for falcon encoders
 public class Gains {
 	public final double kP;
 	public final double kI;
